@@ -1,27 +1,32 @@
+pub mod api;
+pub mod coe;
+pub mod utils;
+
 #[cfg(feature = "python")]
 pub mod py {
-    use polars::prelude::*;
-    use polars::{frame::DataFrame, series::Series};
     use pyo3::exceptions::PyRuntimeError;
     use pyo3::prelude::*;
-    use pyo3_polars::PyDataFrame;
     use pyo3_stub_gen::define_stub_info_gatherer;
+    use pyo3_stub_gen::derive::gen_stub_pyfunction;
 
+    use crate::api::provider::item_info::ItemInfoProvider;
+    use crate::api::types::{AffixClassEnum, AffixDefinition, AffixId, AffixLocationEnum};
+    use crate::coe::craftofexile_data_provider_adapter::CraftOfExileItemInfoProvider;
+
+    #[gen_stub_pyfunction]
     #[pyfunction]
-    fn create_animal_df() -> PyResult<PyDataFrame> {
-        let ids = Series::new("id".into(), &[1u64, 2, 3]);
-        let names = Series::new("animal_name".into(), &["dog", "cat", "birb"]);
-
-        let df = DataFrame::new(vec![ids.into(), names.into()])
-            .map_err(|err| PyRuntimeError::new_err(err.to_string()))?;
-
-        let df = pyo3_polars::PyDataFrame(df);
-        Ok(df)
+    fn parse_item_data_from_json(json: &str) -> PyResult<ItemInfoProvider> {
+        CraftOfExileItemInfoProvider::parse_from_json(json)
+            .map_err(|err| PyRuntimeError::new_err(err.to_string()))
     }
 
     #[pymodule]
     fn pyoe2_craftpath(m: &Bound<'_, PyModule>) -> PyResult<()> {
-        m.add_function(wrap_pyfunction!(create_animal_df, m)?)?;
+        m.add_function(wrap_pyfunction!(parse_item_data_from_json, m)?)?;
+        m.add_class::<AffixId>()?;
+        m.add_class::<AffixDefinition>()?;
+        m.add_class::<AffixClassEnum>()?;
+        m.add_class::<AffixLocationEnum>()?;
         Ok(())
     }
 

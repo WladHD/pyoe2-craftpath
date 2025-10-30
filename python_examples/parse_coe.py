@@ -1,0 +1,53 @@
+import pyoe2_craftpath as pc
+from pyoe2_craftpath import AffixId
+from pprint import pprint
+import os
+import json
+import requests
+
+CACHE_FILE = "./cache/coe2.json"
+COE_URL = "https://www.craftofexile.com/json/poe2/main/poec_data.json"
+
+
+def main():
+    os.makedirs(os.path.dirname(CACHE_FILE), exist_ok=True)
+
+    if os.path.exists(CACHE_FILE):
+        with open(CACHE_FILE, "r", encoding="utf-8") as f:
+            text = f.read()
+    else:
+        response = requests.get(COE_URL)
+        response.raise_for_status()
+        text = response.text
+        with open(CACHE_FILE, "w", encoding="utf-8") as f:
+            f.write(text)
+
+    if text.startswith("poecd="):
+        text = text[len("poecd="):]
+
+    data = pc.parse_item_data_from_json(text)
+
+    assert (AffixId(5) == AffixId(5))
+
+    # % increased Lightning Damage, Prefix, Base
+    affix_def = data.cache_affix_def.get(AffixId(5209))
+    assert (affix_def != None)
+
+    pprint(AffixId(5))  # out: <builtins.AffixId object at 0xADDR>
+    print(AffixId(5))  # out: AffixId(5)
+
+    print(affix_def)  # should print out all data nicely
+    # e. g. v0.1.0 (AffixDefinition { exlusive_groups: {"LightningDamagePercentage"}, tags: {33, 20, 8}, description_template: "#% increased Lightning Damage", affix_class: Base, affix_location: Prefix })
+
+    assert (affix_def.affix_class == pc.AffixClassEnum.Base)
+    assert (affix_def.affix_location == pc.AffixLocationEnum.Prefix)
+
+    assert (affix_def.exlusive_groups.intersection(
+        ["LightningDamagePercentage"]))
+
+    assert (not affix_def.exlusive_groups.intersection(
+        ["watisdis"]))
+
+
+if __name__ == "__main__":
+    main()
