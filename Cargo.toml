@@ -1,0 +1,45 @@
+[package]
+name = "pyoe2-craftpath"
+version = "0.1.0"
+description = "A tool for Path of Exile 2 to find the best craftpaths based on the categories: *most likely, most efficient and cheapest*, between a starting item and a target item."
+repository = "https://github.com/WladHD/pyoe2-craftpath"
+authors = ["Wladislaw Jerokin <wladhd@gmail.com>"]
+readme = "README.md"
+license = "MIT"
+edition = "2024"
+exclude = ["setup.sh"]
+
+[features]
+default = ["python"]
+python = ["pyo3", "polars-utils", "pyo3-polars", "pyo3-stub-gen", "polars"]
+
+[dependencies]
+# PyO3 only for python feature
+pyo3 = { version = "0.25.0", features = ["extension-module"], optional = true }
+polars-utils = { version = "0.51.0", optional = true }
+pyo3-polars = { version = "0.24.0", optional = true }
+pyo3-stub-gen = { version = "0.13.1", optional = true }
+polars = { version = "0.51.0", features = [
+    "dtype-categorical",
+    "dtype-decimal",
+    "dtype-struct",
+    "dtype-time",
+    "object",
+], optional = true }
+
+# normal deps
+xxhash-rust = { version = "0.8.15", features = ["xxh32"] }
+rustc-hash = "2.1.1"
+anyhow = "1.0.100"
+tracing = "0.1.41"
+tracing-subscriber = "0.3.20"
+thiserror = "2.0.17"
+
+
+[lib]
+name = "pyoe2_craftpath"
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "pyoe2_craftpath_cli"
+path = "src/main.rs"
