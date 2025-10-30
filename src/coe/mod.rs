@@ -1,0 +1,2 @@
+pub mod craftofexile_data_provider_adapter;
+pub mod craftofexile_json_definition;
