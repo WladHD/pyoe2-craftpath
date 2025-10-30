@@ -5,7 +5,7 @@ macro_rules! explicit_type {
         #[derive(Clone, Debug, PartialEq, PartialOrd, serde::Serialize, serde::Deserialize)]
         #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
         #[cfg_attr(feature = "python", pyo3::pyclass)]
-        #[cfg_attr(feature = "python", pyo3(eq, weakref, from_py_object))]
+        #[cfg_attr(feature = "python", pyo3(eq, weakref, from_py_object, str))]
         pub struct $name(f32);
 
 
@@ -46,17 +46,15 @@ macro_rules! explicit_type {
             }
         }
 
-        impl std::fmt::Display for $name {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                write!(f, "{:?}", self)
-            }
-        }
+        #[cfg(feature = "python")]
+        crate::derive_DebugDisplay!($name);
     };
+    
     ($name:ident, f64) => {
         #[derive(Clone, Debug, PartialEq, PartialOrd, serde::Serialize, serde::Deserialize)]
         #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
         #[cfg_attr(feature = "python", pyo3::pyclass)]
-        #[cfg_attr(feature = "python", pyo3(eq, weakref, from_py_object))]
+        #[cfg_attr(feature = "python", pyo3(eq, weakref, from_py_object, str))]
         pub struct $name(f64);
 
         impl From<f64> for $name {
@@ -96,11 +94,8 @@ macro_rules! explicit_type {
             }
         }
 
-        impl std::fmt::Display for $name {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                write!(f, "{:?}", self)
-            }
-        }
+        #[cfg(feature = "python")]
+        crate::derive_DebugDisplay!($name);
     };
 
     // normal case
@@ -108,7 +103,7 @@ macro_rules! explicit_type {
         #[derive(Clone, Debug, Eq, PartialEq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize)]
         #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
         #[cfg_attr(feature = "python", pyo3::pyclass)]
-        #[cfg_attr(feature = "python", pyo3(eq, weakref, from_py_object, frozen, hash))]
+        #[cfg_attr(feature = "python", pyo3(eq, weakref, from_py_object, frozen, hash, str))]
         pub struct $name($inner);
 
         impl From<$inner> for $name {
@@ -149,10 +144,7 @@ macro_rules! explicit_type {
             }
         }
 
-        impl std::fmt::Display for $name {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                write!(f, "{:?}", self)
-            }
-        }
+        #[cfg(feature = "python")]
+        crate::derive_DebugDisplay!($name);
     };
 }
