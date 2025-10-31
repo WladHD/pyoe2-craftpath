@@ -9,7 +9,7 @@ use crate::{
             THashSet, Weight,
         },
     },
-    coe::craftofexile_json_definition::CoEGameData,
+    external_api::coe::craftofexile_json_definition::CoEGameData,
 };
 
 #[derive(Debug)]

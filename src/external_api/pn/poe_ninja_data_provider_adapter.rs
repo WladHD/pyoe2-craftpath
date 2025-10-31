@@ -5,7 +5,7 @@ use crate::{
         provider::market_prices::{ItemName, MarketPriceProvider, PriceInDivines},
         types::THashMap,
     },
-    pn::poe_ninja_json_definition::{Data, Item, Line},
+    external_api::pn::poe_ninja_json_definition::{Data, Item, Line},
 };
 
 pub struct PoeNinjaMarketPriceProvider;

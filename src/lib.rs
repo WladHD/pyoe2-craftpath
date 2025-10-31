@@ -1,7 +1,5 @@
 pub mod api;
-pub mod coe;
 pub mod external_api;
-pub mod pn;
 pub mod utils;
 
 #[cfg(feature = "python")]
@@ -19,8 +17,8 @@ pub mod py {
     use crate::api::types::{
         AffixClassEnum, AffixDefinition, AffixId, AffixLocationEnum, THashMap,
     };
-    use crate::coe::craftofexile_data_provider_adapter::CraftOfExileItemInfoProvider;
-    use crate::pn::poe_ninja_data_provider_adapter::PoeNinjaMarketPriceProvider;
+    use crate::external_api::coe::craftofexile_data_provider_adapter::CraftOfExileItemInfoProvider;
+    use crate::external_api::pn::poe_ninja_data_provider_adapter::PoeNinjaMarketPriceProvider;
     use crate::utils::logger_utils::init_tracing;
 
     #[gen_stub_pyfunction]
