@@ -1,88 +1,93 @@
 name: Release Windows Build
 
 on:
-    workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
-    release:
-        runs-on: ubuntu-latest
+  release:
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-            - name: Install Rust and dependencies for Windows cross-compilation
-              run: |
-                  # Install Rust
-                  curl https://sh.rustup.rs -sSf | sh -s -- -y
-                  source $HOME/.cargo/env
+      - name: Install Rust and dependencies for Windows cross-compilation
+        run: |
+          # Install Rust
+          curl https://sh.rustup.rs -sSf | sh -s -- -y
+          source $HOME/.cargo/env
 
-                  # Add Windows target
-                  rustup target add x86_64-pc-windows-gnu
+          # Add Windows target
+          rustup target add x86_64-pc-windows-gnu
 
-                  # Install required packages
-                  sudo apt-get update
-                  sudo apt-get install -y --no-install-recommends \
-                    mingw-w64 \
-                    pkg-config \
-                    build-essential \
-                    git \
-                    ca-certificates \
-                    curl \
-                    jq
-                  sudo rm -rf /var/lib/apt/lists/*
+          # Install required packages
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            mingw-w64 \
+            pkg-config \
+            build-essential \
+            git \
+            ca-certificates \
+            curl \
+            jq
+          sudo rm -rf /var/lib/apt/lists/*
 
-            - name: Get program name and version from Cargo.toml
-              id: cargo
-              run: |
-                  NAME=$(cargo read-manifest | jq -r .name)
-                  VERSION=$(cargo read-manifest | jq -r .version)
-                  echo "name=$NAME" >> $GITHUB_OUTPUT
-                  echo "version=$VERSION" >> $GITHUB_OUTPUT
+      - name: Get program name and version from Cargo.toml
+        id: cargo
+        run: |
+          NAME=$(cargo read-manifest | jq -r .name)
+          VERSION=$(cargo read-manifest | jq -r .version)
+          echo "name=$NAME" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-            - name: Build Windows executable
-              run: |
-                  source $HOME/.cargo/env
-                  cargo build --release --target x86_64-pc-windows-gnu --no-default-features
-                  cd target/x86_64-pc-windows-gnu/release/
-                  cp pyoe2_craftpath_cli.exe ${{ steps.cargo.outputs.name }}-v${{ steps.cargo.outputs.version }}-windows-x86_64.exe
-                  pwd
-                  ls
+      - name: Build Windows executable
+        run: |
+          source $HOME/.cargo/env
+          cargo build --release --target x86_64-pc-windows-gnu --no-default-features
+          cd target/x86_64-pc-windows-gnu/release/
+          cp pyoe2_craftpath_cli.exe ${{ steps.cargo.outputs.name }}-v${{ steps.cargo.outputs.version }}-windows-x86_64.exe
+          pwd
+          ls
 
-            - name: Get commit messages since last release
-              id: changelog
-              run: |
-                  # Try to find the latest tag
-                  LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-                  if [ -z "$LATEST_TAG" ]; then
-                    # No previous tag: include all commits
-                    COMMITS=$(git log --pretty=format:"- %h %s")
-                  else
-                    # Commits since last tag
-                    COMMITS=$(git log ${LATEST_TAG}..HEAD --pretty=format:"- %h %s")
-                  fi
+      - name: Get commit messages starting with feat or fix since last release
+        id: changelog
+        run: |
+          # Try to find the latest tag
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LATEST_TAG" ]; then
+            # No previous tag: include all commits
+            COMMITS=$(git log --pretty=format:"- %h %s" | grep -E "^- [0-9a-f]+ (feat|fix)")
+          else
+            # Commits since last tag
+            COMMITS=$(git log ${LATEST_TAG}..HEAD --pretty=format:"- %h %s" | grep -E "^- [0-9a-f]+ (feat|fix)")
+          fi
 
-                  echo "changelog<<EOF" >> $GITHUB_OUTPUT
-                  echo "$COMMITS" >> $GITHUB_OUTPUT
-                  echo "EOF" >> $GITHUB_OUTPUT
+          # Fallback if no commits match (avoid empty release notes)
+          if [ -z "$COMMITS" ]; then
+            COMMITS="No feat or fix commits since last release."
+          fi
 
-            - name: Create GitHub Release
-              uses: softprops/action-gh-release@v1
-              with:
-                  tag_name: ${{ steps.cargo.outputs.version }}
-                  name: ${{ steps.cargo.outputs.version }}
-                  body: ${{ steps.changelog.outputs.changelog }}
-                  draft: false
-                  prerelease: false
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
-            - name: Upload release asset
-              uses: softprops/action-gh-release@v1
-              with:
-                  tag_name: ${{ steps.cargo.outputs.version }}
-                  files: target/x86_64-pc-windows-gnu/release/${{ steps.cargo.outputs.name }}-v${{ steps.cargo.outputs.version }}-windows-x86_64.exe
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.cargo.outputs.version }}
+          name: ${{ steps.cargo.outputs.version }}
+          body: ${{ steps.changelog.outputs.changelog }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.cargo.outputs.version }}
+          files: target/x86_64-pc-windows-gnu/release/${{ steps.cargo.outputs.name }}-v${{ steps.cargo.outputs.version }}-windows-x86_64.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
