@@ -1,4 +1,5 @@
 pub mod api;
+pub mod calc;
 pub mod external_api;
 pub mod utils;
 

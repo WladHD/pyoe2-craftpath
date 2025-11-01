@@ -1,0 +1,27 @@
+use crate::{
+    api::calculator::DynMatrixBuilder,
+    calc::matrix::full_matrix_builder_impl::HappyPathMatrixBuilderImpl,
+};
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass_enum)]
+#[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
+#[cfg_attr(feature = "python", pyo3(eq, weakref, from_py_object, get_all, str))]
+pub enum MatrixBuilderPreset {
+    HappyPathMatrixBuilder,
+}
+
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pymethods)]
+#[cfg_attr(feature = "python", pyo3::pymethods)]
+impl MatrixBuilderPreset {
+    pub fn get_matrix_builder_instance(&self) -> DynMatrixBuilder {
+        match self {
+            MatrixBuilderPreset::HappyPathMatrixBuilder => {
+                DynMatrixBuilder(Box::new(HappyPathMatrixBuilderImpl))
+            }
+        }
+    }
+}
+
+#[cfg(feature = "python")]
+crate::derive_DebugDisplay!(MatrixBuilderPreset);

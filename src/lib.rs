@@ -1,4 +1,5 @@
 pub mod api;
+pub mod calc;
 pub mod external_api;
 pub mod utils;
 
@@ -9,7 +10,9 @@ pub mod py {
     use pyo3_stub_gen::define_stub_info_gatherer;
     use pyo3_stub_gen::derive::gen_stub_pyfunction;
 
+    use crate::api::calculator::{Calculator, DynMatrixBuilder, DynStatisticAnalyzer};
     use crate::api::currency::CraftCurrencyEnum;
+    use crate::api::item::ItemSnapshot;
     use crate::api::provider::item_info::ItemInfoProvider;
     use crate::api::provider::market_prices::{
         ItemName, MarketPriceProvider, PriceInDivines, PriceKind,
@@ -17,7 +20,10 @@ pub mod py {
     use crate::api::types::{
         AffixClassEnum, AffixDefinition, AffixId, AffixLocationEnum, THashMap,
     };
+    use crate::calc::matrix::matrix_builder_presets::MatrixBuilderPreset;
+    use crate::calc::statistics::statistic_analyzer_presets::StatisticAnalyzerPreset;
     use crate::external_api::coe::craftofexile_data_provider_adapter::CraftOfExileItemInfoProvider;
+    use crate::external_api::coe_emulator::coe_emulator_item_snapshot_provider::CraftOfExileEmulatorItemImport;
     use crate::external_api::pn::poe_ninja_data_provider_adapter::PoeNinjaMarketPriceProvider;
     use crate::utils::logger_utils::init_tracing;
 
@@ -48,17 +54,28 @@ pub mod py {
         .map_err(|err| PyRuntimeError::new_err(err.to_string()))
     }
 
+    #[gen_stub_pyfunction]
+    #[pyfunction]
+    fn parse_itemsnapshot_from_string(
+        item_emulator_json: String,
+        provider: &ItemInfoProvider,
+    ) -> PyResult<ItemSnapshot> {
+        CraftOfExileEmulatorItemImport::parse_itemsnapshot_from_string(
+            item_emulator_json.as_str(),
+            provider,
+        )
+        .map_err(|err| PyRuntimeError::new_err(err.to_string()))
+    }
+
     #[pymodule]
     fn pyoe2_craftpath(m: &Bound<'_, PyModule>) -> PyResult<()> {
         init_tracing();
 
-        m.add_function(wrap_pyfunction!(parse_item_data_from_json, m)?)?;
         m.add_class::<AffixId>()?;
         m.add_class::<AffixDefinition>()?;
         m.add_class::<AffixClassEnum>()?;
         m.add_class::<AffixLocationEnum>()?;
 
-        m.add_function(wrap_pyfunction!(parse_economy_from_jsons, m)?)?;
         m.add_class::<ItemName>()?;
 
         m.add_class::<PriceInDivines>()?;
@@ -66,8 +83,17 @@ pub mod py {
 
         m.add_class::<CraftCurrencyEnum>()?;
 
+        m.add_class::<Calculator>()?;
+        m.add_class::<DynMatrixBuilder>()?;
+        m.add_class::<DynStatisticAnalyzer>()?;
+        m.add_class::<MatrixBuilderPreset>()?;
+        m.add_class::<StatisticAnalyzerPreset>()?;
+
         // general utility
         m.add_function(wrap_pyfunction!(retrieve_jsons_from_urls_with_cache, m)?)?;
+        m.add_function(wrap_pyfunction!(parse_item_data_from_json, m)?)?;
+        m.add_function(wrap_pyfunction!(parse_economy_from_jsons, m)?)?;
+        m.add_function(wrap_pyfunction!(parse_itemsnapshot_from_string, m)?)?;
 
         Ok(())
     }

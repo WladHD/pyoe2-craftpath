@@ -1,8 +1,6 @@
 use std::hash::{Hash, Hasher};
 
-use anyhow::Result;
-use tracing::instrument;
-
+use crate::calc::statistics::statistic_analyzer_presets::StatisticAnalyzerPreset;
 use crate::{
     api::{
         currency::CraftCurrencyList,
@@ -10,8 +8,11 @@ use crate::{
         provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
         types::THashMap,
     },
+    calc::matrix::matrix_builder_presets::MatrixBuilderPreset,
     utils::fraction_utils::Fraction,
 };
+use anyhow::Result;
+use tracing::instrument;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
@@ -31,7 +32,7 @@ pub struct ItemMatrixNode {
     pub propagate: THashMap<CraftCurrencyList, Vec<PropagationTarget>>,
 }
 
-crate::derive_DebugDisplay!(PropagationTarget, ItemMatrixNode, Calculator);
+crate::derive_DebugDisplay!(PropagationTarget, ItemMatrixNode, Calculator,);
 
 pub type ItemMatrix = THashMap<u64, ItemMatrixNode>;
 
@@ -81,27 +82,63 @@ impl Hash for ItemRoute {
     }
 }
 
-pub trait MatrixBuilder {
-    fn get_name() -> &'static str;
-    fn get_description() -> &'static str;
+pub trait MatrixBuilder: Send + Sync {
+    fn get_name(&self) -> &'static str;
+    fn get_description(&self) -> &'static str;
     fn generate_item_matrix(
+        &self,
         starting_item: ItemSnapshot,
         target: ItemSnapshot,
         item_info: &ItemInfoProvider,
     ) -> Result<ItemMatrix>;
 }
 
-pub trait StatisticProvider {
-    fn get_name() -> &'static str;
-    fn get_description() -> &'static str;
-    fn get_unit_type() -> &'static str;
-    fn lower_is_better() -> bool;
-    fn get_statistic<'a>(
-        matrix: &'a ItemMatrix,
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
+#[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
+#[cfg_attr(feature = "python", pyo3(str))]
+pub struct DynMatrixBuilder(pub Box<dyn MatrixBuilder + Send + Sync>);
+
+impl std::fmt::Display for DynMatrixBuilder {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Matrix Builder ({})\nDescription: {}",
+            self.0.get_name(),
+            self.0.get_description()
+        )
+    }
+}
+
+pub trait StatisticAnalyzer {
+    fn get_name(&self) -> &'static str;
+    fn get_description(&self) -> &'static str;
+    fn get_unit_type(&self) -> &'static str;
+    fn lower_is_better(&self) -> bool;
+    fn get_statistic(
+        &self,
+        matrix: &ItemMatrix,
         item_provider: &ItemInfoProvider,
         market_provider: &MarketPriceProvider,
+        max_routes: u32,
         max_ram_in_bytes: u64,
     ) -> Result<Vec<ItemRoute>>;
+}
+
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
+#[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
+#[cfg_attr(feature = "python", pyo3(str))]
+pub struct DynStatisticAnalyzer(pub Box<dyn StatisticAnalyzer + Send + Sync>);
+
+impl std::fmt::Display for DynStatisticAnalyzer {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Statistic Analyzer ({})\nDescription: {}\nLower is better? {}",
+            self.0.get_name(),
+            self.0.get_description(),
+            self.0.lower_is_better(),
+        )
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -117,40 +154,65 @@ pub struct StatisticResult {
     pub unit_type: &'static str,
 }
 
-#[derive(Debug)]
-pub struct Calculator;
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
+#[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
+#[cfg_attr(feature = "python", pyo3(weakref, from_py_object, frozen, get_all))]
+pub struct Calculator {
+    pub matrix: ItemMatrix,
+}
 
 impl Calculator {
     #[instrument(skip_all)]
-    fn generate_item_matrix<B: MatrixBuilder>(
+    fn generate_item_matrix(
         starting_item: ItemSnapshot,
         target: ItemSnapshot,
         item_provider: &ItemInfoProvider,
-    ) -> Result<ItemMatrix> {
-        tracing::info!("Using '{}' to generate item matrix ...", B::get_name());
-        tracing::info!("Description: {}", B::get_description());
-        let res = B::generate_item_matrix(starting_item, target, item_provider)?;
+        matrix_builder: MatrixBuilderPreset,
+    ) -> Result<Self> {
+        let matrix_builder = matrix_builder.get_matrix_builder_instance();
+
+        tracing::info!(
+            "Using '{}' to generate item matrix ...",
+            matrix_builder.0.get_name()
+        );
+        tracing::info!("Description: {}", matrix_builder.0.get_description());
+        let res = matrix_builder
+            .0
+            .generate_item_matrix(starting_item, target, item_provider)?;
         tracing::info!("Successfully generated item matrix. (TODO SHOW STATS)");
 
-        Ok(res)
+        Ok(Self { matrix: res })
     }
 
     #[instrument(skip_all)]
-    fn calculate_statistics<S: StatisticProvider>(
-        matrix: &ItemMatrix,
+    fn calculate_statistics(
+        &self,
         item_provider: &ItemInfoProvider,
         market_provider: &MarketPriceProvider,
+        max_routes: u32,
         max_ram_in_bytes: u64,
+        statistic_analyzer: StatisticAnalyzerPreset,
     ) -> Result<StatisticResult> {
-        tracing::info!("Using '{}' to calculate statistics ...", S::get_name());
-        tracing::info!("Description: {}", S::get_description());
-        let res = S::get_statistic(matrix, item_provider, market_provider, max_ram_in_bytes)?;
+        let statistic_analyzer = statistic_analyzer.get_statistic_analyzer_instance();
+        tracing::info!(
+            "Using '{}' to calculate statistics ...",
+            statistic_analyzer.0.get_name()
+        );
+        tracing::info!("Description: {}", statistic_analyzer.0.get_description());
+        let res = statistic_analyzer.0.get_statistic(
+            &self.matrix,
+            item_provider,
+            market_provider,
+            max_routes,
+            max_ram_in_bytes,
+        )?;
         tracing::info!("Successfully calculated statistics. (TODO SHOW STATS)");
 
         Ok(StatisticResult {
             sorted_routes: res,
-            lower_is_better: S::lower_is_better(),
-            unit_type: S::get_unit_type(),
+            lower_is_better: statistic_analyzer.0.lower_is_better(),
+            unit_type: statistic_analyzer.0.get_unit_type(),
         })
     }
 
@@ -172,5 +234,57 @@ impl Calculator {
 
         // provide an item and check if the selected mods are reachable.
         // e. g. exclusive mods, multiple fractures etc.
+    }
+}
+
+#[cfg(feature = "python")]
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pymethods)]
+#[cfg_attr(feature = "python", pyo3::pymethods)]
+impl Calculator {
+    #[staticmethod]
+    #[pyo3(name = "generate_item_matrix")]
+    fn generate_item_matrix_py(
+        starting_item: ItemSnapshot,
+        target: ItemSnapshot,
+        item_provider: &ItemInfoProvider,
+        matrix_builder: MatrixBuilderPreset,
+    ) -> pyo3::PyResult<Self> {
+        Calculator::generate_item_matrix(starting_item, target, item_provider, matrix_builder)
+            .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
+    }
+
+    #[pyo3(name = "calculate_statistics")]
+    fn calculate_statistics_py(
+        &self,
+        item_provider: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+        max_routes: u32,
+        max_ram_in_bytes: u64,
+        statistic_analyzer: StatisticAnalyzerPreset,
+    ) -> pyo3::PyResult<StatisticResult> {
+        self.calculate_statistics(
+            item_provider,
+            market_provider,
+            max_routes,
+            max_ram_in_bytes,
+            statistic_analyzer,
+        )
+        .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
+    }
+
+    #[staticmethod]
+    #[pyo3(name = "calculate_target_proximity")]
+    fn calculate_target_proximity_py(
+        start: &ItemSnapshot,
+        target: &ItemSnapshot,
+        provider: &ItemInfoProvider,
+    ) -> u8 {
+        Calculator::calculate_target_proximity(start, target, provider)
+    }
+
+    #[staticmethod]
+    #[pyo3(name = "sanity_check_item")]
+    fn sanity_check_item_py(start: &ItemSnapshot, provider: &ItemInfoProvider) -> bool {
+        Calculator::sanity_check_item(start, provider)
     }
 }
