@@ -165,4 +165,12 @@ impl Calculator {
         // return 0 if target item AFFIXES reached -> can be followed with some socketing shenanigans or sth
         // return 12 on max distance
     }
+
+    #[instrument(skip_all)]
+    fn sanity_check_item(start: &ItemSnapshot, provider: &ItemInfoProvider) -> bool {
+        todo!()
+
+        // provide an item and check if the selected mods are reachable.
+        // e. g. exclusive mods, multiple fractures etc.
+    }
 }
