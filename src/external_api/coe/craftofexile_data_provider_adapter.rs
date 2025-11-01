@@ -13,7 +13,7 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub struct ItemDataProviderCache {
+struct ItemDataProviderCache {
     pub base_item_affix_weight_table: THashMap<BaseItemId, AffixWeightTable>,
     pub affix_definition_table: THashMap<AffixId, AffixDefinition>,
     pub affix_essence_table: THashMap<AffixId, EssenceId>,

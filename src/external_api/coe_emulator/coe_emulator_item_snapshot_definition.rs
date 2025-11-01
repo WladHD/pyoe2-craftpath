@@ -1,5 +1,25 @@
-use crate::external_api::coe::craftofexile_json_definition::deserialize_from_string_or_number;
+use std::{fmt::Display, str::FromStr};
+
 use serde::{Deserialize, Deserializer, Serialize};
+
+fn deserialize_from_string_or_number<'de, D, T>(deserializer: D) -> Result<T, D::Error>
+where
+    D: Deserializer<'de>,
+    T: FromStr + Deserialize<'de>,
+    T::Err: Display,
+{
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum StringOrNumber<T> {
+        Number(T),
+        String(String),
+    }
+
+    match StringOrNumber::<T>::deserialize(deserializer)? {
+        StringOrNumber::Number(n) => Ok(n),
+        StringOrNumber::String(s) => s.parse::<T>().map_err(serde::de::Error::custom),
+    }
+}
 
 fn bool_from_any<'de, D>(deserializer: D) -> Result<bool, D::Error>
 where
