@@ -10,14 +10,6 @@ use crate::api::{
 
 pub type AffixWeightTable = THashMap<AffixId, THashMap<AffixTierLevel, AffixTierLevelMeta>>;
 
-#[cfg(not(feature = "python"))]
-pub struct ItemInfoProvider {
-    cache_affix_def: THashMap<AffixId, AffixDefinition>,
-    cache_item_affix_table: THashMap<BaseItemId, AffixWeightTable>,
-    cache_affix_essence_table: THashMap<AffixId, EssenceId>,
-    cache_essence_def: THashMap<EssenceId, EssenceDefinition>,
-}
-
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]

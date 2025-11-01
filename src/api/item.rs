@@ -5,10 +5,7 @@ use std::{
 
 use rustc_hash::{FxBuildHasher, FxHasher};
 
-use crate::{
-    api::types::{AffixSpecifier, BaseItemId, ItemLevel, ItemRarityEnum, THashSet},
-    derive_DebugDisplay,
-};
+use crate::api::types::{AffixSpecifier, BaseItemId, ItemLevel, ItemRarityEnum, THashSet};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
@@ -53,4 +50,5 @@ impl Hash for ItemSnapshot {
     }
 }
 
-derive_DebugDisplay!(ItemSnapshot);
+#[cfg(feature = "python")]
+crate::derive_DebugDisplay!(ItemSnapshot);

@@ -1,11 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    api::{
-        provider::item_info::ItemInfoProvider,
-        types::{BaseItemId, EssenceId},
-    },
-    derive_DebugDisplay,
+use crate::api::{
+    provider::item_info::ItemInfoProvider,
+    types::{BaseItemId, EssenceId},
 };
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
@@ -88,7 +85,7 @@ impl CraftCurrencyEnum {
 }
 
 impl CraftCurrencyEnum {
-    fn get_item_name<'a>(&self, item_info: &'a ItemInfoProvider) -> &'a str {
+    pub fn get_item_name<'a>(&self, item_info: &'a ItemInfoProvider) -> &'a str {
         match self {
             CraftCurrencyEnum::AbyssalEchoes() => "Omen of Abyssal Echoes",
             CraftCurrencyEnum::ChaosOrbGreater() => "Greater Chaos Orb",
@@ -135,4 +132,4 @@ impl CraftCurrencyEnum {
 }
 
 #[cfg(feature = "python")]
-derive_DebugDisplay!(CraftCurrencyEnum);
+crate::derive_DebugDisplay!(CraftCurrencyEnum);

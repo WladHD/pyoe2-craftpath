@@ -1,43 +1,17 @@
-use crate::{api::types::THashMap, derive_DebugDisplay, explicit_type};
+use crate::{api::types::THashMap, explicit_type};
 
 explicit_type!(ItemName, String);
 
-#[cfg(not(feature = "python"))]
-pub struct MarketPriceProvider {
-    cache_market_prices: THashMap<ItemName, PriceInDivines>,
-    cache_exchange_rate_div_to_exalted: PriceInDivines,
-    cache_exchange_rate_div_to_chaos: PriceInDivines,
-}
-
-#[cfg(feature = "python")]
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
-#[cfg_attr(feature = "python", pyo3(weakref, from_py_object, str))]
+#[cfg_attr(feature = "python", pyo3(weakref, from_py_object, str, get_all))]
 pub struct MarketPriceProvider {
-    #[pyo3(get)]
-    cache_market_prices: THashMap<ItemName, PriceInDivines>,
-    #[pyo3(get)]
-    cache_exchange_rate_div_to_exalted: f64,
-    #[pyo3(get)]
-    cache_exchange_rate_div_to_chaos: f64,
+    pub cache_market_prices: THashMap<ItemName, PriceInDivines>,
+    pub cache_exchange_rate_div_to_exalted: f64,
+    pub cache_exchange_rate_div_to_chaos: f64,
 }
 
-impl MarketPriceProvider {
-    pub fn new(
-        cache_market_prices: THashMap<ItemName, PriceInDivines>,
-        cache_exchange_rate_div_to_exalted: f64,
-        cache_exchange_rate_div_to_chaos: f64,
-    ) -> Self {
-        Self {
-            cache_market_prices,
-            cache_exchange_rate_div_to_exalted,
-            cache_exchange_rate_div_to_chaos,
-        }
-    }
-}
-
-#[cfg(feature = "python")]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pymethods)]
 #[cfg_attr(feature = "python", pyo3::pymethods)]
 impl MarketPriceProvider {
@@ -71,13 +45,6 @@ impl MarketPriceProvider {
 #[cfg_attr(feature = "python", pyo3(ord, eq, weakref, from_py_object, str))]
 pub struct PriceInDivines {
     raw_value: f64,
-}
-
-#[cfg(not(feature = "python"))]
-impl PriceInDivines {
-    pub fn new(value: f64) -> Self {
-        Self { raw_value: value }
-    }
 }
 
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
@@ -115,4 +82,4 @@ impl PriceInDivines {
 }
 
 #[cfg(feature = "python")]
-derive_DebugDisplay!(PriceInDivines, MarketPriceProvider);
+crate::derive_DebugDisplay!(PriceInDivines, MarketPriceProvider);

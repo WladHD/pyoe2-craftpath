@@ -52,11 +52,11 @@ impl PoeNinjaMarketPriceProvider {
             }
         }
 
-        Ok(MarketPriceProvider::new(
+        Ok(MarketPriceProvider {
+            cache_exchange_rate_div_to_chaos: div_to_chaos,
+            cache_exchange_rate_div_to_exalted: div_to_exalted,
             cache_market_prices,
-            div_to_exalted,
-            div_to_chaos,
-        ))
+        })
     }
 }
 
