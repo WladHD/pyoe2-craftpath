@@ -49,7 +49,7 @@ macro_rules! explicit_type {
         #[cfg(feature = "python")]
         crate::derive_DebugDisplay!($name);
     };
-    
+
     ($name:ident, f64) => {
         #[derive(Clone, Debug, PartialEq, PartialOrd, serde::Serialize, serde::Deserialize)]
         #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
@@ -78,7 +78,7 @@ macro_rules! explicit_type {
                 Self::from(value)
             }
 
-            pub fn get_raw_value(&self) -> f64 {
+            pub fn get_raw_value(&self) -> &f64 {
                 &self.0
             }
         }
