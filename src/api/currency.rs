@@ -125,7 +125,7 @@ impl CraftCurrencyEnum {
             CraftCurrencyEnum::Whittling() => "Omen of Whittling",
             CraftCurrencyEnum::Desecrator(_bid) => todo!(), // probably needs to be handtyped too
             CraftCurrencyEnum::Essence(bid) => item_info
-                .get_cache_essence_def()
+                .cache_essence_def
                 .get(bid)
                 .unwrap()
                 .name_essence

@@ -234,11 +234,11 @@ impl CraftOfExileItemInfoProvider {
                 }
             });
 
-        Ok(ItemInfoProvider::new(
-            transformed_cache.affix_definition_table,
-            transformed_cache.base_item_affix_weight_table,
-            transformed_cache.affix_essence_table,
-            transformed_cache.essence_definition_table,
-        ))
+        Ok(ItemInfoProvider {
+            cache_affix_def: transformed_cache.affix_definition_table,
+            cache_item_affix_table: transformed_cache.base_item_affix_weight_table,
+            cache_affix_essence_table: transformed_cache.affix_essence_table,
+            cache_essence_def: transformed_cache.essence_definition_table,
+        })
     }
 }

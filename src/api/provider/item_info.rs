@@ -1,6 +1,11 @@
-use crate::api::types::{
-    AffixDefinition, AffixId, AffixTierLevel, AffixTierLevelMeta, BaseItemId, EssenceDefinition,
-    EssenceId, THashMap,
+use anyhow::Result;
+
+use crate::api::{
+    errors::CraftPathError,
+    types::{
+        AffixDefinition, AffixId, AffixTierLevel, AffixTierLevelMeta, BaseItemId,
+        EssenceDefinition, EssenceId, THashMap,
+    },
 };
 
 pub type AffixWeightTable = THashMap<AffixId, THashMap<AffixTierLevel, AffixTierLevelMeta>>;
@@ -13,46 +18,52 @@ pub struct ItemInfoProvider {
     cache_essence_def: THashMap<EssenceId, EssenceDefinition>,
 }
 
-#[cfg(feature = "python")]
+#[derive(Clone, Debug)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
+#[cfg_attr(
+    feature = "python",
+    pyo3(weakref, from_py_object, frozen, get_all, str)
+)]
 pub struct ItemInfoProvider {
-    #[pyo3(get)]
-    cache_affix_def: THashMap<AffixId, AffixDefinition>,
-    #[pyo3(get)]
-    cache_item_affix_table: THashMap<BaseItemId, AffixWeightTable>,
-    #[pyo3(get)]
-    cache_affix_essence_table: THashMap<AffixId, EssenceId>,
-    #[pyo3(get)]
-    cache_essence_def: THashMap<EssenceId, EssenceDefinition>,
+    pub cache_affix_def: THashMap<AffixId, AffixDefinition>,
+    pub cache_item_affix_table: THashMap<BaseItemId, AffixWeightTable>,
+    pub cache_affix_essence_table: THashMap<AffixId, EssenceId>,
+    pub cache_essence_def: THashMap<EssenceId, EssenceDefinition>,
 }
 
-// todo will include more info instead of raw ref to hm
 impl ItemInfoProvider {
-    pub fn new(
-        cache_affix_def: THashMap<AffixId, AffixDefinition>,
-        cache_item_affix_table: THashMap<BaseItemId, AffixWeightTable>,
-        cache_affix_essence_table: THashMap<AffixId, EssenceId>,
-        cache_essence_def: THashMap<EssenceId, EssenceDefinition>,
-    ) -> Self {
-        Self {
-            cache_affix_def,
-            cache_item_affix_table,
-            cache_affix_essence_table,
-            cache_essence_def,
-        }
+    pub fn lookup_base_item_mods(&self, base_item: &BaseItemId) -> Result<&AffixWeightTable> {
+        self.cache_item_affix_table
+            .get(&base_item)
+            .ok_or_else(|| CraftPathError::ItemWithoutAffixInformation(base_item.clone()).into())
     }
+}
 
-    pub fn get_cache_affix_def(&self) -> &THashMap<AffixId, AffixDefinition> {
-        &self.cache_affix_def
+#[cfg(feature = "python")]
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pymethods)]
+#[cfg_attr(feature = "python", pyo3::pymethods)]
+impl ItemInfoProvider {
+    pub fn cloned_lookup_base_item_mods(
+        &self,
+        base_item: &BaseItemId,
+    ) -> pyo3::PyResult<AffixWeightTable> {
+        self.lookup_base_item_mods(&base_item)
+            .cloned()
+            .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
     }
-    pub fn get_cache_item_affix_table(&self) -> &THashMap<BaseItemId, AffixWeightTable> {
-        &self.cache_item_affix_table
-    }
-    pub fn get_cache_affix_essence_table(&self) -> &THashMap<AffixId, EssenceId> {
-        &self.cache_affix_essence_table
-    }
-    pub fn get_cache_essence_def(&self) -> &THashMap<EssenceId, EssenceDefinition> {
-        &self.cache_essence_def
+}
+
+#[cfg(feature = "python")]
+impl std::fmt::Display for ItemInfoProvider {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "ItemInfoProvider: (cache_affix_def: {}), cache_affix_essence_table {}, cache_essence_def {}, cache_item_affix_table {}",
+            self.cache_affix_def.len(),
+            self.cache_affix_essence_table.len(),
+            self.cache_essence_def.len(),
+            self.cache_item_affix_table.len()
+        )
     }
 }
