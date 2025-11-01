@@ -100,6 +100,7 @@ pub trait StatisticProvider {
         matrix: &'a ItemMatrix,
         item_provider: &ItemInfoProvider,
         market_provider: &MarketPriceProvider,
+        max_ram_in_bytes: u64,
     ) -> Result<Vec<ItemRoute>>;
 }
 
@@ -139,11 +140,11 @@ impl Calculator {
         matrix: &ItemMatrix,
         item_provider: &ItemInfoProvider,
         market_provider: &MarketPriceProvider,
-        max_ram: u64,
+        max_ram_in_bytes: u64,
     ) -> Result<StatisticResult> {
         tracing::info!("Using '{}' to calculate statistics ...", S::get_name());
         tracing::info!("Description: {}", S::get_description());
-        let res = S::get_statistic(matrix, item_provider, market_provider)?;
+        let res = S::get_statistic(matrix, item_provider, market_provider, max_ram_in_bytes)?;
         tracing::info!("Successfully calculated statistics. (TODO SHOW STATS)");
 
         Ok(StatisticResult {
