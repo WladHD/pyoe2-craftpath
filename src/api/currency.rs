@@ -1,8 +1,13 @@
+use std::hash::{Hash, Hasher};
+
 use serde::{Deserialize, Serialize};
 
-use crate::api::{
-    provider::item_info::ItemInfoProvider,
-    types::{BaseItemId, EssenceId},
+use crate::{
+    api::{
+        provider::item_info::ItemInfoProvider,
+        types::{BaseItemId, EssenceId, THashSet},
+    },
+    utils::hash_utils::hash_set_unordered,
 };
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
@@ -131,5 +136,23 @@ impl CraftCurrencyEnum {
     }
 }
 
+#[derive(Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
+#[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
+#[cfg_attr(
+    feature = "python",
+    pyo3(weakref, frozen, eq, hash, from_py_object, get_all, str)
+)]
+pub struct CraftCurrencyList {
+    pub list: THashSet<CraftCurrencyEnum>,
+}
+
+impl Hash for CraftCurrencyList {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        let currency_list_hash = hash_set_unordered(&self.list);
+        currency_list_hash.hash(state);
+    }
+}
+
 #[cfg(feature = "python")]
-crate::derive_DebugDisplay!(CraftCurrencyEnum);
+crate::derive_DebugDisplay!(CraftCurrencyList, CraftCurrencyEnum);

@@ -1,11 +1,9 @@
-use std::{
-    collections::HashSet,
-    hash::{Hash, Hasher},
+use std::hash::{Hash, Hasher};
+
+use crate::{
+    api::types::{AffixSpecifier, BaseItemId, ItemLevel, ItemRarityEnum, THashSet},
+    utils::hash_utils::hash_set_unordered,
 };
-
-use rustc_hash::{FxBuildHasher, FxHasher};
-
-use crate::api::types::{AffixSpecifier, BaseItemId, ItemLevel, ItemRarityEnum, THashSet};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
@@ -32,16 +30,6 @@ impl Hash for ItemSnapshot {
         self.corrupted.hash(state);
         self.allowed_sockets.hash(state);
 
-        fn hash_set_unordered<T: Hash>(set: &HashSet<T, FxBuildHasher>) -> u64 {
-            let mut combined: u64 = 0;
-            for v in set {
-                let mut h = FxHasher::default();
-                v.hash(&mut h);
-                combined ^= h.finish();
-            }
-            combined
-        }
-
         let affix_hash = hash_set_unordered(&self.affixes);
         let socket_hash = hash_set_unordered(&self.sockets);
 
@@ -52,3 +40,44 @@ impl Hash for ItemSnapshot {
 
 #[cfg(feature = "python")]
 crate::derive_DebugDisplay!(ItemSnapshot);
+
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
+#[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
+#[cfg_attr(feature = "python", pyo3(weakref, from_py_object, get_all, str))]
+pub struct ItemSnapshotHelper {
+    // distance of affixes to target
+    // 0 -> target item
+    // 6 -> empty item, to target item with 6 wanted affixes
+    // 12 -> 6 unwanted affixes, to target item with 6 wanted affixes
+    pub target_proximity: u8,
+    pub prefix_count: u8,
+    pub suffix_count: u8,
+    pub blocked_modgroups: THashSet<String>,
+    pub homogenized_mods: THashSet<u8>,
+    pub unwanted_affixes: THashSet<AffixSpecifier>,
+    pub is_desecrated: bool,
+    pub has_desecrated_target: Option<AffixSpecifier>,
+    pub marked_by_abyssal_lord: Option<AffixSpecifier>,
+    pub has_essences_target: THashSet<AffixSpecifier>,
+}
+
+// idk if item needs to be marked for sth
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
+#[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
+#[cfg_attr(feature = "python", pyo3(weakref, from_py_object, get_all, str))]
+pub struct ItemTechnicalMeta {}
+
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
+#[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
+#[cfg_attr(feature = "python", pyo3(weakref, from_py_object, get_all, str))]
+pub struct Item {
+    pub snapshot: ItemSnapshot,
+    pub helper: ItemSnapshotHelper,
+    pub meta: ItemTechnicalMeta,
+}
+
+#[cfg(feature = "python")]
+crate::derive_DebugDisplay!(Item, ItemTechnicalMeta, ItemSnapshotHelper);
