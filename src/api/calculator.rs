@@ -1,5 +1,6 @@
 use std::hash::{Hash, Hasher};
 
+use crate::api::calculator_utils::calculate_target_proximity::calculate_target_proximity;
 use crate::calc::statistics::statistic_analyzer_presets::StatisticAnalyzerPreset;
 use crate::{
     api::{
@@ -164,7 +165,7 @@ pub struct Calculator {
 
 impl Calculator {
     #[instrument(skip_all)]
-    fn generate_item_matrix(
+    pub fn generate_item_matrix(
         starting_item: ItemSnapshot,
         target: ItemSnapshot,
         item_provider: &ItemInfoProvider,
@@ -186,7 +187,7 @@ impl Calculator {
     }
 
     #[instrument(skip_all)]
-    fn calculate_statistics(
+    pub fn calculate_statistics(
         &self,
         item_provider: &ItemInfoProvider,
         market_provider: &MarketPriceProvider,
@@ -217,19 +218,18 @@ impl Calculator {
     }
 
     #[instrument(skip_all)]
-    fn calculate_target_proximity(
+    pub fn calculate_target_proximity(
         start: &ItemSnapshot,
         target: &ItemSnapshot,
         provider: &ItemInfoProvider,
-    ) -> u8 {
-        todo!()
-
+    ) -> Result<u8> {
         // return 0 if target item AFFIXES reached -> can be followed with some socketing shenanigans or sth
         // return 12 on max distance
+        calculate_target_proximity(start, target, provider)
     }
 
     #[instrument(skip_all)]
-    fn sanity_check_item(start: &ItemSnapshot, provider: &ItemInfoProvider) -> bool {
+    pub fn sanity_check_item(start: &ItemSnapshot, provider: &ItemInfoProvider) -> bool {
         todo!()
 
         // provide an item and check if the selected mods are reachable.
@@ -278,8 +278,9 @@ impl Calculator {
         start: &ItemSnapshot,
         target: &ItemSnapshot,
         provider: &ItemInfoProvider,
-    ) -> u8 {
+    ) -> pyo3::PyResult<u8> {
         Calculator::calculate_target_proximity(start, target, provider)
+            .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
     }
 
     #[staticmethod]
