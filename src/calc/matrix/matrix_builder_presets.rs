@@ -1,6 +1,6 @@
 use crate::{
     api::calculator::DynMatrixBuilder,
-    calc::matrix::full_matrix_builder_impl::HappyPathMatrixBuilderImpl,
+    calc::matrix::happy_path_matrix_builder_impl::HappyPathMatrixBuilderImpl,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
