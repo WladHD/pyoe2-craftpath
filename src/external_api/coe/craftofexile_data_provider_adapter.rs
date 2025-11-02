@@ -16,7 +16,7 @@ use crate::{
 struct ItemDataProviderCache {
     pub base_item_affix_weight_table: THashMap<BaseItemId, AffixWeightTable>,
     pub affix_definition_table: THashMap<AffixId, AffixDefinition>,
-    pub affix_essence_table: THashMap<AffixId, EssenceId>,
+    pub affix_essence_table: THashMap<AffixId, THashSet<EssenceId>>,
     pub essence_definition_table: THashMap<EssenceId, EssenceDefinition>,
 }
 
@@ -160,7 +160,9 @@ impl CraftOfExileItemInfoProvider {
                     .insert(affix_id, affix_def);
 
                 // ESSENCE CHECK
-
+                // TODO: Currently this method fetches only the lowest essences
+                // or perfect essences. If for an affix multiple essences can be used, to specify different tiers
+                // only one is taken. This needs to be reworked and mapped from essence mods directly.
                 match affix_info.id_mgroup {
                     AffixClassEnum::Essence => {
                         // this assumes that the essences mapping are the same for every item
@@ -175,7 +177,26 @@ impl CraftOfExileItemInfoProvider {
                                 raw_affix_essence_table.iter().for_each(|(a, e)| {
                                     transformed_cache
                                         .affix_essence_table
-                                        .insert(AffixId::from(*a), EssenceId::from(*e));
+                                        .entry(AffixId::from(*a))
+                                        .or_default()
+                                        .insert(EssenceId::from(*e));
+
+                                    if transformed_cache
+                                        .affix_essence_table
+                                        .get(&AffixId::from(*a))
+                                        .unwrap()
+                                        .len()
+                                        > 1
+                                    {
+                                        tracing::info!(
+                                            "Affix '{:?}' has more then one essences: {:?}",
+                                            AffixId::from(*a),
+                                            transformed_cache
+                                                .affix_essence_table
+                                                .get(&AffixId::from(*a))
+                                                .unwrap()
+                                        )
+                                    }
                                 })
                             });
                     }
@@ -193,44 +214,47 @@ impl CraftOfExileItemInfoProvider {
             .affix_essence_table
             .iter()
             .for_each(|(_affix_id, essence_id)| {
-                if let Some(essence) = parsed
-                    .essences
-                    .seq
-                    .iter()
-                    .find(|test| test.id_essence == *essence_id.get_raw_value())
-                {
-                    let mut essence_tiers: THashMap<
-                        BaseItemId,
-                        THashMap<AffixId, EssenceTierLevelMeta>,
-                    > = THashMap::default();
+                for essence_id in essence_id {
+                    if let Some(essence) = parsed
+                        .essences
+                        .seq
+                        .iter()
+                        .find(|test| test.id_essence == *essence_id.get_raw_value())
+                    {
+                        let mut essence_tiers: THashMap<
+                            BaseItemId,
+                            THashMap<AffixId, EssenceTierLevelMeta>,
+                        > = THashMap::default();
 
-                    essence.tiers.iter().for_each(|(raw_base, raw_tiers)| {
-                        let base_id = BaseItemId::from(*raw_base);
-                        let mut hm: THashMap<AffixId, EssenceTierLevelMeta> = THashMap::default();
+                        essence.tiers.iter().for_each(|(raw_base, raw_tiers)| {
+                            let base_id = BaseItemId::from(*raw_base);
+                            let mut hm: THashMap<AffixId, EssenceTierLevelMeta> =
+                                THashMap::default();
 
-                        raw_tiers.iter().for_each(|e| {
-                            e.iter().for_each(|e| {
-                                hm.insert(
-                                    AffixId::from(e.r#mod),
-                                    EssenceTierLevelMeta {
-                                        id: e.id.clone(),
-                                        min_item_level: ItemLevel::from(e.ilvl),
-                                    },
-                                );
-                            })
+                            raw_tiers.iter().for_each(|e| {
+                                e.iter().for_each(|e| {
+                                    hm.insert(
+                                        AffixId::from(e.r#mod),
+                                        EssenceTierLevelMeta {
+                                            id: e.id.clone(),
+                                            min_item_level: ItemLevel::from(e.ilvl),
+                                        },
+                                    );
+                                })
+                            });
+
+                            essence_tiers.insert(base_id, hm);
                         });
 
-                        essence_tiers.insert(base_id, hm);
-                    });
-
-                    transformed_cache.essence_definition_table.insert(
-                        essence_id.clone(),
-                        EssenceDefinition {
-                            corrupt: essence.corrupt,
-                            name_essence: essence.name_essence.clone(),
-                            base_tier_table: essence_tiers,
-                        },
-                    );
+                        transformed_cache.essence_definition_table.insert(
+                            essence_id.clone(),
+                            EssenceDefinition {
+                                corrupt: essence.corrupt,
+                                name_essence: essence.name_essence.clone(),
+                                base_tier_table: essence_tiers,
+                            },
+                        );
+                    }
                 }
             });
 
