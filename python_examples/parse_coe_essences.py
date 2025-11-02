@@ -16,8 +16,11 @@ def main():
         COE_CACHE_MAP, CACHE_TTL_IN_SECONDS)[0]
     data = pc.parse_item_data_from_json(text)
 
+    bow_base_item = pc.BaseItemId(20)
+
     attack_speed_for_5697 = AffixId(5697)
-    essence_id_for_5697 = data.lookup_affix_essence(attack_speed_for_5697)
+    essence_id_for_5697 = data.lookup_affix_essences(
+        attack_speed_for_5697, bow_base_item)
     print(essence_id_for_5697)
 
     base_mods_for_5697_20 = data.lookup_base_item_mods(pc.BaseItemId(20))
@@ -25,25 +28,24 @@ def main():
 
     assert possible_defs is not None
 
-    for k, v in possible_defs.items():
-        print(k, " : ", v)
+    for i, (k, v) in enumerate(possible_defs.items()):
+        print("#", i + 1, " ", k, " : ", v)
 
     assert essence_id_for_5697.__contains__(
         # Greater Essence of Haste
         pc.EssenceId(3156))
 
     attack_speed = AffixId(5092)
-    essence_id_for_5092 = data.lookup_affix_essence(
-        attack_speed)
+    essence_id_for_5092 = data.lookup_affix_essences(
+        attack_speed, bow_base_item)
 
-    # should NOT be 1 .. but currently is not implemented fully
-    assert essence_id_for_5092.__len__() > 1
+    # should exactly be 2 (lesser + normal essence of haste)
+    assert essence_id_for_5092.__len__() == 2
 
     # thats currently how CoEs structure is mapped. following works:
     assert essence_id_for_5092.__contains__(
         pc.EssenceId(3132))  # Lesser Essence of Haste
 
-    # THIS DOES NOT WORK YET:
     assert essence_id_for_5092.__contains__(
         pc.EssenceId(3144))  # Essence of Haste
     assert not essence_id_for_5092.__contains__(
@@ -59,15 +61,14 @@ def main():
 
         assert possible_defs is not None
 
-        for k, v in possible_defs.items():
-            print(k, " : ", v)
+        for i, (k, v) in enumerate(possible_defs.items()):
+            print("#", i + 1, " ", k, " : ", v)
 
-    # CURRENTLY FAILS; SINCE ITS NOT LINKED WITH THE TOP ITEM YET. Only lesser hastes are linked right now,
-    # needs to be resolved later.
-    essence = data.lookup_essence_definition(pc.EssenceId(3144))
-
-    # If this test resolves without errors, it has been resolved
+    # Greater Essence of Haste -> has own essence-only affix
+    essence = data.lookup_essence_definition(pc.EssenceId(3156))
     print(essence)
+
+    # If this test finishes without errors, it works as intended
 
 
 if __name__ == "__main__":
