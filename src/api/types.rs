@@ -109,7 +109,7 @@ pub struct AffixTierLevelMeta {
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
-#[cfg_attr(feature = "python", pyo3(str, weakref, get_all))]
+#[cfg_attr(feature = "python", pyo3(weakref, get_all, str))]
 pub struct AffixDefinition {
     /// If exlusive_groups is not empty, other affixes
     /// with intersecting exlusive_groups cannot be applied
@@ -122,18 +122,20 @@ pub struct AffixDefinition {
     pub affix_location: AffixLocationEnum,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
+#[cfg_attr(feature = "python", pyo3(eq, weakref, from_py_object, get_all, str))]
 pub struct EssenceDefinition {
     pub name_essence: String,
     pub base_tier_table: THashMap<BaseItemId, THashMap<AffixId, EssenceTierLevelMeta>>,
     pub corrupt: bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
+#[cfg_attr(feature = "python", pyo3(eq, weakref, from_py_object, get_all, str))]
 pub struct EssenceTierLevelMeta {
     // mod name
     // pub affix_id: AffixId,

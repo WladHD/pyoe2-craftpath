@@ -1,7 +1,16 @@
 use std::hash::{Hash, Hasher};
 
+use anyhow::Result;
+
 use crate::{
-    api::types::{AffixSpecifier, BaseItemId, ItemLevel, ItemRarityEnum, THashSet},
+    api::{
+        calculator::Calculator,
+        provider::item_info::ItemInfoProvider,
+        types::{
+            AffixClassEnum, AffixDefinition, AffixLocationEnum, AffixSpecifier,
+            AffixTierLevelBoundsEnum, BaseItemId, ItemLevel, ItemRarityEnum, THashSet,
+        },
+    },
     utils::hash_utils::hash_set_unordered,
 };
 
@@ -69,6 +78,12 @@ pub struct ItemSnapshotHelper {
 #[cfg_attr(feature = "python", pyo3(weakref, from_py_object, get_all, str))]
 pub struct ItemTechnicalMeta {}
 
+impl ItemTechnicalMeta {
+    pub fn default() -> Self {
+        Self {}
+    }
+}
+
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
@@ -81,3 +96,251 @@ pub struct Item {
 
 #[cfg(feature = "python")]
 crate::derive_DebugDisplay!(Item, ItemTechnicalMeta, ItemSnapshotHelper);
+
+impl Item {
+    pub fn build_with(
+        snapshot: ItemSnapshot,
+        target: &ItemSnapshot,
+        provider: &ItemInfoProvider,
+    ) -> Result<Self> {
+        let mut blocked_modgroups = THashSet::default();
+        let mut homogenized_mods = THashSet::default();
+        let mut unwanted_affixes = THashSet::default();
+        let mut is_desecrated = false;
+        let mut prefix_count = 0;
+        let mut suffix_count = 0;
+
+        for specifier in &snapshot.affixes {
+            let def = provider.lookup_affix_definition(&specifier.affix)?;
+
+            blocked_modgroups.extend(def.exlusive_groups.iter().cloned());
+            homogenized_mods.extend(def.tags.iter().cloned());
+
+            if !provider.is_abyssal_mark(&specifier.affix)
+                && def.affix_class == AffixClassEnum::Desecrated
+            {
+                is_desecrated = true;
+            }
+
+            // Count by affix location
+            match def.affix_location {
+                AffixLocationEnum::Prefix => prefix_count += 1,
+                AffixLocationEnum::Suffix => suffix_count += 1,
+                AffixLocationEnum::Socket => {} // TODO? <-- this will be in own
+            }
+
+            // Determine if this affix is unwanted
+            let unwanted = match target.affixes.iter().find(|t| t.affix == specifier.affix) {
+                Some(t) => match t.tier.bounds {
+                    AffixTierLevelBoundsEnum::Exact if t.tier.tier != specifier.tier.tier => true,
+                    AffixTierLevelBoundsEnum::Minimum if t.tier.tier < specifier.tier.tier => true,
+                    _ => false,
+                },
+                None => true,
+            };
+
+            if unwanted {
+                unwanted_affixes.insert(specifier.clone());
+            }
+        }
+
+        fn find_target<F>(
+            target: &THashSet<AffixSpecifier>,
+            provider: &ItemInfoProvider,
+            pred: F,
+        ) -> Option<AffixSpecifier>
+        where
+            F: Fn(Option<&AffixDefinition>, &AffixSpecifier) -> bool,
+        {
+            for spec in target.iter() {
+                if pred(provider.lookup_affix_definition(&spec.affix).ok(), spec) {
+                    return Some(spec.clone());
+                }
+            }
+            None
+        }
+
+        let has_desecrated_target = find_target(
+            &target.affixes,
+            provider,
+            |def, _| matches!(def, Some(def) if def.affix_class == AffixClassEnum::Desecrated),
+        );
+
+        let marked_by_abyssal_lord = find_target(&target.affixes, provider, |_, spec| {
+            provider.is_abyssal_mark(&spec.affix)
+        });
+
+        let has_essences_target = target
+            .affixes
+            .iter()
+            .filter_map(|spec| match provider.lookup_affix_definition(&spec.affix) {
+                Ok(def) if def.affix_class == AffixClassEnum::Essence => Some(Ok(spec.clone())),
+                Ok(_) => None,
+                Err(e) => Some(Err(e)),
+            })
+            .collect::<Result<THashSet<_>, _>>()?;
+
+        let target_proximity =
+            Calculator::calculate_target_proximity(&snapshot, &target, &provider)?;
+
+        Ok(Self {
+            snapshot,
+            helper: ItemSnapshotHelper {
+                prefix_count,
+                suffix_count,
+                blocked_modgroups,
+                homogenized_mods,
+                unwanted_affixes,
+                is_desecrated,
+                has_desecrated_target,
+                marked_by_abyssal_lord,
+                has_essences_target,
+                target_proximity,
+            },
+            meta: ItemTechnicalMeta::default(),
+        })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use anyhow::Result;
+    use tracing::instrument;
+
+    use crate::{
+        api::{
+            item::{Item, ItemSnapshot},
+            types::{
+                AffixId, AffixSpecifier, AffixTierConstraints, AffixTierLevel,
+                AffixTierLevelBoundsEnum, BaseItemId, ItemLevel, ItemRarityEnum, THashMap,
+                THashSet,
+            },
+        },
+        external_api::{
+            coe::craftofexile_data_provider_adapter::CraftOfExileItemInfoProvider,
+            fetch_json_from_urls::retrieve_jsons_from_urls_with_cache,
+        },
+        utils::logger_utils::init_tracing,
+    };
+
+    #[test]
+    #[instrument]
+    fn test_item_snapshot() -> Result<()> {
+        init_tracing();
+        tracing::info!("Checking correct function of ItemSnapshot comparisons");
+
+        let mut item_snapshot_a = ItemSnapshot {
+            item_level: ItemLevel::from(100),
+            affixes: THashSet::default(),
+            base_id: BaseItemId::from(20),
+            rarity: ItemRarityEnum::Rare,
+            corrupted: false,
+            allowed_sockets: 0,
+            sockets: THashSet::default(),
+        };
+
+        let mut item_snapshot_b = ItemSnapshot {
+            item_level: ItemLevel::from(100),
+            affixes: THashSet::default(),
+            base_id: BaseItemId::from(20),
+            rarity: ItemRarityEnum::Rare,
+            corrupted: false,
+            allowed_sockets: 0,
+            sockets: THashSet::default(),
+        };
+
+        item_snapshot_a.affixes.insert(AffixSpecifier {
+            affix: AffixId::from(5119),
+            tier: AffixTierConstraints {
+                bounds: AffixTierLevelBoundsEnum::Exact,
+                tier: AffixTierLevel::from(3),
+            },
+            fractured: false,
+        });
+
+        item_snapshot_b.affixes.insert(AffixSpecifier {
+            affix: AffixId::from(5119),
+            tier: AffixTierConstraints {
+                bounds: AffixTierLevelBoundsEnum::Exact,
+                tier: AffixTierLevel::from(3),
+            },
+            fractured: false,
+        });
+
+        assert_eq!(item_snapshot_a, item_snapshot_b);
+        assert_eq!(item_snapshot_b, item_snapshot_a);
+
+        item_snapshot_a.affixes.insert(AffixSpecifier {
+            affix: AffixId::from(5121),
+            tier: AffixTierConstraints {
+                bounds: AffixTierLevelBoundsEnum::Exact,
+                tier: AffixTierLevel::from(3),
+            },
+            fractured: false,
+        });
+
+        item_snapshot_b.affixes.insert(AffixSpecifier {
+            affix: AffixId::from(5127),
+            tier: AffixTierConstraints {
+                bounds: AffixTierLevelBoundsEnum::Exact,
+                tier: AffixTierLevel::from(3),
+            },
+            fractured: false,
+        });
+
+        assert_ne!(item_snapshot_a, item_snapshot_b);
+
+        item_snapshot_b.affixes.insert(AffixSpecifier {
+            affix: AffixId::from(5121),
+            tier: AffixTierConstraints {
+                bounds: AffixTierLevelBoundsEnum::Exact,
+                tier: AffixTierLevel::from(3),
+            },
+            fractured: false,
+        });
+
+        item_snapshot_a.affixes.insert(AffixSpecifier {
+            affix: AffixId::from(5127),
+            tier: AffixTierConstraints {
+                bounds: AffixTierLevelBoundsEnum::Exact,
+                tier: AffixTierLevel::from(3),
+            },
+            fractured: false,
+        });
+
+        assert_eq!(item_snapshot_a, item_snapshot_b);
+
+        tracing::info!("Checking correct function of initializing actual items");
+
+        let hm = THashMap::from_iter(
+            vec![(
+                "./cache/coe2.json".to_string(),
+                "https://www.craftofexile.com/json/poe2/main/poec_data.json".to_string(),
+            )]
+            .into_iter(),
+        );
+
+        let provider = retrieve_jsons_from_urls_with_cache(hm, 60_u64 * 60_u64)?;
+        let provider = CraftOfExileItemInfoProvider::parse_from_json(
+            provider.first().expect("Provider returned no item info"),
+        )?;
+
+        let item = Item::build_with(item_snapshot_a.clone(), &item_snapshot_b, &provider)?;
+        assert_eq!(item.helper.unwanted_affixes.len(), 0);
+        assert_eq!(item.helper.target_proximity, 0); // item reached wanted form
+
+        tracing::info!("{:?}", item);
+
+        item_snapshot_b
+            .affixes
+            .retain(|test| test.affix != AffixId::from(5119));
+
+        let item = Item::build_with(item_snapshot_a, &item_snapshot_b, &provider)?;
+        assert_eq!(item.helper.unwanted_affixes.len(), 1);
+        assert_eq!(item.helper.target_proximity, 2); // item requires removal of affix + applience of affix = 2
+
+        tracing::info!("{:?}", item);
+
+        Ok(())
+    }
+}

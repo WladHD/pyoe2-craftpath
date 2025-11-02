@@ -18,7 +18,8 @@ pub mod py {
         ItemName, MarketPriceProvider, PriceInDivines, PriceKind,
     };
     use crate::api::types::{
-        AffixClassEnum, AffixDefinition, AffixId, AffixLocationEnum, THashMap,
+        AffixClassEnum, AffixDefinition, AffixId, AffixLocationEnum, BaseItemId, EssenceDefinition,
+        EssenceId, THashMap,
     };
     use crate::calc::matrix::matrix_builder_presets::MatrixBuilderPreset;
     use crate::calc::statistics::statistic_analyzer_presets::StatisticAnalyzerPreset;
@@ -88,6 +89,10 @@ pub mod py {
         m.add_class::<DynStatisticAnalyzer>()?;
         m.add_class::<MatrixBuilderPreset>()?;
         m.add_class::<StatisticAnalyzerPreset>()?;
+
+        m.add_class::<BaseItemId>()?;
+        m.add_class::<EssenceId>()?;
+        m.add_class::<EssenceDefinition>()?;
 
         // general utility
         m.add_function(wrap_pyfunction!(retrieve_jsons_from_urls_with_cache, m)?)?;
