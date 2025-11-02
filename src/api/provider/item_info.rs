@@ -1,4 +1,5 @@
 use anyhow::Result;
+use serde::{Deserialize, Serialize};
 
 use crate::api::types::THashSet;
 use crate::api::{
@@ -11,7 +12,7 @@ use crate::api::{
 
 pub type AffixWeightTable = THashMap<AffixId, THashMap<AffixTierLevel, AffixTierLevelMeta>>;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[cfg_attr(
@@ -21,15 +22,15 @@ pub type AffixWeightTable = THashMap<AffixId, THashMap<AffixTierLevel, AffixTier
 pub struct ItemInfoProvider {
     pub cache_affix_def: THashMap<AffixId, AffixDefinition>,
     pub cache_item_affix_table: THashMap<BaseItemId, AffixWeightTable>,
-    pub cache_affix_essence_table: THashMap<AffixId, THashSet<EssenceId>>,
+    pub cache_affix_essence_table: THashMap<(AffixId, BaseItemId), THashSet<EssenceId>>,
     pub cache_essence_def: THashMap<EssenceId, EssenceDefinition>,
 }
 
 impl ItemInfoProvider {
-    pub fn lookup_base_item_mods(&self, base_item: &BaseItemId) -> Result<&AffixWeightTable> {
+    pub fn lookup_base_item_mods(&self, base_item_id: &BaseItemId) -> Result<&AffixWeightTable> {
         self.cache_item_affix_table
-            .get(&base_item)
-            .ok_or_else(|| CraftPathError::ItemWithoutAffixInformation(base_item.clone()).into())
+            .get(&base_item_id)
+            .ok_or_else(|| CraftPathError::ItemWithoutAffixInformation(base_item_id.clone()).into())
     }
 
     pub fn lookup_affix_definition(&self, affix_id: &AffixId) -> Result<&AffixDefinition> {
@@ -44,9 +45,13 @@ impl ItemInfoProvider {
             .ok_or_else(|| CraftPathError::EssenceWithoutDefinition(essence_id.clone()).into())
     }
 
-    pub fn lookup_affix_essence(&self, affix_id: &AffixId) -> Result<&THashSet<EssenceId>> {
+    pub fn lookup_affix_essences(
+        &self,
+        affix_id: AffixId,
+        base_item_id: BaseItemId,
+    ) -> Result<&THashSet<EssenceId>> {
         self.cache_affix_essence_table
-            .get(&affix_id)
+            .get(&(affix_id.clone(), base_item_id.clone()))
             .ok_or_else(|| CraftPathError::AffixWithoutEssence(affix_id.clone()).into())
     }
 
@@ -63,9 +68,9 @@ impl ItemInfoProvider {
     #[pyo3(name = "lookup_base_item_mods")]
     pub fn lookup_base_item_mods_py(
         &self,
-        base_item: &BaseItemId,
+        base_item_id: &BaseItemId,
     ) -> pyo3::PyResult<AffixWeightTable> {
-        self.lookup_base_item_mods(&base_item)
+        self.lookup_base_item_mods(&base_item_id)
             .cloned()
             .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
     }
@@ -90,12 +95,13 @@ impl ItemInfoProvider {
             .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
     }
 
-    #[pyo3(name = "lookup_affix_essence")]
-    pub fn lookup_affix_essence_py(
+    #[pyo3(name = "lookup_affix_essences")]
+    pub fn lookup_affix_essences_py(
         &self,
-        affix_id: &AffixId,
+        affix_id: AffixId,
+        base_item_id: BaseItemId,
     ) -> pyo3::PyResult<THashSet<EssenceId>> {
-        self.lookup_affix_essence(affix_id)
+        self.lookup_affix_essences(affix_id, base_item_id)
             .cloned()
             .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
     }

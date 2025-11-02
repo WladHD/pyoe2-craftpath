@@ -4,9 +4,9 @@ use crate::{
     api::{
         provider::item_info::{AffixWeightTable, ItemInfoProvider},
         types::{
-            AffixClassEnum, AffixDefinition, AffixId, AffixTierLevel, AffixTierLevelMeta,
-            BaseItemId, EssenceDefinition, EssenceId, EssenceTierLevelMeta, ItemLevel, THashMap,
-            THashSet, Weight,
+            AffixDefinition, AffixId, AffixTierLevel, AffixTierLevelMeta, BaseItemId,
+            EssenceDefinition, EssenceId, EssenceTierLevelMeta, ItemLevel, THashMap, THashSet,
+            Weight,
         },
     },
     external_api::coe::craftofexile_json_definition::CoEGameData,
@@ -16,7 +16,7 @@ use crate::{
 struct ItemDataProviderCache {
     pub base_item_affix_weight_table: THashMap<BaseItemId, AffixWeightTable>,
     pub affix_definition_table: THashMap<AffixId, AffixDefinition>,
-    pub affix_essence_table: THashMap<AffixId, THashSet<EssenceId>>,
+    pub affix_essence_table: THashMap<(AffixId, BaseItemId), THashSet<EssenceId>>,
     pub essence_definition_table: THashMap<EssenceId, EssenceDefinition>,
 }
 
@@ -158,50 +158,6 @@ impl CraftOfExileItemInfoProvider {
                 transformed_cache
                     .affix_definition_table
                     .insert(affix_id, affix_def);
-
-                // ESSENCE CHECK
-                // TODO: Currently this method fetches only the lowest essences
-                // or perfect essences. If for an affix multiple essences can be used, to specify different tiers
-                // only one is taken. This needs to be reworked and mapped from essence mods directly.
-                match affix_info.id_mgroup {
-                    AffixClassEnum::Essence => {
-                        // this assumes that the essences mapping are the same for every item
-                        // which would make sense. if not this could be a bug ... simplifies
-                        // mapping so will leave it for now until proven otherwise
-                        parsed
-                            .essences
-                            .dir
-                            .get(base_item_id.get_raw_value())
-                            .iter()
-                            .for_each(|raw_affix_essence_table| {
-                                raw_affix_essence_table.iter().for_each(|(a, e)| {
-                                    transformed_cache
-                                        .affix_essence_table
-                                        .entry(AffixId::from(*a))
-                                        .or_default()
-                                        .insert(EssenceId::from(*e));
-
-                                    if transformed_cache
-                                        .affix_essence_table
-                                        .get(&AffixId::from(*a))
-                                        .unwrap()
-                                        .len()
-                                        > 1
-                                    {
-                                        tracing::info!(
-                                            "Affix '{:?}' has more then one essences: {:?}",
-                                            AffixId::from(*a),
-                                            transformed_cache
-                                                .affix_essence_table
-                                                .get(&AffixId::from(*a))
-                                                .unwrap()
-                                        )
-                                    }
-                                })
-                            });
-                    }
-                    _ => {}
-                }
             }
 
             transformed_cache
@@ -209,54 +165,51 @@ impl CraftOfExileItemInfoProvider {
                 .insert(base_item_id.clone(), item_affix_map);
         }
 
-        // insert essence meta
-        transformed_cache
-            .affix_essence_table
-            .iter()
-            .for_each(|(_affix_id, essence_id)| {
-                for essence_id in essence_id {
-                    if let Some(essence) = parsed
-                        .essences
-                        .seq
-                        .iter()
-                        .find(|test| test.id_essence == *essence_id.get_raw_value())
-                    {
-                        let mut essence_tiers: THashMap<
-                            BaseItemId,
-                            THashMap<AffixId, EssenceTierLevelMeta>,
-                        > = THashMap::default();
+        // ESSENCE CHECK
+        // TODO: Currently this method fetches only the lowest essences
+        // or perfect essences. If for an affix multiple essences can be used, to specify different tiers
+        // only one is taken. This needs to be reworked and mapped from essence mods directly.
+        parsed.essences.seq.iter().for_each(|essence| {
+            let essence_id = EssenceId::from(essence.id_essence);
+            let mut essence_tiers: THashMap<BaseItemId, THashMap<AffixId, EssenceTierLevelMeta>> =
+                THashMap::default();
 
-                        essence.tiers.iter().for_each(|(raw_base, raw_tiers)| {
-                            let base_id = BaseItemId::from(*raw_base);
-                            let mut hm: THashMap<AffixId, EssenceTierLevelMeta> =
-                                THashMap::default();
+            essence.tiers.iter().for_each(|(raw_base, raw_tiers)| {
+                let base_id = BaseItemId::from(*raw_base);
+                let mut hm: THashMap<AffixId, EssenceTierLevelMeta> = THashMap::default();
 
-                            raw_tiers.iter().for_each(|e| {
-                                e.iter().for_each(|e| {
-                                    hm.insert(
-                                        AffixId::from(e.r#mod),
-                                        EssenceTierLevelMeta {
-                                            id: e.id.clone(),
-                                            min_item_level: ItemLevel::from(e.ilvl),
-                                        },
-                                    );
-                                })
-                            });
-
-                            essence_tiers.insert(base_id, hm);
-                        });
-
-                        transformed_cache.essence_definition_table.insert(
-                            essence_id.clone(),
-                            EssenceDefinition {
-                                corrupt: essence.corrupt,
-                                name_essence: essence.name_essence.clone(),
-                                base_tier_table: essence_tiers,
+                raw_tiers.iter().for_each(|e| {
+                    e.iter().for_each(|e| {
+                        hm.insert(
+                            AffixId::from(e.r#mod),
+                            EssenceTierLevelMeta {
+                                id: e.id.clone(),
+                                min_item_level: ItemLevel::from(e.ilvl),
                             },
                         );
-                    }
-                }
+
+                        let key = (AffixId::from(e.r#mod), base_id.clone());
+
+                        transformed_cache
+                            .affix_essence_table
+                            .entry(key.clone())
+                            .or_default()
+                            .insert(essence_id.clone());
+                    })
+                });
+
+                essence_tiers.insert(base_id, hm);
             });
+
+            transformed_cache.essence_definition_table.insert(
+                essence_id.clone(),
+                EssenceDefinition {
+                    corrupt: essence.corrupt,
+                    name_essence: essence.name_essence.clone(),
+                    base_tier_table: essence_tiers,
+                },
+            );
+        });
 
         Ok(ItemInfoProvider {
             cache_affix_def: transformed_cache.affix_definition_table,

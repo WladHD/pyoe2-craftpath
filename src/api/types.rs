@@ -1,4 +1,5 @@
 use rustc_hash::{FxHashMap, FxHashSet};
+use serde::{Deserialize, Serialize};
 
 use crate::explicit_type;
 
@@ -42,7 +43,7 @@ pub enum AffixTierLevelBoundsEnum {
     Minimum,
 }
 
-#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone, Serialize, Deserialize)]
 #[repr(u8)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass_enum)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
@@ -56,7 +57,7 @@ pub enum AffixClassEnum {
     Essence = 13,
 }
 
-#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass_enum)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[cfg_attr(
@@ -94,7 +95,7 @@ pub struct AffixSpecifier {
     pub tier: AffixTierConstraints,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[cfg_attr(
@@ -106,7 +107,7 @@ pub struct AffixTierLevelMeta {
     pub min_item_level: ItemLevel,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[cfg_attr(feature = "python", pyo3(weakref, get_all, str))]
@@ -122,7 +123,7 @@ pub struct AffixDefinition {
     pub affix_location: AffixLocationEnum,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[cfg_attr(feature = "python", pyo3(eq, weakref, from_py_object, get_all, str))]
@@ -132,7 +133,7 @@ pub struct EssenceDefinition {
     pub corrupt: bool,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[cfg_attr(feature = "python", pyo3(eq, weakref, from_py_object, get_all, str))]
