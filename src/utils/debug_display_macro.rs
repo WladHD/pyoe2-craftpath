@@ -4,7 +4,10 @@ macro_rules! derive_DebugDisplay {
         $(
             impl std::fmt::Display for $t {
                 fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                    write!(f, "{:?}", self)
+                    match serde_json::to_string_pretty(self) {
+                        Ok(json) => write!(f, "{}", json),
+                        Err(e) => write!(f, "<failed to serialize {}: {}>", stringify!($t), e),
+                    }
                 }
             }
         )+

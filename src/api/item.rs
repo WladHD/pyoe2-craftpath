@@ -1,6 +1,7 @@
 use std::hash::{Hash, Hasher};
 
 use anyhow::Result;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     api::{
@@ -14,7 +15,7 @@ use crate::{
     utils::hash_utils::hash_set_unordered,
 };
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[cfg_attr(
@@ -50,7 +51,7 @@ impl Hash for ItemSnapshot {
 #[cfg(feature = "python")]
 crate::derive_DebugDisplay!(ItemSnapshot);
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[cfg_attr(feature = "python", pyo3(weakref, from_py_object, get_all, str))]
@@ -72,7 +73,7 @@ pub struct ItemSnapshotHelper {
 }
 
 // idk if item needs to be marked for sth
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[cfg_attr(feature = "python", pyo3(weakref, from_py_object, get_all, str))]
@@ -84,7 +85,7 @@ impl ItemTechnicalMeta {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[cfg_attr(feature = "python", pyo3(weakref, from_py_object, get_all, str))]

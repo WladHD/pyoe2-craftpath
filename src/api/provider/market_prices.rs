@@ -1,8 +1,10 @@
+use serde::{Deserialize, Serialize};
+
 use crate::{api::types::THashMap, explicit_type};
 
 explicit_type!(ItemName, String);
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[cfg_attr(feature = "python", pyo3(weakref, from_py_object, str, get_all))]
@@ -39,7 +41,7 @@ impl MarketPriceProvider {
 }
 
 // todo generate conversion etc
-#[derive(Debug, Clone, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[cfg_attr(feature = "python", pyo3(ord, eq, weakref, from_py_object, str))]
@@ -47,7 +49,7 @@ pub struct PriceInDivines {
     raw_value: f64,
 }
 
-#[derive(Clone, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass_enum)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 pub enum PriceKind {

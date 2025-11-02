@@ -13,9 +13,10 @@ use crate::{
     utils::fraction_utils::Fraction,
 };
 use anyhow::Result;
+use serde::{Deserialize, Serialize};
 use tracing::instrument;
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[cfg_attr(feature = "python", pyo3(eq, weakref, from_py_object, get_all, str))]
@@ -24,7 +25,7 @@ pub struct PropagationTarget {
     pub chance: Fraction,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[cfg_attr(feature = "python", pyo3(weakref, from_py_object, get_all, str))]
@@ -33,14 +34,14 @@ pub struct ItemMatrixNode {
     pub propagate: THashMap<CraftCurrencyList, Vec<PropagationTarget>>,
 }
 
-crate::derive_DebugDisplay!(PropagationTarget, ItemMatrixNode, Calculator,);
+crate::derive_DebugDisplay!(PropagationTarget, ItemMatrixNode);
 
 pub type ItemMatrix = THashMap<u64, ItemMatrixNode>;
 
 // do not include references ??
 // item and chance are w/e since sizewise nothing changes u64 + u32 + u32 (+ struct)
 // but HashSet could be costly?? if to much revert to ref
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[cfg_attr(
@@ -57,7 +58,7 @@ pub struct ItemRouteNode {
 crate::derive_DebugDisplay!(ItemRouteNode, ItemRoute, StatisticResult);
 
 // this needs to be converted to Python types either way
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[cfg_attr(
@@ -142,7 +143,7 @@ impl std::fmt::Display for DynStatisticAnalyzer {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[cfg_attr(

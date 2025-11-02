@@ -114,15 +114,4 @@ impl ItemInfoProvider {
 }
 
 #[cfg(feature = "python")]
-impl std::fmt::Display for ItemInfoProvider {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "ItemInfoProvider: (cache_affix_def: {}), cache_affix_essence_table {}, cache_essence_def {}, cache_item_affix_table {}",
-            self.cache_affix_def.len(),
-            self.cache_affix_essence_table.len(),
-            self.cache_essence_def.len(),
-            self.cache_item_affix_table.len()
-        )
-    }
-}
+crate::derive_DebugDisplay!(ItemInfoProvider);

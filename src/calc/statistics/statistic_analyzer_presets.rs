@@ -1,6 +1,8 @@
+use serde::{Deserialize, Serialize};
+
 use crate::api::calculator::DynStatisticAnalyzer;
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass_enum)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[cfg_attr(feature = "python", pyo3(eq, weakref, from_py_object, get_all, str))]
