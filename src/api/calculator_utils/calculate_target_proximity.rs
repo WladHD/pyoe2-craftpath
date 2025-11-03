@@ -27,6 +27,11 @@ pub fn calculate_target_proximity(
         }
     }
 
+    // unwanted_affix_counter reflects how many affixes from the *starting* item are unwanted.
+    // 
+
+    
+
     Ok(unwanted_affix_counter
-        + (target.affixes.len() as i8 - start.affixes.len() as i8).max(0) as u8)
+        + (target.affixes.len() as i8 - start.affixes.len() as i8).abs() as u8)
 }

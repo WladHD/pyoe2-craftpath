@@ -336,9 +336,13 @@ mod tests {
             .affixes
             .retain(|test| test.affix != AffixId::from(5119));
 
-        let item = Item::build_with(item_snapshot_a, &item_snapshot_b, &provider)?;
-        assert_eq!(item.helper.unwanted_affixes.len(), 1);
+        let item = Item::build_with(item_snapshot_a.clone(), &item_snapshot_b, &provider)?;
+        assert_eq!(item.helper.unwanted_affixes.len(), 1); // starting item has affix that is not in target
         assert_eq!(item.helper.target_proximity, 2); // item requires removal of affix + applience of affix = 2
+
+        let item = Item::build_with(item_snapshot_b.clone(), &item_snapshot_a, &provider)?;
+        assert_eq!(item.helper.unwanted_affixes.len(), 0); // starting items affixes all are included in target 
+        assert_eq!(item.helper.target_proximity, 1); // item requires addition of affix = 1
 
         tracing::info!("{:?}", item);
 
