@@ -10,7 +10,6 @@ pub fn calculate_target_proximity(
     _provider: &ItemInfoProvider, // maybe will be needed sometime in the future idk
 ) -> Result<u8> {
     let mut unwanted_affix_counter = 0_u8;
-    let mut wanted_affixes = 0_u8;
 
     for specifier in &start.affixes {
         // Determine if this affix is unwanted
@@ -25,10 +24,9 @@ pub fn calculate_target_proximity(
 
         if unwanted {
             unwanted_affix_counter += 1;
-        } else {
-            wanted_affixes += 1;
         }
     }
 
-    Ok(unwanted_affix_counter + (start.affixes.len() as u8) - wanted_affixes)
+    Ok(unwanted_affix_counter
+        + (target.affixes.len() as i8 - start.affixes.len() as i8).abs() as u8)
 }
