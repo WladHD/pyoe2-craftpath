@@ -15,7 +15,7 @@ use crate::{
         types::{THashMap, THashSet},
     },
     calc::matrix::propagators::orb_of_transmutation::OrbOfTransmutationPropagator,
-    utils::{fraction_utils::Fraction, hash_utils::hash_value},
+    utils::{fraction_utils::Fraction},
 };
 
 pub struct HappyPathMatrixBuilderImpl;
@@ -157,7 +157,7 @@ fn generate_item_matrix(
             });
 
             matrix
-                .entry(hash_value(&snapshot))
+                .entry(snapshot)
                 .and_modify(|existing_node| {
                     // Merge propagate maps, should not happen though
                     for (k, v) in node.propagate.iter() {
@@ -172,7 +172,7 @@ fn generate_item_matrix(
         }
 
         // remove already calculated items from todo
-        todo_items.retain(|test| !matrix.contains_key(&hash_value(test)));
+        todo_items.retain(|test| !matrix.contains_key(&test));
     }
 
     let fetched = count_removed.load(Ordering::Relaxed);

@@ -55,6 +55,9 @@ def main():
 
     print(calc)
 
+    for (k, v) in calc.matrix.items():
+        print(k.__hash__(), " - ", v.item.snapshot.__hash__())
+
     calc.calculate_statistics(
         item_provider=coe_data,
         market_provider=economy,

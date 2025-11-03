@@ -35,7 +35,7 @@ pub struct ItemMatrixNode {
     pub propagate: THashMap<CraftCurrencyList, Vec<PropagationTarget>>,
 }
 
-pub type ItemMatrix = THashMap<u64, ItemMatrixNode>;
+pub type ItemMatrix = THashMap<ItemSnapshot, ItemMatrixNode>;
 
 // do not include references ??
 // item and chance are w/e since sizewise nothing changes u64 + u32 + u32 (+ struct)
@@ -48,7 +48,7 @@ pub type ItemMatrix = THashMap<u64, ItemMatrixNode>;
     pyo3(eq, weakref, from_py_object, get_all, frozen, hash, str)
 )]
 pub struct ItemRouteNode {
-    pub item: u64,
+    pub item: ItemSnapshot,
     pub chance: Fraction,
     pub currency_list: CraftCurrencyList,
 }
