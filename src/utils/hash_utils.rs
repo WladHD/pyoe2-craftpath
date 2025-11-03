@@ -14,3 +14,9 @@ pub fn hash_set_unordered<T: Hash>(set: &HashSet<T, FxBuildHasher>) -> u64 {
     }
     combined
 }
+
+pub fn hash_value<T: Hash>(value: &T) -> u64 {
+    let mut hasher = FxHasher::default();
+    value.hash(&mut hasher);
+    hasher.finish()
+}

@@ -1,6 +1,7 @@
 use std::hash::{Hash, Hasher};
 
 use crate::api::calculator_utils::calculate_target_proximity::calculate_target_proximity;
+use crate::api::errors::CraftPathError;
 use crate::calc::statistics::statistic_analyzer_presets::StatisticAnalyzerPreset;
 use crate::{
     api::{
@@ -34,8 +35,6 @@ pub struct ItemMatrixNode {
     pub propagate: THashMap<CraftCurrencyList, Vec<PropagationTarget>>,
 }
 
-crate::derive_DebugDisplay!(PropagationTarget, ItemMatrixNode);
-
 pub type ItemMatrix = THashMap<u64, ItemMatrixNode>;
 
 // do not include references ??
@@ -53,9 +52,6 @@ pub struct ItemRouteNode {
     pub chance: Fraction,
     pub currency_list: CraftCurrencyList,
 }
-
-#[cfg(feature = "python")]
-crate::derive_DebugDisplay!(ItemRouteNode, ItemRoute, StatisticResult);
 
 // this needs to be converted to Python types either way
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -92,6 +88,7 @@ pub trait MatrixBuilder: Send + Sync {
         starting_item: ItemSnapshot,
         target: ItemSnapshot,
         item_info: &ItemInfoProvider,
+        market_info: &MarketPriceProvider,
     ) -> Result<ItemMatrix>;
 }
 
@@ -156,10 +153,13 @@ pub struct StatisticResult {
     pub unit_type: &'static str,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
-#[cfg_attr(feature = "python", pyo3(weakref, from_py_object, frozen, get_all))]
+#[cfg_attr(
+    feature = "python",
+    pyo3(weakref, from_py_object, frozen, get_all, str)
+)]
 pub struct Calculator {
     pub matrix: ItemMatrix,
 }
@@ -170,6 +170,7 @@ impl Calculator {
         starting_item: ItemSnapshot,
         target: ItemSnapshot,
         item_provider: &ItemInfoProvider,
+        market_info: &MarketPriceProvider,
         matrix_builder: MatrixBuilderPreset,
     ) -> Result<Self> {
         let matrix_builder = matrix_builder.get_matrix_builder_instance();
@@ -179,9 +180,22 @@ impl Calculator {
             matrix_builder.0.get_name()
         );
         tracing::info!("Description: {}", matrix_builder.0.get_description());
-        let res = matrix_builder
-            .0
-            .generate_item_matrix(starting_item, target, item_provider)?;
+
+        let res = matrix_builder.0.generate_item_matrix(
+            starting_item,
+            target,
+            item_provider,
+            market_info,
+        )?;
+
+        let reached = res
+            .iter()
+            .any(|test| test.1.item.helper.target_proximity == 0);
+
+        if !reached {
+            return Err(CraftPathError::ItemMatrixCouldNotReachTarget().into());
+        }
+
         tracing::info!("Successfully generated item matrix. (TODO SHOW STATS)");
 
         Ok(Self { matrix: res })
@@ -248,10 +262,17 @@ impl Calculator {
         starting_item: ItemSnapshot,
         target: ItemSnapshot,
         item_provider: &ItemInfoProvider,
+        market_info: &MarketPriceProvider,
         matrix_builder: MatrixBuilderPreset,
     ) -> pyo3::PyResult<Self> {
-        Calculator::generate_item_matrix(starting_item, target, item_provider, matrix_builder)
-            .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
+        Calculator::generate_item_matrix(
+            starting_item,
+            target,
+            item_provider,
+            market_info,
+            matrix_builder,
+        )
+        .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
     }
 
     #[pyo3(name = "calculate_statistics")]
@@ -290,3 +311,13 @@ impl Calculator {
         Calculator::sanity_check_item(start, provider)
     }
 }
+
+#[cfg(feature = "python")]
+crate::derive_DebugDisplay!(
+    PropagationTarget,
+    ItemMatrixNode,
+    Calculator,
+    ItemRouteNode,
+    ItemRoute,
+    StatisticResult
+);
