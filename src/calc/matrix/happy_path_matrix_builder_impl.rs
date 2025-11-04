@@ -15,7 +15,8 @@ use crate::{
         types::{THashMap, THashSet},
     },
     calc::matrix::propagators::{
-        exalted_orb::ExaltedOrbPropagator, orb_of_augmentation::OrbOfAugmentationPropagator,
+        chaos_orb::ChaosOrbPropagator, exalted_orb::ExaltedOrbPropagator,
+        orb_of_augmentation::OrbOfAugmentationPropagator,
         orb_of_transmutation::OrbOfTransmutationPropagator, regal_orb::RegalOrbPropagator,
     },
     utils::fraction_utils::Fraction,
@@ -62,6 +63,7 @@ fn generate_item_matrix(
         Box::new(OrbOfAugmentationPropagator),
         Box::new(RegalOrbPropagator),
         Box::new(ExaltedOrbPropagator),
+        Box::new(ChaosOrbPropagator),
     ];
 
     tracing::info!("Starting propagation ...");
