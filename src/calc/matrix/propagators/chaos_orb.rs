@@ -146,21 +146,21 @@ impl MatrixPropagator for ChaosOrbPropagator {
                         next_items.extend(propagations);
                     }
 
-                    let mut prop_id = CraftCurrencyList {
+                    let mut unique_currency_list = CraftCurrencyList {
                         list: THashSet::default(),
                     };
 
-                    prop_id.list.insert(chaos_orb.clone());
+                    unique_currency_list.list.insert(chaos_orb.clone());
 
                     if let Some(whit) = whittling_omen {
-                        prop_id.list.insert(whit.clone());
+                        unique_currency_list.list.insert(whit.clone());
                     }
 
                     if let Some(loc) = location_omen {
-                        prop_id.list.insert(loc.clone());
+                        unique_currency_list.list.insert(loc.clone());
                     }
 
-                    propagation_result.insert(prop_id, next_items);
+                    propagation_result.insert(unique_currency_list, next_items);
                 }
             }
         }

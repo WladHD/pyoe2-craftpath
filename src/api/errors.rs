@@ -1,6 +1,9 @@
 use thiserror::Error;
 
-use crate::api::types::{AffixId, BaseItemId, EssenceId};
+use crate::api::{
+    item::Item,
+    types::{AffixId, AffixLocationEnum, AffixSpecifier, BaseItemId, EssenceId, ItemLevel},
+};
 
 #[derive(Debug, Error)]
 pub enum CraftPathError {
@@ -18,4 +21,12 @@ pub enum CraftPathError {
         "The target item could not be reached from the given starting item. If you think that it is a bug, open an issue at https://github.com/WladHD/pyoe2-craftpath/issues"
     )]
     ItemMatrixCouldNotReachTarget(),
+    #[error(
+        "Could not reach required affix due to level constraints. Minimal item level is '{0:?}' (current {1:?}) for required affix '{2:?}' ..."
+    )]
+    ItemUnreachableMinLevelConstraint(ItemLevel, ItemLevel, AffixId),
+    #[error("Affix '{1:?}' is unreachable with the item configuration provided in {0:?}.")]
+    ItemUnreachable(Item, AffixSpecifier),
+    #[error("Perfect Essence requires intermediary step to be applied.")]
+    EssenceIntermediaryStepRequired(AffixLocationEnum),
 }

@@ -246,10 +246,7 @@ impl ExaltedOrbPropagator {
 
             let hit_chance_fraction = Fraction::new(affix_chance, max_weight);
 
-            let next_item = PropagationTarget {
-                chance: hit_chance_fraction,
-                next: next_item_snapshot,
-            };
+            let next_item = PropagationTarget::new(hit_chance_fraction, next_item_snapshot);
 
             next_items.push(next_item);
         }

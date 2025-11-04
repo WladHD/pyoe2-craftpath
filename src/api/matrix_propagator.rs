@@ -5,7 +5,7 @@ use crate::api::{
     currency::CraftCurrencyList,
     item::{Item, ItemSnapshot},
     provider::item_info::ItemInfoProvider,
-    types::{AffixSpecifier, THashMap, THashSet},
+    types::THashMap,
 };
 
 pub trait MatrixPropagator {

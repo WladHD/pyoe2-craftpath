@@ -73,15 +73,19 @@ pub struct ItemSnapshotHelper {
 }
 
 // idk if item needs to be marked for sth
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
-#[cfg_attr(feature = "python", pyo3(weakref, from_py_object, get_all, str))]
-pub struct ItemTechnicalMeta {}
+#[cfg_attr(feature = "python", pyo3(eq, weakref, from_py_object, get_all, str))]
+pub struct ItemTechnicalMeta {
+    pub mark_for_essence_only: bool,
+}
 
 impl ItemTechnicalMeta {
     pub fn default() -> Self {
-        Self {}
+        Self {
+            mark_for_essence_only: false,
+        }
     }
 }
 

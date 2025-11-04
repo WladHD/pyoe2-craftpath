@@ -2,6 +2,7 @@ use std::hash::{Hash, Hasher};
 
 use crate::api::calculator_utils::calculate_target_proximity::calculate_target_proximity;
 use crate::api::errors::CraftPathError;
+use crate::api::item::ItemTechnicalMeta;
 use crate::calc::statistics::statistic_analyzer_presets::StatisticAnalyzerPreset;
 use crate::{
     api::{
@@ -24,6 +25,17 @@ use tracing::instrument;
 pub struct PropagationTarget {
     pub next: ItemSnapshot,
     pub chance: Fraction,
+    pub meta: ItemTechnicalMeta,
+}
+
+impl PropagationTarget {
+    pub fn new(chance: Fraction, next: ItemSnapshot) -> Self {
+        Self {
+            next,
+            chance,
+            meta: ItemTechnicalMeta::default(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
