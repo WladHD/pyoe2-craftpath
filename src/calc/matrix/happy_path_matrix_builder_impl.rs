@@ -16,6 +16,7 @@ use crate::{
     },
     calc::matrix::propagators::{
         chaos_orb::ChaosOrbPropagator, exalted_orb::ExaltedOrbPropagator,
+        orb_of_annulment::OrbOfAnnulmentPropagator,
         orb_of_augmentation::OrbOfAugmentationPropagator,
         orb_of_transmutation::OrbOfTransmutationPropagator, regal_orb::RegalOrbPropagator,
     },
@@ -64,6 +65,7 @@ fn generate_item_matrix(
         Box::new(RegalOrbPropagator),
         Box::new(ExaltedOrbPropagator),
         Box::new(ChaosOrbPropagator),
+        Box::new(OrbOfAnnulmentPropagator),
     ];
 
     tracing::info!("Starting propagation ...");
