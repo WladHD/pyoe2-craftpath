@@ -14,7 +14,7 @@ use crate::{
         },
         types::{THashMap, THashSet},
     },
-    calc::matrix::propagators::{orb_of_augmentation::OrbOfAugmentationPropagator, orb_of_transmutation::OrbOfTransmutationPropagator},
+    calc::matrix::propagators::{orb_of_augmentation::OrbOfAugmentationPropagator, orb_of_transmutation::OrbOfTransmutationPropagator, regal_orb::RegalOrbPropagator},
     utils::fraction_utils::Fraction,
 };
 
@@ -54,7 +54,7 @@ fn generate_item_matrix(
 
     // setup propagators
 
-    let propagators: Vec<Box<dyn MatrixPropagator>> = vec![Box::new(OrbOfTransmutationPropagator), Box::new(OrbOfAugmentationPropagator)];
+    let propagators: Vec<Box<dyn MatrixPropagator>> = vec![Box::new(OrbOfTransmutationPropagator), Box::new(OrbOfAugmentationPropagator), Box::new(RegalOrbPropagator)];
 
     tracing::info!("Starting propagation ...");
 
