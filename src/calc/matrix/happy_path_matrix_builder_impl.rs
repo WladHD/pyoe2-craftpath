@@ -14,8 +14,8 @@ use crate::{
         },
         types::{THashMap, THashSet},
     },
-    calc::matrix::propagators::orb_of_transmutation::OrbOfTransmutationPropagator,
-    utils::{fraction_utils::Fraction},
+    calc::matrix::propagators::{orb_of_augmentation::OrbOfAugmentationPropagator, orb_of_transmutation::OrbOfTransmutationPropagator},
+    utils::fraction_utils::Fraction,
 };
 
 pub struct HappyPathMatrixBuilderImpl;
@@ -54,7 +54,7 @@ fn generate_item_matrix(
 
     // setup propagators
 
-    let propagators: Vec<Box<dyn MatrixPropagator>> = vec![Box::new(OrbOfTransmutationPropagator)];
+    let propagators: Vec<Box<dyn MatrixPropagator>> = vec![Box::new(OrbOfTransmutationPropagator), Box::new(OrbOfAugmentationPropagator)];
 
     tracing::info!("Starting propagation ...");
 
