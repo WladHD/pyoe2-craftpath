@@ -15,7 +15,7 @@ use crate::{
         types::{THashMap, THashSet},
     },
     calc::matrix::propagators::{
-        chaos_orb::ChaosOrbPropagator, exalted_orb::ExaltedOrbPropagator, orb_of_annulment::OrbOfAnnulmentPropagator, orb_of_augmentation::OrbOfAugmentationPropagator, orb_of_transmutation::OrbOfTransmutationPropagator, perfect_essences::PerfectEssencePropagator, regal_orb::RegalOrbPropagator
+        chaos_orb::ChaosOrbPropagator, desecration::DesecrationPropagator, exalted_orb::ExaltedOrbPropagator, orb_of_annulment::OrbOfAnnulmentPropagator, orb_of_augmentation::OrbOfAugmentationPropagator, orb_of_transmutation::OrbOfTransmutationPropagator, perfect_essences::PerfectEssencePropagator, regal_orb::RegalOrbPropagator
     },
     utils::fraction_utils::Fraction,
 };
@@ -64,6 +64,7 @@ fn generate_item_matrix(
         Box::new(ChaosOrbPropagator),
         Box::new(OrbOfAnnulmentPropagator),
         Box::new(PerfectEssencePropagator),
+        Box::new(DesecrationPropagator)
     ];
 
     let essence_only: Vec<Box<dyn MatrixPropagator>> = vec![

@@ -125,7 +125,12 @@ impl CraftCurrencyEnum {
             CraftCurrencyEnum::TheLiege() => "Omen of the Liege",
             CraftCurrencyEnum::TheSovereign() => "Omen of the Sovereign",
             CraftCurrencyEnum::Whittling() => "Omen of Whittling",
-            CraftCurrencyEnum::Desecrator(_bid) => todo!(), // probably needs to be handtyped too
+            CraftCurrencyEnum::Desecrator(bid) => {
+                // TODO: complete mappings for normal desecrators. unconstrained propagation not supported, so ancient stuff can be ignored.
+                match bid {
+                    _ => "Preserved Jawbone",
+                }
+            }
             CraftCurrencyEnum::Essence(bid) => item_info
                 .cache_essence_def
                 .get(bid)
