@@ -14,7 +14,10 @@ use crate::{
         },
         types::{THashMap, THashSet},
     },
-    calc::matrix::propagators::{orb_of_augmentation::OrbOfAugmentationPropagator, orb_of_transmutation::OrbOfTransmutationPropagator, regal_orb::RegalOrbPropagator},
+    calc::matrix::propagators::{
+        exalted_orb::ExaltedOrbPropagator, orb_of_augmentation::OrbOfAugmentationPropagator,
+        orb_of_transmutation::OrbOfTransmutationPropagator, regal_orb::RegalOrbPropagator,
+    },
     utils::fraction_utils::Fraction,
 };
 
@@ -54,7 +57,12 @@ fn generate_item_matrix(
 
     // setup propagators
 
-    let propagators: Vec<Box<dyn MatrixPropagator>> = vec![Box::new(OrbOfTransmutationPropagator), Box::new(OrbOfAugmentationPropagator), Box::new(RegalOrbPropagator)];
+    let propagators: Vec<Box<dyn MatrixPropagator>> = vec![
+        Box::new(OrbOfTransmutationPropagator),
+        Box::new(OrbOfAugmentationPropagator),
+        Box::new(RegalOrbPropagator),
+        Box::new(ExaltedOrbPropagator),
+    ];
 
     tracing::info!("Starting propagation ...");
 
@@ -76,8 +84,8 @@ fn generate_item_matrix(
                     // propagate all items starting from item_snapshot
                     // should also check for same chance, but higher cost -> remove
                     for some_propagator in propagators.iter() {
-                        if !some_propagator.is_applicable(&item, &item_info) { 
-                            continue; 
+                        if !some_propagator.is_applicable(&item, &item_info) {
+                            continue;
                         }
 
                         match some_propagator.propagate_step(&item, &target_item, &item_info) {
