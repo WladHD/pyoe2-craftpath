@@ -15,10 +15,7 @@ use crate::{
         types::{THashMap, THashSet},
     },
     calc::matrix::propagators::{
-        chaos_orb::ChaosOrbPropagator, exalted_orb::ExaltedOrbPropagator,
-        orb_of_annulment::OrbOfAnnulmentPropagator,
-        orb_of_augmentation::OrbOfAugmentationPropagator,
-        orb_of_transmutation::OrbOfTransmutationPropagator, regal_orb::RegalOrbPropagator,
+        chaos_orb::ChaosOrbPropagator, exalted_orb::ExaltedOrbPropagator, orb_of_annulment::OrbOfAnnulmentPropagator, orb_of_augmentation::OrbOfAugmentationPropagator, orb_of_transmutation::OrbOfTransmutationPropagator, perfect_essences::PerfectEssencePropagator, regal_orb::RegalOrbPropagator
     },
     utils::fraction_utils::Fraction,
 };
@@ -66,6 +63,11 @@ fn generate_item_matrix(
         Box::new(ExaltedOrbPropagator),
         Box::new(ChaosOrbPropagator),
         Box::new(OrbOfAnnulmentPropagator),
+        Box::new(PerfectEssencePropagator),
+    ];
+
+    let essence_only: Vec<Box<dyn MatrixPropagator>> = vec![
+        Box::new(PerfectEssencePropagator),
     ];
 
     tracing::info!("Starting propagation ...");
@@ -84,6 +86,8 @@ fn generate_item_matrix(
                 let mut hm: THashMap<CraftCurrencyList, Vec<PropagationTarget>> =
                     THashMap::default();
 
+                let propagators = if item.meta.mark_for_essence_only { &essence_only } else { &propagators };
+                
                 if item.helper.target_proximity != 0 {
                     // propagate all items starting from item_snapshot
                     // should also check for same chance, but higher cost -> remove
