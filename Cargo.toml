@@ -31,6 +31,7 @@ thiserror = "2.0.17"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = { version = "1.0.145", features = ["preserve_order"] }
 reqwest = { version = "0.12.24", features = ["blocking"] }
+num-integer = "0.1.46"
 
 
 [lib]

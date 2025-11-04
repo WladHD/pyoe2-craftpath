@@ -1183,6 +1183,7 @@ name = "pyoe2-craftpath"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "num-integer",
  "pyo3",
  "pyo3-stub-gen",
  "reqwest",
