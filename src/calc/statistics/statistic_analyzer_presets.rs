@@ -2,7 +2,10 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     api::calculator::DynStatisticAnalyzer,
-    calc::statistics::unique_path_chance_statistic_analyzer::UniquePathChanceStatisticAnalyzer,
+    calc::statistics::analyzers::{
+        all_path_chance_statistic_analyzer::AllUniquePathsChanceStatisticAnalyzer,
+        unique_path_chance_statistic_analyzer::UniquePathChanceStatisticAnalyzer,
+    },
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -13,6 +16,7 @@ pub enum StatisticAnalyzerPreset {
     UniquePathChance,
     UniquePathEfficiency,
     UniquePathCost,
+    AllUniquePathChance,
 }
 
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pymethods)]
@@ -22,6 +26,9 @@ impl StatisticAnalyzerPreset {
         match self {
             &StatisticAnalyzerPreset::UniquePathChance => {
                 DynStatisticAnalyzer(Box::new(UniquePathChanceStatisticAnalyzer))
+            }
+            &StatisticAnalyzerPreset::AllUniquePathChance => {
+                DynStatisticAnalyzer(Box::new(AllUniquePathsChanceStatisticAnalyzer))
             }
             _ => todo!(),
         }

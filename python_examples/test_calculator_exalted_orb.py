@@ -62,6 +62,17 @@ def main():
 
     print(res)
 
+    # this is disabled for CI, you can enable it if you want to test it
+    # all = calc.calculate_statistics(
+    #     item_provider=coe_data,
+    #     market_provider=economy,
+    #     max_routes=1,  # this is ignored
+    #     max_ram_in_bytes=5000000000,  # 5 GB
+    #     statistic_analyzer=pc.StatisticAnalyzerPreset.AllUniquePathChance)
+
+    # print("Result contains", all.sorted_routes.__len__(),
+    #       "unique routes sorted by chance ...")
+
 
 if __name__ == "__main__":
     main()

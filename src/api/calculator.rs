@@ -303,21 +303,25 @@ impl Calculator {
     #[pyo3(name = "calculate_statistics")]
     fn calculate_statistics_py(
         &mut self,
+        py: pyo3::Python,
         item_provider: &ItemInfoProvider,
         market_provider: &MarketPriceProvider,
         max_routes: u32,
         max_ram_in_bytes: u64,
         statistic_analyzer: StatisticAnalyzerPreset,
     ) -> pyo3::PyResult<StatisticResult> {
-        self.calculate_statistics(
-            item_provider,
-            market_provider,
-            max_routes,
-            max_ram_in_bytes,
-            statistic_analyzer,
-        )
-        .cloned()
-        .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
+        // allow parallelization
+        py.detach(move || {
+            self.calculate_statistics(
+                item_provider,
+                market_provider,
+                max_routes,
+                max_ram_in_bytes,
+                statistic_analyzer,
+            )
+            .cloned()
+            .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
+        })
     }
 
     #[staticmethod]

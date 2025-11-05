@@ -1,3 +1,6 @@
-pub mod statistic_analyzer_collector;
+pub mod analyzers;
+pub mod collectors;
+pub mod helpers;
+pub mod statistic_analyzer_all_path_collector;
 pub mod statistic_analyzer_presets;
-pub mod unique_path_chance_statistic_analyzer;
+pub mod statistic_analyzer_unique_collector;
