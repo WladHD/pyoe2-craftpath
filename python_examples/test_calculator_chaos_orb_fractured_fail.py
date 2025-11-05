@@ -44,10 +44,8 @@ def main():
 
     print(inst)
 
-    # methods below panicing since not implemented yet,
-    # but structure should be as follows:
     try:
-        calc = pc.Calculator.generate_item_matrix(
+        pc.Calculator.generate_item_matrix(
             starting_item=start_item,
             target=end_item,
             item_provider=coe_data,

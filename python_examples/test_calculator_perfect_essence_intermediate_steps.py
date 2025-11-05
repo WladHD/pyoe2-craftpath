@@ -44,8 +44,6 @@ def main():
 
     print(inst)
 
-    # methods below panicing since not implemented yet,
-    # but structure should be as follows:
     calc = pc.Calculator.generate_item_matrix(
         starting_item=start_item,
         target=end_item,
@@ -55,12 +53,14 @@ def main():
 
     print("Matrix contains", calc.matrix.__len__(), "items")
 
-    calc.calculate_statistics(
+    res = calc.calculate_statistics(
         item_provider=coe_data,
         market_provider=economy,
         max_routes=5,
         max_ram_in_bytes=1000000000,  # 1 GB
         statistic_analyzer=pc.StatisticAnalyzerPreset.UniquePathChance)
+
+    print(res)
 
 
 if __name__ == "__main__":
