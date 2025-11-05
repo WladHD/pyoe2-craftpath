@@ -1,3 +1,17 @@
+use std::mem::size_of;
+
+use tracing::instrument;
+
+use crate::{
+    api::{
+        calculator::{ItemMatrix, ItemMatrixNode, ItemRoute, ItemRouteNode},
+        currency::CraftCurrencyList,
+        item::ItemSnapshot,
+        provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
+    },
+    utils::{fraction_utils::Fraction, hash_utils::hash_value},
+};
+
 #[derive(Clone, Debug)]
 pub struct ItemRouteNodeRef<'a> {
     pub item: &'a ItemSnapshot,
@@ -10,13 +24,6 @@ pub struct ItemRouteRef<'a> {
     pub route: Vec<ItemRouteNodeRef<'a>>,
     pub weight: f64,
 }
-
-use std::mem::size_of;
-
-use crate::{
-    api::{calculator::ItemMatrixNode, currency::CraftCurrencyList, item::ItemSnapshot},
-    utils::fraction_utils::Fraction,
-};
 
 /// Calculates RAM usage in bytes for an ItemRouteNodeRef<'a>.
 pub fn ram_usage_item_route_node_ref<'a>(_node: &ItemRouteNodeRef<'a>) -> u64 {
@@ -41,4 +48,48 @@ pub fn ram_usage_stack_entry<'a>(path: &Vec<ItemRouteNodeRef<'a>>, _node: &ItemM
     let node_ref_size = size_of::<&ItemMatrixNode>();
 
     (vec_overhead + node_size * vec_capacity + node_ref_size) as u64
+}
+
+pub trait StatisticAnalyzerCollectorTrait {
+    fn get_weight(
+        path: &Vec<ItemRouteNodeRef<'_>>,
+        matrix: &ItemMatrix,
+        item_provider: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+    ) -> f64;
+}
+
+pub trait StatisticAnalyzerCurrencyGroupCollectorTrait {
+    fn get_partial_weights(
+        path: &Vec<ItemRouteNodeRef<'_>>,
+        matrix: &ItemMatrix,
+        item_provider: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+    ) -> Vec<f64>;
+
+    fn calculate_group_weight(currency: &Vec<CraftCurrencyList>, paths: &Vec<Vec<f64>>) -> f64;
+}
+
+#[instrument(skip_all)]
+pub fn finalize_routes(mut routes: Vec<ItemRouteRef<'_>>) -> Vec<ItemRoute> {
+    tracing::info!("Collecting {} routes ...", routes.len());
+    let mut finalized = Vec::new();
+
+    for route_ref in routes.drain(..) {
+        let mut owned_nodes = Vec::with_capacity(route_ref.route.len());
+        for node_ref in route_ref.route {
+            owned_nodes.push(ItemRouteNode {
+                item_matrix_id: hash_value(node_ref.item),
+                chance: node_ref.chance.clone(),
+                currency_list: node_ref.currency_list.clone(),
+            });
+        }
+        finalized.push(ItemRoute {
+            route: owned_nodes,
+            weight: route_ref.weight,
+        });
+    }
+
+    tracing::info!("Routes collected successfully.");
+    finalized
 }

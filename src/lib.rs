@@ -10,7 +10,9 @@ pub mod py {
     use pyo3_stub_gen::define_stub_info_gatherer;
     use pyo3_stub_gen::derive::gen_stub_pyfunction;
 
-    use crate::api::calculator::{Calculator, DynMatrixBuilder, DynStatisticAnalyzer};
+    use crate::api::calculator::{
+        Calculator, DynMatrixBuilder, DynStatisticAnalyzerCurrencyGroups, DynStatisticAnalyzerPaths,
+    };
     use crate::api::currency::CraftCurrencyEnum;
     use crate::api::item::ItemSnapshot;
     use crate::api::provider::item_info::ItemInfoProvider;
@@ -22,7 +24,8 @@ pub mod py {
         EssenceId, THashMap,
     };
     use crate::calc::matrix::matrix_builder_presets::MatrixBuilderPreset;
-    use crate::calc::statistics::statistic_analyzer_presets::StatisticAnalyzerPreset;
+    use crate::calc::statistics::statistic_analyzer_currency_group_presets::StatisticAnalyzerCurrencyGroupPreset;
+    use crate::calc::statistics::statistic_analyzer_path_presets::StatisticAnalyzerPathPreset;
     use crate::external_api::coe::craftofexile_data_provider_adapter::CraftOfExileItemInfoProvider;
     use crate::external_api::coe_emulator::coe_emulator_item_snapshot_provider::CraftOfExileEmulatorItemImport;
     use crate::external_api::pn::poe_ninja_data_provider_adapter::PoeNinjaMarketPriceProvider;
@@ -87,10 +90,12 @@ pub mod py {
         m.add_class::<CraftCurrencyEnum>()?;
 
         m.add_class::<Calculator>()?;
-        m.add_class::<DynMatrixBuilder>()?;
-        m.add_class::<DynStatisticAnalyzer>()?;
         m.add_class::<MatrixBuilderPreset>()?;
-        m.add_class::<StatisticAnalyzerPreset>()?;
+        m.add_class::<DynMatrixBuilder>()?;
+        m.add_class::<DynStatisticAnalyzerPaths>()?;
+        m.add_class::<DynStatisticAnalyzerCurrencyGroups>()?;
+        m.add_class::<StatisticAnalyzerPathPreset>()?;
+        m.add_class::<StatisticAnalyzerCurrencyGroupPreset>()?;
 
         m.add_class::<BaseItemId>()?;
         m.add_class::<EssenceId>()?;

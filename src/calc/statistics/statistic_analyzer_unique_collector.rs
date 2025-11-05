@@ -7,22 +7,15 @@ use num_format::{Locale, ToFormattedString};
 
 use crate::{
     api::{
-        calculator::{Calculator, ItemMatrix, ItemMatrixNode},
+        calculator::{Calculator, ItemMatrixNode},
         errors::CraftPathError,
         provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
     },
-    calc::statistics::helpers::{ItemRouteNodeRef, ItemRouteRef, ram_usage_item_route_ref},
+    calc::statistics::helpers::{
+        ItemRouteNodeRef, ItemRouteRef, StatisticAnalyzerCollectorTrait, ram_usage_item_route_ref,
+    },
     utils::hash_utils::hash_value,
 };
-
-pub trait StatisticAnalyzerCollectorTrait {
-    fn get_weight(
-        path: &Vec<ItemRouteNodeRef<'_>>,
-        matrix: &ItemMatrix,
-        item_provider: &ItemInfoProvider,
-        market_provider: &MarketPriceProvider,
-    ) -> f64;
-}
 
 pub fn calculate_crafting_paths<'a, T: StatisticAnalyzerCollectorTrait>(
     calculator: &'a Calculator,

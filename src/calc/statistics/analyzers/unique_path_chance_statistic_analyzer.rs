@@ -3,21 +3,20 @@ use tracing::instrument;
 
 use crate::{
     api::{
-        calculator::{Calculator, ItemMatrix, ItemRoute, StatisticAnalyzer},
+        calculator::{Calculator, ItemMatrix, ItemRoute, StatisticAnalyzerPaths},
         provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
     },
     calc::statistics::{
-        helpers::{ItemRouteNodeRef, ItemRouteRef},
-        statistic_analyzer_all_path_collector::finalize_routes,
-        statistic_analyzer_unique_collector::{
-            StatisticAnalyzerCollectorTrait, calculate_crafting_paths,
+        helpers::{
+            ItemRouteNodeRef, ItemRouteRef, StatisticAnalyzerCollectorTrait, finalize_routes,
         },
+        statistic_analyzer_unique_collector::calculate_crafting_paths,
     },
 };
 
 pub struct UniquePathChanceStatisticAnalyzer;
 
-impl StatisticAnalyzer for UniquePathChanceStatisticAnalyzer {
+impl StatisticAnalyzerPaths for UniquePathChanceStatisticAnalyzer {
     fn get_name(&self) -> &'static str {
         "Unique Path by Highest Chance"
     }

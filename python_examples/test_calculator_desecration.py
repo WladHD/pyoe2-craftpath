@@ -4,6 +4,8 @@ from pprint import pprint
 import os
 import requests
 import time
+from functools import reduce
+from operator import mul
 
 COE_MAP = {
     "./cache/coe2.json": "https://www.craftofexile.com/json/poe2/main/poec_data.json",
@@ -57,9 +59,35 @@ def main():
         market_provider=economy,
         max_routes=5,
         max_ram_in_bytes=1000000000,  # 1 GB
-        statistic_analyzer=pc.StatisticAnalyzerPreset.UniquePathChance)
+        statistic_analyzer=pc.StatisticAnalyzerPathPreset.UniquePathChance)
 
-    print(res)
+    group_map = calc.calculate_statistics_currency_group(
+        item_provider=coe_data,
+        market_provider=economy,
+        max_ram_in_bytes=1000000000,  # 1 GB currently useless
+        statistic_analyzer=pc.StatisticAnalyzerCurrencyGroupPreset.CurrencyGroupChance)
+
+    highest_chance = res.sorted_routes[0]
+
+    print(highest_chance)
+
+    # Quickn dirty way to print highest chance grouped currency sequence
+    highest_chance_group = group_map[0]
+    for index, currency_sequence_part in enumerate(highest_chance_group[0]):
+        print(list(map(lambda x: x.__str__(), currency_sequence_part.list)))
+
+        vecs = highest_chance_group[2]
+
+        result = []
+
+        for i in range(index + 1):
+            products = []
+            for v in vecs:
+                prod = reduce(mul, v[:i+1], 1.0)
+                products.append(prod)
+            result.append(sum(products))
+
+        print(result)
 
 
 if __name__ == "__main__":

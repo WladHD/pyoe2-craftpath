@@ -4,35 +4,32 @@ use anyhow::{Result, anyhow};
 use humansize::SizeFormatter;
 use indicatif::{ProgressBar, ProgressStyle};
 use num_format::{Locale, ToFormattedString};
-use rayon::slice::ParallelSliceMut;
 
 use crate::{
     api::{
         calculator::{Calculator, ItemMatrixNode},
-        errors::CraftPathError,
+        currency::CraftCurrencyList,
         provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
+        types::THashMap,
     },
-    calc::statistics::helpers::{
-        ItemRouteNodeRef, ItemRouteRef, StatisticAnalyzerCollectorTrait, ram_usage_item_route_ref,
-    },
+    calc::statistics::helpers::{ItemRouteNodeRef, StatisticAnalyzerCurrencyGroupCollectorTrait},
     utils::hash_utils::hash_value,
 };
 
-pub fn calculate_all_paths<'a, T: StatisticAnalyzerCollectorTrait>(
+pub fn calculate_currency_groups<'a, T: StatisticAnalyzerCurrencyGroupCollectorTrait>(
     calculator: &'a Calculator,
     item_provider: &'a ItemInfoProvider,
     market_provider: &'a MarketPriceProvider,
     max_ram_in_bytes: u64,
-    lower_is_better: bool,
-) -> Result<Vec<ItemRouteRef<'a>>> {
+) -> Result<THashMap<Vec<&'a CraftCurrencyList>, Vec<Vec<f64>>>> {
     tracing::info!("Generating unique craft paths based on item matrix");
 
     // current path, build for item
     let mut stack: Vec<(Vec<ItemRouteNodeRef>, &ItemMatrixNode)> = Vec::new();
     // sorted collection
-    let mut results: Vec<ItemRouteRef> = Vec::new();
+    let mut results: THashMap<Vec<&CraftCurrencyList>, Vec<Vec<f64>>> = THashMap::default();
 
-    let mut actual_ram: u64 = 0;
+    // let mut actual_ram: u64 = 0;
 
     let tree = &calculator.matrix;
     let start = calculator
@@ -46,6 +43,7 @@ pub fn calculate_all_paths<'a, T: StatisticAnalyzerCollectorTrait>(
 
     let start_time = Instant::now();
     let mut count = 0usize;
+    let mut collected = 0usize;
     let pb = ProgressBar::new_spinner();
     pb.set_style(
         ProgressStyle::with_template("{spinner:.green} {msg}")
@@ -58,25 +56,26 @@ pub fn calculate_all_paths<'a, T: StatisticAnalyzerCollectorTrait>(
         count += 1;
 
         if count % 200_000 == 0 {
-            if max_ram_in_bytes < actual_ram {
-                return Err(CraftPathError::RamLimitReached(format!(
-                    "{}",
-                    SizeFormatter::new(max_ram_in_bytes, humansize::DECIMAL)
-                ))
-                .into());
-            }
+            // if max_ram_in_bytes < actual_ram {
+            //     return Err(CraftPathError::RamLimitReached(format!(
+            //         "{}",
+            //         SizeFormatter::new(max_ram_in_bytes, humansize::DECIMAL)
+            //     ))
+            //     .into());
+            // }
 
             let elapsed = start_time.elapsed().as_secs_f64();
             let speed = (count as f64 / elapsed).round() as u64; // integer paths/sec
             let accepted_routes = results.len();
-            let est_ram_usage = SizeFormatter::new(actual_ram, humansize::DECIMAL);
+            // let est_ram_usage = SizeFormatter::new(actual_ram, humansize::DECIMAL);
 
             pb.set_message(format!(
-                    "Applied {} currencies, resulting in {} routes [Speed: {} currencies/sec, RAM usage: {}/{}]",
+                    "Applied {} currencies, resulting in {} groups (from total of {} paths) [Speed: {} currencies/sec, RAM usage: {}/{}]",
                     count.to_formatted_string(&Locale::en),
                     accepted_routes.to_formatted_string(&Locale::en),
+                    collected.to_formatted_string(&Locale::en),
                     speed.to_formatted_string(&Locale::en),
-                    est_ram_usage,
+                    "not implemented yet",
                     max_ram_show
                 )
             );
@@ -84,16 +83,18 @@ pub fn calculate_all_paths<'a, T: StatisticAnalyzerCollectorTrait>(
 
         if node.item.helper.target_proximity == 0 {
             // weight is gonna be calculated by statistic
-            let weight = T::get_weight(&path, &calculator.matrix, &item_provider, &market_provider);
+            collected += 1;
+            let weights =
+                T::get_partial_weights(&path, &calculator.matrix, &item_provider, &market_provider);
 
-            let route = ItemRouteRef {
-                route: path,
-                weight,
-            };
+            let path = path.iter().fold(Vec::new(), |mut a, b| {
+                a.push(b.currency_list);
+                a
+            });
 
-            let accepted_route_ram = ram_usage_item_route_ref(&route);
-            actual_ram += accepted_route_ram;
-            results.push(route);
+            // actual_ram += (9 as u64) * (path.len() as u64);
+
+            results.entry(path).or_default().push(weights);
             continue;
         }
 
@@ -122,23 +123,17 @@ pub fn calculate_all_paths<'a, T: StatisticAnalyzerCollectorTrait>(
         }
     }
 
-    tracing::info!("Sorting all paths ...");
-
-    if lower_is_better {
-        results.par_sort_by(|a, b| {
-            a.weight
-                .partial_cmp(&b.weight)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
-    } else {
-        results.par_sort_by(|a, b| {
-            b.weight
-                .partial_cmp(&a.weight)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
-    }
-
-    tracing::info!("Sorting completed.");
-
     Ok(results)
+}
+
+fn estimate_results_entry_ram(key: &[&CraftCurrencyList], value: &[Vec<f64>]) -> u64 {
+    let key_ram = size_of::<Vec<&CraftCurrencyList>>() as u64
+        + key.len() as u64 * size_of::<&CraftCurrencyList>() as u64;
+
+    let value_ram: u64 = value
+        .iter()
+        .map(|v| size_of::<Vec<f64>>() as u64 + v.len() as u64 * size_of::<f64>() as u64)
+        .sum();
+
+    key_ram + value_ram
 }

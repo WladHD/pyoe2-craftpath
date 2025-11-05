@@ -61,7 +61,7 @@ def main():
         market_provider=economy,
         max_routes=5,
         max_ram_in_bytes=1000000000,  # 1 GB
-        statistic_analyzer=pc.StatisticAnalyzerPreset.UniquePathChance)
+        statistic_analyzer=pc.StatisticAnalyzerPathPreset.UniquePathChance)
 
     print(res)
 
@@ -70,7 +70,7 @@ def main():
         market_provider=economy,
         max_routes=1,  # this is ignored
         max_ram_in_bytes=5000000000,  # 5 GB
-        statistic_analyzer=pc.StatisticAnalyzerPreset.AllUniquePathChance)
+        statistic_analyzer=pc.StatisticAnalyzerPathPreset.AllUniquePathChance)
 
     print("Result contains", all.sorted_routes.__len__(),
           "unique routes sorted by chance ...")

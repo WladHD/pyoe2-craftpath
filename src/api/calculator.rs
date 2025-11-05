@@ -3,7 +3,8 @@ use std::hash::{Hash, Hasher};
 use crate::api::calculator_utils::calculate_target_proximity::calculate_target_proximity;
 use crate::api::errors::CraftPathError;
 use crate::api::item::ItemTechnicalMeta;
-use crate::calc::statistics::statistic_analyzer_presets::StatisticAnalyzerPreset;
+use crate::calc::statistics::statistic_analyzer_currency_group_presets::StatisticAnalyzerCurrencyGroupPreset;
+use crate::calc::statistics::statistic_analyzer_path_presets::StatisticAnalyzerPathPreset;
 use crate::{
     api::{
         currency::CraftCurrencyList,
@@ -120,7 +121,7 @@ impl std::fmt::Display for DynMatrixBuilder {
     }
 }
 
-pub trait StatisticAnalyzer {
+pub trait StatisticAnalyzerPaths {
     fn get_name(&self) -> &'static str;
     fn get_description(&self) -> &'static str;
     fn get_unit_type(&self) -> &'static str;
@@ -135,12 +136,26 @@ pub trait StatisticAnalyzer {
     ) -> Result<Vec<ItemRoute>>;
 }
 
+pub trait StatisticAnalyzerCurrencyGroups {
+    fn get_name(&self) -> &'static str;
+    fn get_description(&self) -> &'static str;
+    fn get_unit_type(&self) -> &'static str;
+    fn lower_is_better(&self) -> bool;
+    fn get_statistic(
+        &self,
+        calculator: &Calculator,
+        item_provider: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+        max_ram_in_bytes: u64,
+    ) -> Result<Vec<(Vec<CraftCurrencyList>, f64, Vec<Vec<f64>>)>>;
+}
+
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[cfg_attr(feature = "python", pyo3(str))]
-pub struct DynStatisticAnalyzer(pub Box<dyn StatisticAnalyzer + Send + Sync>);
+pub struct DynStatisticAnalyzerPaths(pub Box<dyn StatisticAnalyzerPaths + Send + Sync>);
 
-impl std::fmt::Display for DynStatisticAnalyzer {
+impl std::fmt::Display for DynStatisticAnalyzerPaths {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -148,6 +163,24 @@ impl std::fmt::Display for DynStatisticAnalyzer {
             self.0.get_name(),
             self.0.get_description(),
             self.0.lower_is_better(),
+        )
+    }
+}
+
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
+#[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
+#[cfg_attr(feature = "python", pyo3(str))]
+pub struct DynStatisticAnalyzerCurrencyGroups(
+    pub Box<dyn StatisticAnalyzerCurrencyGroups + Send + Sync>,
+);
+
+impl std::fmt::Display for DynStatisticAnalyzerCurrencyGroups {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Statistic Analyzer ({})\nDescription: {}",
+            self.0.get_name(),
+            self.0.get_description()
         )
     }
 }
@@ -225,7 +258,7 @@ impl Calculator {
         market_provider: &MarketPriceProvider,
         max_routes: u32,
         max_ram_in_bytes: u64,
-        statistic_analyzer: StatisticAnalyzerPreset,
+        statistic_analyzer: StatisticAnalyzerPathPreset,
     ) -> Result<&StatisticResult> {
         let statistic_analyzer = statistic_analyzer.get_statistic_analyzer_instance();
         tracing::info!(
@@ -258,6 +291,31 @@ impl Calculator {
     }
 
     #[instrument(skip_all)]
+    pub fn calculate_statistics_currency_group(
+        &self,
+        item_provider: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+        max_ram_in_bytes: u64,
+        statistic_analyzer: StatisticAnalyzerCurrencyGroupPreset,
+    ) -> Result<Vec<(Vec<CraftCurrencyList>, f64, Vec<Vec<f64>>)>> {
+        let statistic_analyzer = statistic_analyzer.get_statistic_analyzer_instance();
+        tracing::info!(
+            "Using '{}' to calculate statistics ...",
+            statistic_analyzer.0.get_name()
+        );
+        tracing::info!("Description: {}", statistic_analyzer.0.get_description());
+        let res = statistic_analyzer.0.get_statistic(
+            &self,
+            item_provider,
+            market_provider,
+            max_ram_in_bytes,
+        )?;
+        tracing::info!("Successfully calculated statistics. (TODO SHOW STATS)");
+
+        Ok(res)
+    }
+
+    #[instrument(skip_all)]
     pub fn calculate_target_proximity(
         start: &ItemSnapshot,
         target: &ItemSnapshot,
@@ -269,7 +327,7 @@ impl Calculator {
     }
 
     #[instrument(skip_all)]
-    pub fn sanity_check_item(start: &ItemSnapshot, provider: &ItemInfoProvider) -> bool {
+    pub fn sanity_check_item(_start: &ItemSnapshot, _provider: &ItemInfoProvider) -> bool {
         todo!()
 
         // provide an item and check if the selected mods are reachable.
@@ -308,7 +366,7 @@ impl Calculator {
         market_provider: &MarketPriceProvider,
         max_routes: u32,
         max_ram_in_bytes: u64,
-        statistic_analyzer: StatisticAnalyzerPreset,
+        statistic_analyzer: StatisticAnalyzerPathPreset,
     ) -> pyo3::PyResult<StatisticResult> {
         // allow parallelization
         py.detach(move || {
@@ -322,6 +380,23 @@ impl Calculator {
             .cloned()
             .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
         })
+    }
+
+    #[pyo3(name = "calculate_statistics_currency_group")]
+    pub fn calculate_statistics_currency_group_py(
+        &self,
+        item_provider: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+        max_ram_in_bytes: u64,
+        statistic_analyzer: StatisticAnalyzerCurrencyGroupPreset,
+    ) -> pyo3::PyResult<Vec<(Vec<CraftCurrencyList>, f64, Vec<Vec<f64>>)>> {
+        self.calculate_statistics_currency_group(
+            item_provider,
+            market_provider,
+            max_ram_in_bytes,
+            statistic_analyzer,
+        )
+        .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
     }
 
     #[staticmethod]

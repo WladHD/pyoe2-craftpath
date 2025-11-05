@@ -61,7 +61,7 @@ def main():
         market_provider=economy,
         max_routes=5,
         max_ram_in_bytes=1000000000,  # 1 GB
-        statistic_analyzer=pc.StatisticAnalyzerPreset.UniquePathChance)
+        statistic_analyzer=pc.StatisticAnalyzerPathPreset.UniquePathChance)
 
     print(res)
 

@@ -1,2 +1,3 @@
 pub mod all_path_chance_statistic_analyzer;
+pub mod currency_group_chance_statistic_analyzer;
 pub mod unique_path_chance_statistic_analyzer;

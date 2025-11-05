@@ -53,14 +53,22 @@ def main():
 
     print("Matrix contains", calc.matrix.__len__(), "items")
 
-    res = calc.calculate_statistics(
-        item_provider=coe_data,
-        market_provider=economy,
-        max_routes=5,
-        max_ram_in_bytes=1000000000,  # 1 GB
-        statistic_analyzer=pc.StatisticAnalyzerPreset.UniquePathChance)
+    # res = calc.calculate_statistics(
+    #     item_provider=coe_data,
+    #     market_provider=economy,
+    #     max_routes=5,
+    #     max_ram_in_bytes=1000000000,  # 1 GB
+    #     statistic_analyzer=pc.StatisticAnalyzerPathPreset.UniquePathChance)
 
-    print(res)
+    # print(res)
+
+    # group_map = calc.calculate_statistics_currency_group(
+    #     item_provider=coe_data,
+    #     market_provider=economy,
+    #     max_ram_in_bytes=1000000000,  # 1 GB currently useless
+    #     statistic_analyzer=pc.StatisticAnalyzerCurrencyGroupPreset.CurrencyGroupChance)
+
+    # print(group_map.pop(0))
 
     # this is disabled for CI, you can enable it if you want to test it
     # all = calc.calculate_statistics(

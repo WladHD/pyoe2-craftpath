@@ -3,10 +3,7 @@ use crate::{
         calculator::ItemMatrix,
         provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
     },
-    calc::statistics::{
-        helpers::ItemRouteNodeRef,
-        statistic_analyzer_all_path_collector::StatisticAnalyzerCollectorTrait,
-    },
+    calc::statistics::helpers::{ItemRouteNodeRef, StatisticAnalyzerCollectorTrait},
 };
 
 pub struct UniquePathChanceCollector;
