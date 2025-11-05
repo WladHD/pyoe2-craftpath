@@ -72,6 +72,8 @@ pub mod py {
     fn pyoe2_craftpath(m: &Bound<'_, PyModule>) -> PyResult<()> {
         init_tracing();
 
+        ctrlc::set_handler(|| std::process::exit(2)).unwrap();
+
         m.add_class::<AffixId>()?;
         m.add_class::<AffixDefinition>()?;
         m.add_class::<AffixClassEnum>()?;

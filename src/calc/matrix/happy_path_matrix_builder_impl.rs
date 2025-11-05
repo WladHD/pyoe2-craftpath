@@ -15,9 +15,13 @@ use crate::{
         types::{THashMap, THashSet},
     },
     calc::matrix::propagators::{
-        chaos_orb::ChaosOrbPropagator, desecration::DesecrationPropagator, exalted_orb::ExaltedOrbPropagator, orb_of_annulment::OrbOfAnnulmentPropagator, orb_of_augmentation::OrbOfAugmentationPropagator, orb_of_transmutation::OrbOfTransmutationPropagator, perfect_essences::PerfectEssencePropagator, regal_orb::RegalOrbPropagator
+        chaos_orb::ChaosOrbPropagator, desecration::DesecrationPropagator,
+        exalted_orb::ExaltedOrbPropagator, orb_of_annulment::OrbOfAnnulmentPropagator,
+        orb_of_augmentation::OrbOfAugmentationPropagator,
+        orb_of_transmutation::OrbOfTransmutationPropagator,
+        perfect_essences::PerfectEssencePropagator, regal_orb::RegalOrbPropagator,
     },
-    utils::fraction_utils::Fraction,
+    utils::{fraction_utils::Fraction, hash_utils::hash_value},
 };
 
 pub struct HappyPathMatrixBuilderImpl;
@@ -64,12 +68,10 @@ fn generate_item_matrix(
         Box::new(ChaosOrbPropagator),
         Box::new(OrbOfAnnulmentPropagator),
         Box::new(PerfectEssencePropagator),
-        Box::new(DesecrationPropagator)
+        Box::new(DesecrationPropagator),
     ];
 
-    let essence_only: Vec<Box<dyn MatrixPropagator>> = vec![
-        Box::new(PerfectEssencePropagator),
-    ];
+    let essence_only: Vec<Box<dyn MatrixPropagator>> = vec![Box::new(PerfectEssencePropagator)];
 
     tracing::info!("Starting propagation ...");
 
@@ -88,7 +90,6 @@ fn generate_item_matrix(
                     THashMap::default();
 
                 let propagators = if item.meta.mark_for_essence_only { &essence_only } else { &propagators };
-                
                 if item.helper.target_proximity != 0 {
                     // propagate all items starting from item_snapshot
                     // should also check for same chance, but higher cost -> remove
@@ -174,7 +175,7 @@ fn generate_item_matrix(
             });
 
             matrix
-                .entry(snapshot)
+                .entry(hash_value(&snapshot))
                 .and_modify(|existing_node| {
                     // Merge propagate maps, should not happen though
                     for (k, v) in node.propagate.iter() {
@@ -189,7 +190,7 @@ fn generate_item_matrix(
         }
 
         // remove already calculated items from todo
-        todo_items.retain(|test| !matrix.contains_key(&test));
+        todo_items.retain(|test| !matrix.contains_key(&hash_value(&test)));
     }
 
     let fetched = count_removed.load(Ordering::Relaxed);

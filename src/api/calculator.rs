@@ -47,7 +47,7 @@ pub struct ItemMatrixNode {
     pub propagate: THashMap<CraftCurrencyList, Vec<PropagationTarget>>,
 }
 
-pub type ItemMatrix = THashMap<ItemSnapshot, ItemMatrixNode>;
+pub type ItemMatrix = THashMap<u64, ItemMatrixNode>;
 
 // do not include references ??
 // item and chance are w/e since sizewise nothing changes u64 + u32 + u32 (+ struct)
@@ -60,7 +60,7 @@ pub type ItemMatrix = THashMap<ItemSnapshot, ItemMatrixNode>;
     pyo3(eq, weakref, from_py_object, get_all, frozen, hash, str)
 )]
 pub struct ItemRouteNode {
-    pub item: ItemSnapshot,
+    pub item_matrix_id: u64,
     pub chance: Fraction,
     pub currency_list: CraftCurrencyList,
 }
@@ -127,7 +127,7 @@ pub trait StatisticAnalyzer {
     fn lower_is_better(&self) -> bool;
     fn get_statistic(
         &self,
-        matrix: &ItemMatrix,
+        calculator: &Calculator,
         item_provider: &ItemInfoProvider,
         market_provider: &MarketPriceProvider,
         max_routes: u32,
@@ -162,18 +162,18 @@ impl std::fmt::Display for DynStatisticAnalyzer {
 pub struct StatisticResult {
     pub sorted_routes: Vec<ItemRoute>,
     pub lower_is_better: bool,
-    pub unit_type: &'static str,
+    pub unit_type: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
-#[cfg_attr(
-    feature = "python",
-    pyo3(weakref, from_py_object, frozen, get_all, str)
-)]
+#[cfg_attr(feature = "python", pyo3(weakref, from_py_object, get_all, str))]
 pub struct Calculator {
     pub matrix: ItemMatrix,
+    pub starting_item: ItemSnapshot,
+    pub target_item: ItemSnapshot,
+    pub statistics: THashMap<String, StatisticResult>,
 }
 
 impl Calculator {
@@ -194,8 +194,8 @@ impl Calculator {
         tracing::info!("Description: {}", matrix_builder.0.get_description());
 
         let res = matrix_builder.0.generate_item_matrix(
-            starting_item,
-            target,
+            starting_item.clone(),
+            target.clone(),
             item_provider,
             market_info,
         )?;
@@ -210,18 +210,23 @@ impl Calculator {
 
         tracing::info!("Successfully generated item matrix. (TODO SHOW STATS)");
 
-        Ok(Self { matrix: res })
+        Ok(Self {
+            matrix: res,
+            starting_item: starting_item,
+            target_item: target,
+            statistics: THashMap::default(),
+        })
     }
 
     #[instrument(skip_all)]
     pub fn calculate_statistics(
-        &self,
+        &mut self,
         item_provider: &ItemInfoProvider,
         market_provider: &MarketPriceProvider,
         max_routes: u32,
         max_ram_in_bytes: u64,
         statistic_analyzer: StatisticAnalyzerPreset,
-    ) -> Result<StatisticResult> {
+    ) -> Result<&StatisticResult> {
         let statistic_analyzer = statistic_analyzer.get_statistic_analyzer_instance();
         tracing::info!(
             "Using '{}' to calculate statistics ...",
@@ -229,7 +234,7 @@ impl Calculator {
         );
         tracing::info!("Description: {}", statistic_analyzer.0.get_description());
         let res = statistic_analyzer.0.get_statistic(
-            &self.matrix,
+            &self,
             item_provider,
             market_provider,
             max_routes,
@@ -237,11 +242,19 @@ impl Calculator {
         )?;
         tracing::info!("Successfully calculated statistics. (TODO SHOW STATS)");
 
-        Ok(StatisticResult {
-            sorted_routes: res,
-            lower_is_better: statistic_analyzer.0.lower_is_better(),
-            unit_type: statistic_analyzer.0.get_unit_type(),
-        })
+        self.statistics.insert(
+            statistic_analyzer.0.get_name().to_string(),
+            StatisticResult {
+                sorted_routes: res,
+                lower_is_better: statistic_analyzer.0.lower_is_better(),
+                unit_type: statistic_analyzer.0.get_unit_type().to_string(),
+            },
+        );
+
+        Ok(self
+            .statistics
+            .get(statistic_analyzer.0.get_name())
+            .unwrap())
     }
 
     #[instrument(skip_all)]
@@ -289,7 +302,7 @@ impl Calculator {
 
     #[pyo3(name = "calculate_statistics")]
     fn calculate_statistics_py(
-        &self,
+        &mut self,
         item_provider: &ItemInfoProvider,
         market_provider: &MarketPriceProvider,
         max_routes: u32,
@@ -303,6 +316,7 @@ impl Calculator {
             max_ram_in_bytes,
             statistic_analyzer,
         )
+        .cloned()
         .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
     }
 

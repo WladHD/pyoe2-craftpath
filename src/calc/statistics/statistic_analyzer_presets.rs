@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::api::calculator::DynStatisticAnalyzer;
+use crate::{
+    api::calculator::DynStatisticAnalyzer,
+    calc::statistics::unique_path_chance_statistic_analyzer::UniquePathChanceStatisticAnalyzer,
+};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass_enum)]
@@ -16,12 +19,12 @@ pub enum StatisticAnalyzerPreset {
 #[cfg_attr(feature = "python", pyo3::pymethods)]
 impl StatisticAnalyzerPreset {
     pub fn get_statistic_analyzer_instance(&self) -> DynStatisticAnalyzer {
-        todo!();
-        // match self {
-        //     StatisticCalculatorPreset::HappyPathMatrixBuilder => {
-        //         DynMatrixBuilder(Box::new(HappyPathMatrixBuilderImpl))
-        //     }
-        // }
+        match self {
+            &StatisticAnalyzerPreset::UniquePathChance => {
+                DynStatisticAnalyzer(Box::new(UniquePathChanceStatisticAnalyzer))
+            }
+            _ => todo!(),
+        }
     }
 }
 

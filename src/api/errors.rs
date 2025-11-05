@@ -29,4 +29,6 @@ pub enum CraftPathError {
     ItemUnreachable(Item, AffixSpecifier),
     #[error("Perfect Essence requires intermediary step to be applied.")]
     EssenceIntermediaryStepRequired(AffixLocationEnum),
+    #[error("Defined RAM limit of '{0}' was reached and program was aborted.")]
+    RamLimitReached(String),
 }
