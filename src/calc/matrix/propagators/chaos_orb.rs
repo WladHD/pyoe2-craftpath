@@ -7,7 +7,9 @@ use crate::{
         item::{Item, ItemSnapshot},
         matrix_propagator::MatrixPropagator,
         provider::item_info::ItemInfoProvider,
-        types::{AffixLocationEnum, AffixSpecifier, ItemRarityEnum, THashMap, THashSet},
+        types::{
+            AffixClassEnum, AffixLocationEnum, AffixSpecifier, ItemRarityEnum, THashMap, THashSet,
+        },
     },
     calc::matrix::propagators::exalted_orb::ExaltedOrbPropagator,
     utils::fraction_utils::Fraction,
@@ -41,24 +43,135 @@ impl MatrixPropagator for ChaosOrbPropagator {
             THashMap::default();
 
         let mut lowest_pool = item_instance.snapshot.affixes.clone();
-        // keep in mind higher = worse -> T1 vs T5
-        if let Some(min_tier) = lowest_pool
+        // EDIT!!! WHITTLING OMEN REMOVES LOWEST ***ITEMLEVEL*** MOD !!!!!
+
+        if let Some(min_item_level) = lowest_pool
             .iter()
-            .filter_map(|test| match !test.fractured {
-                true => None,
-                false => Some(test.tier.tier.clone()),
+            .map(|test| {
+                let test_def = provider.lookup_affix_definition(&test.affix).unwrap();
+
+                match test_def.affix_class {
+                    AffixClassEnum::Essence => {
+                        let current_lowest_essence_tier = provider
+                            .lookup_affix_essences(test.affix.clone(), target_item.base_id.clone())
+                            .unwrap()
+                            .iter()
+                            .map(|e| {
+                                let essence = e;
+                                let def = provider.lookup_essence_definition(&e).unwrap();
+                                let min_item_level = &def
+                                    .base_tier_table
+                                    .get(&target_item.base_id)
+                                    .unwrap()
+                                    .get(&test.affix)
+                                    .unwrap()
+                                    .min_item_level;
+                                let tier = provider
+                                    .lookup_base_item_mods(&target_item.base_id)
+                                    .unwrap()
+                                    .get(&test.affix)
+                                    .unwrap()
+                                    .iter()
+                                    .find(|f| &f.1.min_item_level == min_item_level)
+                                    .expect("Did not find Tier for given Essence ...");
+
+                                let c = (essence, def, min_item_level, tier);
+                                tracing::error!(
+                                    "Lowest item level for {:?} is {:?}",
+                                    def.name_essence,
+                                    min_item_level
+                                );
+                                c
+                            })
+                            .find(|test2| test2.3.0 == &test.tier.tier)
+                            .map(|e| e.2)
+                            .unwrap();
+
+                        current_lowest_essence_tier.clone()
+                    }
+
+                    AffixClassEnum::Desecrated | AffixClassEnum::Base => {
+                        let meta = provider
+                            .lookup_base_item_mods(&item_instance.snapshot.base_id)
+                            .unwrap()
+                            .get(&test.affix)
+                            .unwrap()
+                            .get(&test.tier.tier)
+                            .unwrap();
+
+                        meta.min_item_level.clone()
+                    }
+                }
             })
-            .max()
+            .min()
         {
-            lowest_pool.retain(|test| test.tier.tier == min_tier && !test.fractured);
+            tracing::error!(
+                "Lowest item level total is {:?} : {:?}",
+                min_item_level,
+                item_instance.snapshot.affixes
+            );
+
+            lowest_pool.retain(|test| {
+                match provider
+                    .lookup_affix_definition(&test.affix)
+                    .unwrap()
+                    .affix_class
+                {
+                    AffixClassEnum::Essence => {
+                        let current_lowest_essence_item_level = provider
+                            .lookup_affix_essences(test.affix.clone(), target_item.base_id.clone())
+                            .unwrap()
+                            .iter()
+                            .map(|e| {
+                                let essence = e;
+                                let def = provider.lookup_essence_definition(&e).unwrap();
+                                let min_item_level = &def
+                                    .base_tier_table
+                                    .get(&target_item.base_id)
+                                    .unwrap()
+                                    .get(&test.affix)
+                                    .unwrap()
+                                    .min_item_level;
+                                let tier = provider
+                                    .lookup_base_item_mods(&target_item.base_id)
+                                    .unwrap()
+                                    .get(&test.affix)
+                                    .unwrap()
+                                    .iter()
+                                    .find(|f| &f.1.min_item_level == min_item_level)
+                                    .expect("Did not find Tier for given Essence ...");
+
+                                (essence, def, min_item_level, tier)
+                            })
+                            .find(|test2| test2.3.0 == &test.tier.tier)
+                            .map(|e| e.2)
+                            .unwrap();
+
+                        current_lowest_essence_item_level == &min_item_level
+                    }
+
+                    AffixClassEnum::Desecrated | AffixClassEnum::Base => {
+                        let meta = provider
+                            .lookup_base_item_mods(&item_instance.snapshot.base_id)
+                            .unwrap()
+                            .get(&test.affix)
+                            .unwrap()
+                            .get(&test.tier.tier)
+                            .unwrap();
+
+                        meta.min_item_level == min_item_level
+                    }
+                }
+            });
         }
 
         for chaos_orb in CHAOS_ORBS {
             for whittling_omen in CHAOS_OMEN_WHITTLING {
                 for location_omen in CHAOS_OMEN_LOCATION {
+                    let mut lowest_pool = lowest_pool.clone();
                     let mut next_items: Vec<PropagationTarget> = Vec::new();
                     let mut delete_item_affix_pool: THashSet<AffixSpecifier> =
-                        item_instance.helper.unwanted_affixes.clone();
+                        item_instance.snapshot.affixes.clone();
 
                     delete_item_affix_pool.retain(|test| !test.fractured);
 
@@ -94,11 +207,26 @@ impl MatrixPropagator for ChaosOrbPropagator {
                     };
 
                     match whittling_omen {
-                        Some(_) => delete_item_affix_pool.retain(|test| lowest_pool.contains(test)),
+                        Some(_) => {
+                            delete_item_affix_pool.retain(|test| lowest_pool.contains(test));
+                            tracing::error!(
+                                "New pool contains {} elements {:?} {:?} {:?}",
+                                delete_item_affix_pool.len(),
+                                location_omen,
+                                chaos_orb,
+                                whittling_omen,
+                            );
+                        }
                         None => {}
                     };
 
-                    for target_affix_deletus in delete_item_affix_pool.iter() {
+                    for target_affix_deletus in delete_item_affix_pool.iter().filter(|test| {
+                        item_instance
+                            .helper
+                            .unwanted_affixes
+                            .iter()
+                            .any(|uw| test.affix == uw.affix)
+                    }) {
                         let hit_chance_fraction =
                             Fraction::new(1, delete_item_affix_pool.len() as u32);
 

@@ -89,7 +89,11 @@ fn generate_item_matrix(
                 let mut hm: THashMap<CraftCurrencyList, Vec<PropagationTarget>> =
                     THashMap::default();
 
-                let propagators = if item.meta.mark_for_essence_only { &essence_only } else { &propagators };
+                let propagators = if item.meta.mark_for_essence_only {
+                    &essence_only
+                } else {
+                    &propagators
+                };
                 if item.helper.target_proximity != 0 {
                     // propagate all items starting from item_snapshot
                     // should also check for same chance, but higher cost -> remove
@@ -100,14 +104,23 @@ fn generate_item_matrix(
 
                         match some_propagator.propagate_step(&item, &target_item, &item_info) {
                             Ok(mut prop) => {
-                                let mut reached: THashMap<(ItemSnapshot, Fraction), f64> = THashMap::default();
+                                let mut reached: THashMap<(ItemSnapshot, Fraction), f64> =
+                                    THashMap::default();
 
                                 let mut sorted_groups_by_cost = prop
                                     .keys()
                                     .map(|e| {
                                         (
                                             e.clone(),
-                                            e.list.iter().fold(0f64, |a, b| a + market_info.cache_market_prices.get(&ItemName::from(b.get_item_name(&item_info).to_string())).unwrap().get_divine_value()),
+                                            e.list.iter().fold(0f64, |a, b| {
+                                                a + market_info
+                                                    .cache_market_prices
+                                                    .get(&ItemName::from(
+                                                        b.get_item_name(&item_info).to_string(),
+                                                    ))
+                                                    .unwrap()
+                                                    .get_divine_value()
+                                            }),
                                         )
                                     })
                                     .collect::<Vec<(CraftCurrencyList, f64)>>();
@@ -118,7 +131,9 @@ fn generate_item_matrix(
 
                                 for (sorted_group, group_cost) in sorted_groups_by_cost {
                                     match prop.get_mut(&sorted_group) {
-                                        None => panic!("Could not find group anymore, that was just handled."),
+                                        None => panic!(
+                                            "Could not find group anymore, that was just handled."
+                                        ),
                                         Some(sorted_group) => {
                                             sorted_group.retain(|test| {
                                                 let key = (test.next.clone(), test.chance.clone());
@@ -150,7 +165,6 @@ fn generate_item_matrix(
                                 tracing::error!("Propagation failed, skipping ... {:#?}", e)
                             }
                         }
-
                     }
                 }
 
