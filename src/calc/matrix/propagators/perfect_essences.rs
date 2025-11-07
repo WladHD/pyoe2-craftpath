@@ -31,13 +31,22 @@ impl PerfectEssencePropagator {
         dex_sin: Option<&CraftCurrencyEnum>,
         item_instance: &Item,
         provider: &ItemInfoProvider,
-    ) -> Result<Vec<PropagationTarget>> {
+    ) -> Result<Option<Vec<PropagationTarget>>> {
         let target_essence_def = match &currency {
-            &CraftCurrencyEnum::Essence(e) => provider.lookup_essence_definition(&e)?,
+            &CraftCurrencyEnum::Essence(e) => {
+                let Ok(def) = provider.lookup_essence_definition(&e) else {
+                    return Ok(None);
+                };
+                def
+            }
             _ => {
                 return Err(anyhow::anyhow!("Unknown currency"));
             }
         };
+
+        if !target_essence_def.name_essence.starts_with("Perfect") {
+            return Ok(None);
+        }
 
         let min_lvl = &target_essence_def
             .base_tier_table
@@ -70,7 +79,7 @@ impl PerfectEssencePropagator {
             Some(e) => match e {
                 CraftCurrencyEnum::DextralCrystallisation() => {
                     if affix_target_def.affix_location != AffixLocationEnum::Suffix {
-                        return Ok(Vec::new());
+                        return Ok(None);
                     }
 
                     delete_item_affix_pool.retain(|test| {
@@ -84,7 +93,7 @@ impl PerfectEssencePropagator {
 
                 CraftCurrencyEnum::SinistralCrystallisation() => {
                     if affix_target_def.affix_location != AffixLocationEnum::Prefix {
-                        return Ok(Vec::new());
+                        return Ok(None);
                     }
 
                     delete_item_affix_pool.retain(|test| {
@@ -200,7 +209,10 @@ impl PerfectEssencePropagator {
             next_items.push(next_item);
         }
 
-        Ok(next_items)
+        Ok(match next_items.is_empty() {
+            true => None,
+            false => Some(next_items),
+        })
     }
 }
 
@@ -220,11 +232,14 @@ impl MatrixPropagator for PerfectEssencePropagator {
         let open_essence_mods = target_affixes
             .iter()
             .filter(|test| {
-                provider
+                match provider
                     .lookup_affix_definition(&test.affix)
                     .unwrap()
                     .affix_class
-                    == AffixClassEnum::Essence
+                {
+                    AffixClassEnum::Essence | AffixClassEnum::Base => true,
+                    _ => false,
+                }
             })
             // check that essence is not contained in item already
             .filter(|test| {
@@ -234,17 +249,18 @@ impl MatrixPropagator for PerfectEssencePropagator {
                     .iter()
                     .all(|i| i.affix != test.affix)
             })
-            .map(|e| {
-                (
-                    e,
-                    provider.lookup_affix_definition(&e.affix).unwrap(),
-                    provider
-                        .lookup_affix_essences(
-                            e.affix.clone(),
-                            item_instance.snapshot.base_id.clone(),
-                        )
-                        .unwrap(),
-                )
+            .filter_map(|e| {
+                let Ok(ad) = provider.lookup_affix_definition(&e.affix) else {
+                    return None;
+                };
+
+                let Ok(ae) = provider
+                    .lookup_affix_essences(e.affix.clone(), item_instance.snapshot.base_id.clone())
+                else {
+                    return None;
+                };
+
+                Some((e, ad, ae))
             });
 
         let mut request_temp_step = THashSet::default();
@@ -262,6 +278,10 @@ impl MatrixPropagator for PerfectEssencePropagator {
                         &provider,
                     ) {
                         Ok(next_items) => {
+                            let Some(next_items) = next_items else {
+                                continue;
+                            };
+
                             let mut unique_currency_list = CraftCurrencyList {
                                 list: THashSet::default(),
                             };
