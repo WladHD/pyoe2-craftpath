@@ -125,15 +125,3 @@ pub fn calculate_currency_groups<'a, T: StatisticAnalyzerCurrencyGroupCollectorT
 
     Ok(results)
 }
-
-fn estimate_results_entry_ram(key: &[&CraftCurrencyList], value: &[Vec<f64>]) -> u64 {
-    let key_ram = size_of::<Vec<&CraftCurrencyList>>() as u64
-        + key.len() as u64 * size_of::<&CraftCurrencyList>() as u64;
-
-    let value_ram: u64 = value
-        .iter()
-        .map(|v| size_of::<Vec<f64>>() as u64 + v.len() as u64 * size_of::<f64>() as u64)
-        .sum();
-
-    key_ram + value_ram
-}

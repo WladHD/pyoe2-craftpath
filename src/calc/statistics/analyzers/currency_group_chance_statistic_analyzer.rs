@@ -7,7 +7,7 @@ use tracing::instrument;
 
 use crate::{
     api::{
-        calculator::{Calculator, ItemMatrix, StatisticAnalyzerCurrencyGroups},
+        calculator::{Calculator, GroupRoute, ItemMatrix, StatisticAnalyzerCurrencyGroups},
         currency::CraftCurrencyList,
         provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
         types::THashMap,
@@ -44,7 +44,7 @@ impl StatisticAnalyzerCurrencyGroups for CurrencyGroupChanceStatisticAnalyzer {
         item_provider: &ItemInfoProvider,
         market_provider: &MarketPriceProvider,
         max_ram_in_bytes: u64,
-    ) -> Result<Vec<(Vec<CraftCurrencyList>, f64, Vec<Vec<f64>>)>> {
+    ) -> Result<Vec<GroupRoute>> {
         let res: THashMap<Vec<&CraftCurrencyList>, Vec<Vec<f64>>> =
             calculate_currency_groups::<UniquePathChanceCollector>(
                 calculator,
@@ -53,26 +53,98 @@ impl StatisticAnalyzerCurrencyGroups for CurrencyGroupChanceStatisticAnalyzer {
                 max_ram_in_bytes,
             )?;
 
-        let mut data: Vec<(Vec<CraftCurrencyList>, f64, Vec<Vec<f64>>)> = res
+        let mut data: Vec<GroupRoute> = res
             .into_par_iter()
             .map(|(k, v)| {
                 let key_owned: Vec<CraftCurrencyList> = k.into_iter().cloned().collect();
                 let weight = UniquePathChanceCollector::calculate_group_weight(&key_owned, &v);
-                (key_owned, weight, v)
+
+                GroupRoute {
+                    group: key_owned,
+                    weight: weight,
+                    unique_route_weights: v,
+                }
             })
             .collect();
 
         if self.lower_is_better() {
             data.par_sort_unstable_by(|a, b| {
-                a.1.partial_cmp(&b.1).unwrap_or(std::cmp::Ordering::Equal)
+                a.weight
+                    .partial_cmp(&b.weight)
+                    .unwrap_or(std::cmp::Ordering::Equal)
             });
         } else {
             data.par_sort_unstable_by(|a, b| {
-                b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal)
+                b.weight
+                    .partial_cmp(&a.weight)
+                    .unwrap_or(std::cmp::Ordering::Equal)
             });
         }
 
         Ok(data)
+    }
+
+    fn calculate_weight_for_60_percent(
+        &self,
+        route: &GroupRoute,
+        _: &ItemInfoProvider,
+        _: &MarketPriceProvider,
+    ) -> f64 {
+        let tries_for_60_percent =
+            (((1.0_f64 - 0.6_f64).ln() / (1.0_f64 - route.weight).ln()).ceil()).max(1_f64);
+
+        tries_for_60_percent
+    }
+
+    fn template_group_weight_name(&self) -> &'static str {
+        "Chance"
+    }
+
+    fn template_60_percent_group_name(&self) -> &'static str {
+        "Tries needed for"
+    }
+
+    fn format_group_weight(&self, weight: f64) -> String {
+        format!("{:.5} %", weight * 100_f64)
+    }
+
+    fn format_60_percent_group_weight(&self, weight: f64) -> String {
+        format!("{} tries", weight as u64)
+    }
+
+    fn format_display_more_info(
+        &self,
+        _: &GroupRoute,
+        _: &ItemInfoProvider,
+        _: &MarketPriceProvider,
+    ) -> Option<String> {
+        None
+    }
+
+    fn calculate_weight_for_group_step_index(
+        &self,
+        group_routes: &Vec<Vec<f64>>,
+        index: usize,
+    ) -> f64 {
+        let route_weights: Vec<f64> = group_routes
+            .iter()
+            .map(|route| route.iter().product::<f64>())
+            .collect();
+
+        let total_weight: f64 = route_weights.iter().sum();
+
+        // weighted sum of the probability at this step
+        let step_weight: f64 = group_routes
+            .iter()
+            .zip(route_weights.iter())
+            .map(|(route, w)| route[index] * w)
+            .sum();
+
+        step_weight / total_weight
+    }
+
+    fn template_weight_for_group_step_index(&self, weight: f64) -> String {
+        format!("{:.5} %", weight * 100_f64)
     }
 }
 

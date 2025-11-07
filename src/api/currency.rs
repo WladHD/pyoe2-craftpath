@@ -84,7 +84,8 @@ pub enum CraftCurrencyEnum {
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pymethods)]
 #[cfg_attr(feature = "python", pyo3::pymethods)]
 impl CraftCurrencyEnum {
-    fn get_py_item_name<'a>(&self, item_info: &'a ItemInfoProvider) -> String {
+    #[pyo3(name = "get_item_name")]
+    fn get_item_name_py<'a>(&self, item_info: &'a ItemInfoProvider) -> String {
         self.get_item_name(&item_info).to_string()
     }
 }

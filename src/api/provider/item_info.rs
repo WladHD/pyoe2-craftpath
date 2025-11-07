@@ -1,7 +1,7 @@
-use anyhow::Result;
+use anyhow::{Result, anyhow};
 use serde::{Deserialize, Serialize};
 
-use crate::api::types::THashSet;
+use crate::api::types::{ItemLevel, THashSet};
 use crate::api::{
     errors::CraftPathError,
     types::{
@@ -59,6 +59,35 @@ impl ItemInfoProvider {
         // parse dynamically?
         id == &AffixId::from(6160) || id == &AffixId::from(6159)
     }
+
+    pub fn collect_essence_info_for_affix(
+        &self,
+        essence_id: &EssenceId,
+        base_item_id: &BaseItemId,
+        affix_id: &AffixId,
+    ) -> Result<(
+        &EssenceDefinition,
+        &ItemLevel,
+        (&AffixTierLevel, &AffixTierLevelMeta),
+    )> {
+        let essence_definition = self.lookup_essence_definition(&essence_id)?;
+        let min_item_level = &essence_definition
+            .base_tier_table
+            .get(&base_item_id)
+            .ok_or_else(|| anyhow!("Essence can't be applied on the specified base"))?
+            .get(&affix_id)
+            .ok_or_else(|| anyhow!("Essence can't reach the specified affix"))?
+            .min_item_level;
+        let tier = self
+            .lookup_base_item_mods(&base_item_id)?
+            .get(&affix_id)
+            .ok_or_else(|| anyhow!("The base can't have the specified affix"))?
+            .iter()
+            .find(|f| &f.1.min_item_level == min_item_level)
+            .ok_or_else(|| anyhow!("Did not find Tier for given Essence ..."))?;
+
+        Ok((essence_definition, min_item_level, tier))
+    }
 }
 
 #[cfg(feature = "python")]
@@ -110,6 +139,22 @@ impl ItemInfoProvider {
     pub fn is_abyssal_mark_py(&self, id: &AffixId) -> bool {
         // parse dynamically?
         id == &AffixId::from(6160) || id == &AffixId::from(6159)
+    }
+
+    #[pyo3(name = "collect_essence_info_for_affix")]
+    pub fn collect_essence_info_for_affix_py(
+        &self,
+        essence_id: &EssenceId,
+        base_item_id: &BaseItemId,
+        affix_id: &AffixId,
+    ) -> pyo3::PyResult<(
+        EssenceDefinition,
+        ItemLevel,
+        (AffixTierLevel, AffixTierLevelMeta),
+    )> {
+        self.collect_essence_info_for_affix(essence_id, base_item_id, affix_id)
+            .map(|e| (e.0.clone(), e.1.clone(), (e.2.0.clone(), e.2.1.clone())))
+            .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
     }
 }
 

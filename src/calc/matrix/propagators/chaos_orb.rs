@@ -75,13 +75,7 @@ impl MatrixPropagator for ChaosOrbPropagator {
                                     .find(|f| &f.1.min_item_level == min_item_level)
                                     .expect("Did not find Tier for given Essence ...");
 
-                                let c = (essence, def, min_item_level, tier);
-                                tracing::error!(
-                                    "Lowest item level for {:?} is {:?}",
-                                    def.name_essence,
-                                    min_item_level
-                                );
-                                c
+                                (essence, def, min_item_level, tier)
                             })
                             .find(|test2| test2.3.0 == &test.tier.tier)
                             .map(|e| e.2)
@@ -105,12 +99,6 @@ impl MatrixPropagator for ChaosOrbPropagator {
             })
             .min()
         {
-            tracing::error!(
-                "Lowest item level total is {:?} : {:?}",
-                min_item_level,
-                item_instance.snapshot.affixes
-            );
-
             lowest_pool.retain(|test| {
                 match provider
                     .lookup_affix_definition(&test.affix)
@@ -209,13 +197,6 @@ impl MatrixPropagator for ChaosOrbPropagator {
                     match whittling_omen {
                         Some(_) => {
                             delete_item_affix_pool.retain(|test| lowest_pool.contains(test));
-                            tracing::error!(
-                                "New pool contains {} elements {:?} {:?} {:?}",
-                                delete_item_affix_pool.len(),
-                                location_omen,
-                                chaos_orb,
-                                whittling_omen,
-                            );
                         }
                         None => {}
                     };

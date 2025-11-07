@@ -16,7 +16,8 @@ use crate::{
     },
     calc::matrix::propagators::{
         chaos_orb::ChaosOrbPropagator, desecration::DesecrationPropagator,
-        exalted_orb::ExaltedOrbPropagator, orb_of_annulment::OrbOfAnnulmentPropagator,
+        exalted_orb::ExaltedOrbPropagator, normal_essences::NormalEssencePropagator,
+        orb_of_annulment::OrbOfAnnulmentPropagator,
         orb_of_augmentation::OrbOfAugmentationPropagator,
         orb_of_transmutation::OrbOfTransmutationPropagator,
         perfect_essences::PerfectEssencePropagator, regal_orb::RegalOrbPropagator,
@@ -69,6 +70,7 @@ fn generate_item_matrix(
         Box::new(OrbOfAnnulmentPropagator),
         Box::new(PerfectEssencePropagator),
         Box::new(DesecrationPropagator),
+        Box::new(NormalEssencePropagator),
     ];
 
     let essence_only: Vec<Box<dyn MatrixPropagator>> = vec![Box::new(PerfectEssencePropagator)];

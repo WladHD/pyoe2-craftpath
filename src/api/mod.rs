@@ -1,4 +1,3 @@
-pub mod affix;
 pub mod calculator;
 mod calculator_utils;
 pub mod currency;
