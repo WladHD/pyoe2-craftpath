@@ -79,6 +79,19 @@ pub struct ItemRoute {
     pub weight: f64, // for internal 15-17 digit precision, i think inaccuracies on deep paths are acceptable, if not swap to rust_decimal
 }
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
+#[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
+#[cfg_attr(
+    feature = "python",
+    pyo3(weakref, from_py_object, get_all, frozen, str)
+)]
+pub struct GroupRoute {
+    pub group: Vec<CraftCurrencyList>,
+    pub weight: f64,
+    pub unique_route_weights: Vec<Vec<f64>>,
+}
+
 impl PartialEq for ItemRoute {
     fn eq(&self, other: &Self) -> bool {
         self.route == other.route
@@ -147,7 +160,30 @@ pub trait StatisticAnalyzerCurrencyGroups {
         item_provider: &ItemInfoProvider,
         market_provider: &MarketPriceProvider,
         max_ram_in_bytes: u64,
-    ) -> Result<Vec<(Vec<CraftCurrencyList>, f64, Vec<Vec<f64>>)>>;
+    ) -> Result<Vec<GroupRoute>>;
+
+    fn calculate_weight_for_60_percent(
+        &self,
+        group_route: &GroupRoute,
+        item_provider: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+    ) -> f64;
+    fn calculate_weight_for_group_step_index(
+        &self,
+        group_routes: &Vec<Vec<f64>>,
+        index: usize,
+    ) -> f64;
+    fn template_weight_for_group_step_index(&self, weight: f64) -> String;
+    fn template_group_weight_name(&self) -> &'static str;
+    fn template_60_percent_group_name(&self) -> &'static str;
+    fn format_group_weight(&self, weight: f64) -> String;
+    fn format_60_percent_group_weight(&self, weight: f64) -> String;
+    fn format_display_more_info(
+        &self,
+        group_route: &GroupRoute,
+        item_provider: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+    ) -> Option<String>;
 }
 
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
@@ -173,6 +209,87 @@ impl std::fmt::Display for DynStatisticAnalyzerPaths {
 pub struct DynStatisticAnalyzerCurrencyGroups(
     pub Box<dyn StatisticAnalyzerCurrencyGroups + Send + Sync>,
 );
+
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pymethods)]
+#[cfg_attr(feature = "python", pyo3::prelude::pymethods)]
+impl DynStatisticAnalyzerCurrencyGroups {
+    fn get_name(&self) -> &'static str {
+        self.0.get_name()
+    }
+
+    fn get_description(&self) -> &'static str {
+        self.0.get_description()
+    }
+
+    fn get_unit_type(&self) -> &'static str {
+        self.0.get_unit_type()
+    }
+
+    fn lower_is_better(&self) -> bool {
+        self.0.lower_is_better()
+    }
+
+    fn get_statistic(
+        &self,
+        calculator: &Calculator,
+        item_provider: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+        max_ram_in_bytes: u64,
+    ) -> pyo3::PyResult<Vec<GroupRoute>> {
+        self.0
+            .get_statistic(calculator, item_provider, market_provider, max_ram_in_bytes)
+            .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
+    }
+
+    fn calculate_weight_for_60_percent(
+        &self,
+        group_route: &GroupRoute,
+        item_provider: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+    ) -> f64 {
+        self.0
+            .calculate_weight_for_60_percent(group_route, item_provider, market_provider)
+    }
+
+    fn calculate_weight_for_group_step_index(
+        &self,
+        group_routes: Vec<Vec<f64>>,
+        index: usize,
+    ) -> f64 {
+        self.0
+            .calculate_weight_for_group_step_index(&group_routes, index)
+    }
+
+    fn template_weight_for_group_step_index(&self, weight: f64) -> String {
+        self.0.template_weight_for_group_step_index(weight)
+    }
+
+    fn template_group_weight_name(&self) -> &'static str {
+        self.0.template_group_weight_name()
+    }
+
+    fn template_60_percent_group_name(&self) -> &'static str {
+        self.0.template_60_percent_group_name()
+    }
+
+    fn format_group_weight(&self, weight: f64) -> String {
+        self.0.format_group_weight(weight)
+    }
+
+    fn format_60_percent_group_weight(&self, weight: f64) -> String {
+        self.0.format_60_percent_group_weight(weight)
+    }
+
+    fn format_display_more_info(
+        &self,
+        group_route: &GroupRoute,
+        item_provider: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+    ) -> Option<String> {
+        self.0
+            .format_display_more_info(group_route, item_provider, market_provider)
+    }
+}
 
 impl std::fmt::Display for DynStatisticAnalyzerCurrencyGroups {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -297,7 +414,7 @@ impl Calculator {
         market_provider: &MarketPriceProvider,
         max_ram_in_bytes: u64,
         statistic_analyzer: StatisticAnalyzerCurrencyGroupPreset,
-    ) -> Result<Vec<(Vec<CraftCurrencyList>, f64, Vec<Vec<f64>>)>> {
+    ) -> Result<Vec<GroupRoute>> {
         let statistic_analyzer = statistic_analyzer.get_statistic_analyzer_instance();
         tracing::info!(
             "Using '{}' to calculate statistics ...",
@@ -389,7 +506,7 @@ impl Calculator {
         market_provider: &MarketPriceProvider,
         max_ram_in_bytes: u64,
         statistic_analyzer: StatisticAnalyzerCurrencyGroupPreset,
-    ) -> pyo3::PyResult<Vec<(Vec<CraftCurrencyList>, f64, Vec<Vec<f64>>)>> {
+    ) -> pyo3::PyResult<Vec<GroupRoute>> {
         self.calculate_statistics_currency_group(
             item_provider,
             market_provider,
@@ -424,5 +541,6 @@ crate::derive_DebugDisplay!(
     Calculator,
     ItemRouteNode,
     ItemRoute,
-    StatisticResult
+    StatisticResult,
+    GroupRoute
 );
