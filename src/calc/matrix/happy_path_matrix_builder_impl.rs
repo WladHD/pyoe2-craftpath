@@ -8,10 +8,7 @@ use crate::{
         currency::CraftCurrencyList,
         item::{Item, ItemSnapshot},
         matrix_propagator::MatrixPropagator,
-        provider::{
-            item_info::ItemInfoProvider,
-            market_prices::{ItemName, MarketPriceProvider},
-        },
+        provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
         types::{THashMap, THashSet},
     },
     calc::matrix::propagators::{
@@ -116,12 +113,7 @@ fn generate_item_matrix(
                                             e.clone(),
                                             e.list.iter().fold(0f64, |a, b| {
                                                 a + market_info
-                                                    .cache_market_prices
-                                                    .get(&ItemName::from(
-                                                        b.get_item_name(&item_info).to_string(),
-                                                    ))
-                                                    .unwrap()
-                                                    .get_divine_value()
+                                                    .try_lookup_currency_in_divines_default_if_fail(b, item_info).get_divine_value()
                                             }),
                                         )
                                     })
