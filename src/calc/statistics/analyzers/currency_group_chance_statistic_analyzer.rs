@@ -9,7 +9,10 @@ use crate::{
     api::{
         calculator::{Calculator, GroupRoute, ItemMatrix, StatisticAnalyzerCurrencyGroups},
         currency::CraftCurrencyList,
-        provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
+        provider::{
+            item_info::ItemInfoProvider,
+            market_prices::{MarketPriceProvider, PriceInDivines},
+        },
         types::THashMap,
     },
     calc::statistics::{
@@ -145,6 +148,31 @@ impl StatisticAnalyzerCurrencyGroups for CurrencyGroupChanceStatisticAnalyzer {
 
     fn template_weight_for_group_step_index(&self, weight: f64) -> String {
         format!("{:.5} %", weight * 100_f64)
+    }
+
+    fn calculate_cost_per_craft(
+        &self,
+        currency: &Vec<CraftCurrencyList>,
+        item_info: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+    ) -> PriceInDivines {
+        let pc = PriceInDivines::new(currency.iter().fold(0_f64, |a, b| {
+            a + b.list.iter().fold(0_f64, |a, b| {
+                a + market_provider
+                    .try_lookup_currency_in_divines_default_if_fail(b, &item_info)
+                    .get_divine_value()
+            })
+        }));
+
+        pc
+    }
+
+    fn calculate_cost_per_60_percent(
+        &self,
+        tries: f64,
+        tries_per_1: &PriceInDivines,
+    ) -> PriceInDivines {
+        PriceInDivines::new(tries * tries_per_1.get_divine_value())
     }
 }
 

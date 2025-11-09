@@ -3,6 +3,7 @@ use std::hash::{Hash, Hasher};
 use crate::api::calculator_utils::calculate_target_proximity::calculate_target_proximity;
 use crate::api::errors::CraftPathError;
 use crate::api::item::ItemTechnicalMeta;
+use crate::api::provider::market_prices::PriceInDivines;
 use crate::calc::statistics::statistic_analyzer_currency_group_presets::StatisticAnalyzerCurrencyGroupPreset;
 use crate::calc::statistics::statistic_analyzer_path_presets::StatisticAnalyzerPathPreset;
 use crate::{
@@ -173,6 +174,17 @@ pub trait StatisticAnalyzerCurrencyGroups {
         group_routes: &Vec<Vec<f64>>,
         index: usize,
     ) -> f64;
+    fn calculate_cost_per_craft(
+        &self,
+        currency: &Vec<CraftCurrencyList>,
+        item_info: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+    ) -> PriceInDivines;
+    fn calculate_cost_per_60_percent(
+        &self,
+        tries: f64,
+        tries_per_1: &PriceInDivines,
+    ) -> PriceInDivines;
     fn template_weight_for_group_step_index(&self, weight: f64) -> String;
     fn template_group_weight_name(&self) -> &'static str;
     fn template_60_percent_group_name(&self) -> &'static str;

@@ -1,6 +1,11 @@
+use num_format::{Locale, ToFormattedString};
+
 use crate::api::{
     calculator::{DynStatisticAnalyzerCurrencyGroups, GroupRoute, StatisticAnalyzerCurrencyGroups},
-    provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
+    provider::{
+        item_info::ItemInfoProvider,
+        market_prices::{MarketPriceProvider, PriceKind},
+    },
 };
 use std::fmt::Write;
 
@@ -13,19 +18,42 @@ impl GroupRoute {
     ) -> String {
         let mut out = String::new();
 
-        let weight_for_60 = statistic_analyzer.calculate_weight_for_60_percent(
+        let tries_for_60 = statistic_analyzer.calculate_weight_for_60_percent(
             &self,
             &item_provider,
             &market_provider,
         );
 
+        let cost_per_1 = statistic_analyzer.calculate_cost_per_craft(
+            &self.group,
+            &item_provider,
+            &market_provider,
+        );
+
+        let cost_per_60 =
+            statistic_analyzer.calculate_cost_per_60_percent(tries_for_60, &cost_per_1);
+
         writeln!(
             &mut out,
-            "{}: {} - {} 60% Chance: {}{}",
+            "{}: {} | {} 60% Chance: {} | Cost {} per Craft | Cost {} for 60 %]{}",
             statistic_analyzer.template_group_weight_name(),
             statistic_analyzer.format_group_weight(self.weight),
             statistic_analyzer.template_60_percent_group_name(),
-            statistic_analyzer.format_60_percent_group_weight(weight_for_60),
+            statistic_analyzer.format_60_percent_group_weight(tries_for_60),
+            format!(
+                "{} EX",
+                (market_provider
+                    .currency_convert(&cost_per_1, &PriceKind::Exalted)
+                    .ceil() as u64)
+                    .to_formatted_string(&Locale::en)
+            ),
+            format!(
+                "{} EX",
+                (market_provider
+                    .currency_convert(&cost_per_60, &PriceKind::Exalted)
+                    .ceil() as u64)
+                    .to_formatted_string(&Locale::en)
+            ),
             match statistic_analyzer.format_display_more_info(
                 &self,
                 &item_provider,
