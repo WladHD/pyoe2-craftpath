@@ -53,33 +53,30 @@ def main():
 
     print("Matrix contains", calc.matrix.__len__(), "items")
 
-    # res = calc.calculate_statistics(
-    #     item_provider=coe_data,
-    #     market_provider=economy,
-    #     max_routes=5,
-    #     max_ram_in_bytes=1000000000,  # 1 GB
-    #     statistic_analyzer=pc.StatisticAnalyzerPathPreset.UniquePathChance)
+    res = calc.calculate_statistics(
+        item_provider=coe_data,
+        market_provider=economy,
+        max_routes=5,
+        max_ram_in_bytes=1000000000,  # 1 GB
+        statistic_analyzer=pc.StatisticAnalyzerPathPreset.UniquePathChance)
 
-    # print(res)
+    print(res)
 
-    # group_map = calc.calculate_statistics_currency_group(
-    #     item_provider=coe_data,
-    #     market_provider=economy,
-    #     max_ram_in_bytes=1000000000,  # 1 GB currently useless
-    #     statistic_analyzer=pc.StatisticAnalyzerCurrencyGroupPreset.CurrencyGroupChance)
+    groups = calc.calculate_statistics_currency_group(
+        item_provider=coe_data,
+        market_provider=economy,
+        max_ram_in_bytes=3000000000,  # 3 GB
+        statistic_analyzer=pc.StatisticAnalyzerCurrencyGroupPreset.CurrencyGroupChance
+    )
 
-    # print(group_map.pop(0))
+    inst = pc.StatisticAnalyzerCurrencyGroupPreset.CurrencyGroupChance.get_statistic_analyzer_instance()
 
-    # this is disabled for CI, you can enable it if you want to test it
-    # all = calc.calculate_statistics(
-    #     item_provider=coe_data,
-    #     market_provider=economy,
-    #     max_routes=1,  # this is ignored
-    #     max_ram_in_bytes=5000000000,  # 5 GB
-    #     statistic_analyzer=pc.StatisticAnalyzerPreset.AllUniquePathChance)
-
-    # print("Result contains", all.sorted_routes.__len__(),
-    #       "unique routes sorted by chance ...")
+    for index, g in enumerate(groups[:3]):
+        print("Group #", index + 1, "-", g.to_pretty_string(
+            item_provider=coe_data,
+            market_provider=economy,
+            statistic_analyzer=inst
+        ))
 
 
 if __name__ == "__main__":

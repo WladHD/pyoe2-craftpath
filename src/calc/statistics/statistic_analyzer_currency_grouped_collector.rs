@@ -9,6 +9,7 @@ use crate::{
     api::{
         calculator::{Calculator, ItemMatrixNode},
         currency::CraftCurrencyList,
+        errors::CraftPathError,
         provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
         types::THashMap,
     },
@@ -29,7 +30,7 @@ pub fn calculate_currency_groups<'a, T: StatisticAnalyzerCurrencyGroupCollectorT
     // sorted collection
     let mut results: THashMap<Vec<&CraftCurrencyList>, Vec<Vec<f64>>> = THashMap::default();
 
-    // let mut actual_ram: u64 = 0;
+    let mut actual_ram: u64 = 0;
 
     let tree = &calculator.matrix;
     let start = calculator
@@ -56,18 +57,18 @@ pub fn calculate_currency_groups<'a, T: StatisticAnalyzerCurrencyGroupCollectorT
         count += 1;
 
         if count % 200_000 == 0 {
-            // if max_ram_in_bytes < actual_ram {
-            //     return Err(CraftPathError::RamLimitReached(format!(
-            //         "{}",
-            //         SizeFormatter::new(max_ram_in_bytes, humansize::DECIMAL)
-            //     ))
-            //     .into());
-            // }
+            if max_ram_in_bytes < actual_ram {
+                return Err(CraftPathError::RamLimitReached(format!(
+                    "{}",
+                    SizeFormatter::new(max_ram_in_bytes, humansize::DECIMAL)
+                ))
+                .into());
+            }
 
             let elapsed = start_time.elapsed().as_secs_f64();
             let speed = (count as f64 / elapsed).round() as u64; // integer paths/sec
             let accepted_routes = results.len();
-            // let est_ram_usage = SizeFormatter::new(actual_ram, humansize::DECIMAL);
+            let est_ram_usage = SizeFormatter::new(actual_ram, humansize::DECIMAL);
 
             pb.set_message(format!(
                     "Applied {} currencies, resulting in {} groups (from total of {} paths) [Speed: {} currencies/sec, RAM usage: {}/{}]",
@@ -75,7 +76,7 @@ pub fn calculate_currency_groups<'a, T: StatisticAnalyzerCurrencyGroupCollectorT
                     accepted_routes.to_formatted_string(&Locale::en),
                     collected.to_formatted_string(&Locale::en),
                     speed.to_formatted_string(&Locale::en),
-                    "not implemented yet",
+                    est_ram_usage,
                     max_ram_show
                 )
             );
@@ -92,7 +93,7 @@ pub fn calculate_currency_groups<'a, T: StatisticAnalyzerCurrencyGroupCollectorT
                 a
             });
 
-            // actual_ram += (9 as u64) * (path.len() as u64);
+            actual_ram += (16 as u64) * (path.len() as u64);
 
             results.entry(path).or_default().push(weights);
             continue;
