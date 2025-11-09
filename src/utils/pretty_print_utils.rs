@@ -45,7 +45,7 @@ impl GroupRoute {
 
             writeln!(
                 &mut out,
-                "{}. \t{} [{}]",
+                "{}. \t{} [WORK IN PROGRESS: {} (avg. *SINGLE* chance)]",
                 index + 1,
                 currency_list
                     .list
