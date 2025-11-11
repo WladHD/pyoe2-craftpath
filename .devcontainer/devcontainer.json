@@ -24,7 +24,8 @@
 				"ms-vscode.cpptools-extension-pack",
 				"adam-bender.commit-message-editor",
 				"vivaxy.vscode-conventional-commits",
-				"mtxr.sqltools"
+				"mtxr.sqltools",
+				"yzhang.markdown-all-in-one"
 			]
 		}
 	},
