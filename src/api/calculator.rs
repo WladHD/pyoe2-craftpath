@@ -246,6 +246,7 @@ impl DynStatisticAnalyzerCurrencyGroups {
         self.0.lower_is_better()
     }
 
+    #[cfg(feature = "python")]
     fn get_statistic(
         &self,
         calculator: &Calculator,
