@@ -126,7 +126,7 @@ mod tests {
             calculator.calculate_statistics_currency_group(
                 &item_provider,
                 &market_info,
-                1000000000,
+                5000000000,
                 StatisticAnalyzerCurrencyGroupPreset::CurrencyGroupChance
                     .get_instance()
                     .0
