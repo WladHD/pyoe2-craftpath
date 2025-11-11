@@ -1,2 +1,2 @@
-pub(crate) mod poe_ninja_data_provider_adapter;
+pub mod poe_ninja_data_provider_adapter;
 mod poe_ninja_json_definition;

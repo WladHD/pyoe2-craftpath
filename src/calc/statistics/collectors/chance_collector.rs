@@ -3,7 +3,9 @@ use crate::{
         calculator::ItemMatrix,
         provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
     },
-    calc::statistics::helpers::{ItemRouteNodeRef, StatisticAnalyzerCollectorTrait},
+    calc::statistics::helpers::{
+        ItemRouteNodeRef, RouteChance, RouteCustomWeight, StatisticAnalyzerCollectorTrait,
+    },
 };
 
 pub struct UniquePathChanceCollector;
@@ -14,7 +16,8 @@ impl StatisticAnalyzerCollectorTrait for UniquePathChanceCollector {
         _: &ItemMatrix,
         _: &ItemInfoProvider,
         _: &MarketPriceProvider,
-    ) -> f64 {
-        path.iter().map(|n| n.chance.to_f64()).product()
+    ) -> (RouteCustomWeight, RouteChance) {
+        let res = path.iter().map(|n| n.chance.to_f64()).product::<f64>();
+        (RouteCustomWeight::from(res), RouteChance::from(res))
     }
 }

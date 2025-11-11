@@ -9,7 +9,8 @@ use crate::{
         matrix_propagator::MatrixPropagator,
         provider::item_info::ItemInfoProvider,
         types::{
-            AffixClassEnum, AffixLocationEnum, AffixSpecifier, ItemRarityEnum, THashMap, THashSet,
+            AffixClassEnum, AffixLocationEnum, AffixSpecifier, AffixTierConstraints,
+            AffixTierLevelBoundsEnum, ItemRarityEnum, THashMap, THashSet,
         },
     },
     calc::matrix::propagators::exalted_orb::ExaltedOrbPropagator,
@@ -73,6 +74,8 @@ impl PerfectEssencePropagator {
 
         let mut delete_item_affix_pool: THashSet<AffixSpecifier> =
             item_instance.snapshot.affixes.clone();
+
+        delete_item_affix_pool.retain(|test| !test.fractured);
 
         // filter unwanted pool
         match dex_sin {
@@ -189,7 +192,28 @@ impl PerfectEssencePropagator {
         {
             let mut affixes: THashSet<AffixSpecifier> = item_instance.snapshot.affixes.clone();
             affixes.remove(delete_affix);
-            affixes.insert(affix_target.clone());
+
+            let Ok((_, _, essence_tier)) = provider.collect_essence_info_for_affix(
+                match currency {
+                    CraftCurrencyEnum::Essence(e) => e,
+                    _ => panic!("Unknown currency"),
+                },
+                &item_instance.snapshot.base_id,
+                &affix_target.affix,
+            ) else {
+                continue;
+            };
+
+            affixes.insert(AffixSpecifier {
+                affix: affix_target.affix.clone(),
+                fractured: false,
+                tier: AffixTierConstraints {
+                    bounds: AffixTierLevelBoundsEnum::Exact,
+                    tier: essence_tier.0.clone(),
+                },
+            });
+
+            // affixes.insert(affix_target.clone());
 
             let next_item_snapshot = ItemSnapshot {
                 rarity: item_instance.snapshot.rarity.clone(),

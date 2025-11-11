@@ -1,8 +1,6 @@
 import pyoe2_craftpath as pc
 from pyoe2_craftpath import AffixId
 from pprint import pprint
-import os
-import requests
 
 COE_CACHE_MAP = {
     "./cache/coe2.json": "https://www.craftofexile.com/json/poe2/main/poec_data.json"

@@ -9,6 +9,7 @@ use crate::{
         item::ItemSnapshot,
         provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
     },
+    explicit_type,
     utils::{fraction_utils::Fraction, hash_utils::hash_value},
 };
 
@@ -22,7 +23,8 @@ pub struct ItemRouteNodeRef<'a> {
 #[derive(Clone, Debug)]
 pub struct ItemRouteRef<'a> {
     pub route: Vec<ItemRouteNodeRef<'a>>,
-    pub weight: f64,
+    pub weight: RouteCustomWeight,
+    pub chance: RouteChance,
 }
 
 /// Calculates RAM usage in bytes for an ItemRouteNodeRef<'a>.
@@ -56,8 +58,11 @@ pub trait StatisticAnalyzerCollectorTrait {
         matrix: &ItemMatrix,
         item_provider: &ItemInfoProvider,
         market_provider: &MarketPriceProvider,
-    ) -> f64;
+    ) -> (RouteCustomWeight, RouteChance);
 }
+
+explicit_type!(RouteCustomWeight, f64);
+explicit_type!(RouteChance, f64);
 
 pub trait StatisticAnalyzerCurrencyGroupCollectorTrait {
     fn get_partial_weights(
@@ -65,9 +70,16 @@ pub trait StatisticAnalyzerCurrencyGroupCollectorTrait {
         matrix: &ItemMatrix,
         item_provider: &ItemInfoProvider,
         market_provider: &MarketPriceProvider,
-    ) -> Vec<f64>;
+    ) -> Vec<(RouteCustomWeight, RouteChance, u64)>;
 
-    fn calculate_group_weight(currency: &Vec<CraftCurrencyList>, paths: &Vec<Vec<f64>>) -> f64;
+    fn calculate_group_weight(
+        currency: &Vec<CraftCurrencyList>,
+        paths: &Vec<Vec<(RouteCustomWeight, RouteChance, u64)>>,
+    ) -> RouteCustomWeight;
+
+    fn calculate_group_chance(
+        paths: &Vec<Vec<(RouteCustomWeight, RouteChance, u64)>>,
+    ) -> RouteChance;
 }
 
 #[instrument(skip_all)]
@@ -87,6 +99,7 @@ pub fn finalize_routes(mut routes: Vec<ItemRouteRef<'_>>) -> Vec<ItemRoute> {
         finalized.push(ItemRoute {
             route: owned_nodes,
             weight: route_ref.weight,
+            chance: route_ref.chance,
         });
     }
 

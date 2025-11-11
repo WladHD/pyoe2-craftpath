@@ -1,9 +1,4 @@
 import pyoe2_craftpath as pc
-from pyoe2_craftpath import AffixId
-from pprint import pprint
-import os
-import requests
-import time
 
 # You probably want to compare file timestamp to check if old cache is older than ... idk .. 1h?
 # Example of that below

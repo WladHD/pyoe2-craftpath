@@ -88,7 +88,8 @@ pub fn calculate_all_paths<'a, T: StatisticAnalyzerCollectorTrait>(
 
             let route = ItemRouteRef {
                 route: path,
-                weight,
+                weight: weight.0,
+                chance: weight.1,
             };
 
             let accepted_route_ram = ram_usage_item_route_ref(&route);
@@ -110,7 +111,7 @@ pub fn calculate_all_paths<'a, T: StatisticAnalyzerCollectorTrait>(
 
                     let mut new_path = path.clone();
                     new_path.push(ItemRouteNodeRef {
-                        item: &node.item.snapshot,
+                        item: &target.next,
                         chance: &target.chance,
                         currency_list: &currency_list,
                     });

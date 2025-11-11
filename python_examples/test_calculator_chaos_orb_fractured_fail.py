@@ -40,7 +40,7 @@ def main():
     print(start_item)
     print(end_item)
 
-    inst = pc.MatrixBuilderPreset.HappyPathMatrixBuilder.get_matrix_builder_instance()
+    inst = pc.MatrixBuilderPreset.HappyPathMatrixBuilder.get_instance()
 
     print(inst)
 

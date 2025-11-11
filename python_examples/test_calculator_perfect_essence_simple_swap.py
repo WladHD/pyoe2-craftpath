@@ -40,43 +40,69 @@ def main():
     print(start_item)
     print(end_item)
 
-    inst = pc.MatrixBuilderPreset.HappyPathMatrixBuilder.get_matrix_builder_instance()
+    group_chance_instance = pc.MatrixBuilderPreset.HappyPathMatrixBuilder.get_instance()
 
-    print(inst)
+    print(group_chance_instance)
 
     calc = pc.Calculator.generate_item_matrix(
         starting_item=start_item,
         target=end_item,
         item_provider=coe_data,
         market_info=economy,
-        matrix_builder=pc.MatrixBuilderPreset.HappyPathMatrixBuilder)
+        matrix_builder=pc.MatrixBuilderPreset.HappyPathMatrixBuilder.get_instance())
 
     print("Matrix contains", calc.matrix.__len__(), "items")
+
+    unique_path_chance_instance = pc.StatisticAnalyzerPathPreset.UniquePathChance.get_instance()
+    group_chance_instance = pc.StatisticAnalyzerCurrencyGroupPreset.CurrencyGroupChance.get_instance()
 
     res = calc.calculate_statistics(
         item_provider=coe_data,
         market_provider=economy,
         max_routes=5,
         max_ram_in_bytes=1000000000,  # 1 GB
-        statistic_analyzer=pc.StatisticAnalyzerPathPreset.UniquePathChance)
-
-    print(res)
+        statistic_analyzer=unique_path_chance_instance)
 
     groups = calc.calculate_statistics_currency_group(
         item_provider=coe_data,
         market_provider=economy,
         max_ram_in_bytes=1000000000,  # 1 GB
-        statistic_analyzer=pc.StatisticAnalyzerCurrencyGroupPreset.CurrencyGroupChance
+        statistic_analyzer=group_chance_instance
     )
-
-    inst = pc.StatisticAnalyzerCurrencyGroupPreset.CurrencyGroupChance.get_statistic_analyzer_instance()
 
     for index, g in enumerate(groups[:3]):
         print("Group #", index + 1, "-", g.to_pretty_string(
             item_provider=coe_data,
             market_provider=economy,
-            statistic_analyzer=inst
+            statistic_analyzer=group_chance_instance
         ))
+
+    for route in res.sorted_routes[:2]:
+        pretty = route.to_pretty_string(
+            item_provider=coe_data,
+            market_provider=economy,
+            calculator=calc,
+            groups=groups,
+            statistic_analyzer=unique_path_chance_instance,
+        )
+
+        group = route.locate_group(calculated_groups=groups)
+
+        if group is not None:
+            print("Manual lookup group: ", group.chance)
+
+        print(pretty)
+
+    for route in res.sorted_routes[2:]:
+        pretty = route.to_pretty_string(
+            item_provider=coe_data,
+            market_provider=economy,
+            calculator=calc,
+            groups=None,
+            statistic_analyzer=pc.StatisticAnalyzerPathPreset.UniquePathChance.get_instance(),
+        )
+
+        print(pretty)
 
 
 if __name__ == "__main__":

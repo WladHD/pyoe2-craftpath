@@ -22,6 +22,7 @@ use crate::{
     utils::{fraction_utils::Fraction, hash_utils::hash_value},
 };
 
+#[derive(Clone, Debug)]
 pub struct HappyPathMatrixBuilderImpl;
 
 impl MatrixBuilder for HappyPathMatrixBuilderImpl {

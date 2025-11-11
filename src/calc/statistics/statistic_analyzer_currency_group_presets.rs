@@ -16,7 +16,7 @@ pub enum StatisticAnalyzerCurrencyGroupPreset {
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pymethods)]
 #[cfg_attr(feature = "python", pyo3::pymethods)]
 impl StatisticAnalyzerCurrencyGroupPreset {
-    pub fn get_statistic_analyzer_instance(&self) -> DynStatisticAnalyzerCurrencyGroups {
+    pub fn get_instance(&self) -> DynStatisticAnalyzerCurrencyGroups {
         match self {
             &StatisticAnalyzerCurrencyGroupPreset::CurrencyGroupChance => {
                 DynStatisticAnalyzerCurrencyGroups(Box::new(CurrencyGroupChanceStatisticAnalyzer))

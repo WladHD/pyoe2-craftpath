@@ -13,7 +13,10 @@ use crate::{
         provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
         types::THashMap,
     },
-    calc::statistics::helpers::{ItemRouteNodeRef, StatisticAnalyzerCurrencyGroupCollectorTrait},
+    calc::statistics::helpers::{
+        ItemRouteNodeRef, RouteChance, RouteCustomWeight,
+        StatisticAnalyzerCurrencyGroupCollectorTrait,
+    },
     utils::hash_utils::hash_value,
 };
 
@@ -22,13 +25,16 @@ pub fn calculate_currency_groups<'a, T: StatisticAnalyzerCurrencyGroupCollectorT
     item_provider: &'a ItemInfoProvider,
     market_provider: &'a MarketPriceProvider,
     max_ram_in_bytes: u64,
-) -> Result<THashMap<Vec<&'a CraftCurrencyList>, Vec<Vec<f64>>>> {
+) -> Result<THashMap<Vec<&'a CraftCurrencyList>, Vec<Vec<(RouteCustomWeight, RouteChance, u64)>>>> {
     tracing::info!("Generating unique craft paths based on item matrix");
 
     // current path, build for item
     let mut stack: Vec<(Vec<ItemRouteNodeRef>, &ItemMatrixNode)> = Vec::new();
     // sorted collection
-    let mut results: THashMap<Vec<&CraftCurrencyList>, Vec<Vec<f64>>> = THashMap::default();
+    let mut results: THashMap<
+        Vec<&CraftCurrencyList>,
+        Vec<Vec<(RouteCustomWeight, RouteChance, u64)>>,
+    > = THashMap::default();
 
     let mut actual_ram: u64 = 0;
 
@@ -93,7 +99,7 @@ pub fn calculate_currency_groups<'a, T: StatisticAnalyzerCurrencyGroupCollectorT
                 a
             });
 
-            actual_ram += (16 as u64) * (path.len() as u64);
+            actual_ram += (4 * 8 as u64) * (path.len() as u64);
 
             results.entry(path).or_default().push(weights);
             continue;
@@ -112,7 +118,7 @@ pub fn calculate_currency_groups<'a, T: StatisticAnalyzerCurrencyGroupCollectorT
 
                     let mut new_path = path.clone();
                     new_path.push(ItemRouteNodeRef {
-                        item: &node.item.snapshot,
+                        item: &target.next,
                         chance: &target.chance,
                         currency_list: &currency_list,
                     });

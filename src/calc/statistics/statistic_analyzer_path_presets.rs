@@ -22,7 +22,7 @@ pub enum StatisticAnalyzerPathPreset {
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pymethods)]
 #[cfg_attr(feature = "python", pyo3::pymethods)]
 impl StatisticAnalyzerPathPreset {
-    pub fn get_statistic_analyzer_instance(&self) -> DynStatisticAnalyzerPaths {
+    pub fn get_instance(&self) -> DynStatisticAnalyzerPaths {
         match self {
             &StatisticAnalyzerPathPreset::UniquePathChance => {
                 DynStatisticAnalyzerPaths(Box::new(UniquePathChanceStatisticAnalyzer))

@@ -3,13 +3,16 @@ use tracing::instrument;
 
 use crate::{
     api::{
-        calculator::{Calculator, ItemMatrix, ItemRoute, StatisticAnalyzerPaths},
-        provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
+        calculator::{Calculator, ItemRoute, StatisticAnalyzerPaths},
+        currency::CraftCurrencyList,
+        provider::{
+            item_info::ItemInfoProvider,
+            market_prices::{MarketPriceProvider, PriceInDivines},
+        },
     },
     calc::statistics::{
-        helpers::{
-            ItemRouteNodeRef, ItemRouteRef, StatisticAnalyzerCollectorTrait, finalize_routes,
-        },
+        collectors::chance_collector::UniquePathChanceCollector,
+        helpers::{ItemRouteRef, finalize_routes},
         statistic_analyzer_unique_collector::calculate_crafting_paths,
     },
 };
@@ -53,17 +56,39 @@ impl StatisticAnalyzerPaths for UniquePathChanceStatisticAnalyzer {
 
         Ok(finalize_routes(res))
     }
-}
 
-struct UniquePathChanceCollector;
+    fn calculate_tries_needed_for_60_percent(&self, route: &ItemRoute) -> u64 {
+        let tries_for_60_percent = ((((1.0_f64 - 0.6_f64).ln()
+            / (1.0_f64 - route.chance.get_raw_value()).ln())
+        .ceil()) as u64)
+            .max(1);
 
-impl StatisticAnalyzerCollectorTrait for UniquePathChanceCollector {
-    fn get_weight(
-        path: &Vec<ItemRouteNodeRef<'_>>,
-        _: &ItemMatrix,
+        tries_for_60_percent
+    }
+
+    fn format_display_more_info(
+        &self,
+        _: &ItemRoute,
         _: &ItemInfoProvider,
         _: &MarketPriceProvider,
-    ) -> f64 {
-        path.iter().map(|n| n.chance.to_f64()).product()
+    ) -> Option<String> {
+        None
+    }
+
+    fn calculate_cost_per_craft(
+        &self,
+        currency: &Vec<CraftCurrencyList>,
+        item_info: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+    ) -> PriceInDivines {
+        let pc = PriceInDivines::new(currency.iter().fold(0_f64, |a, b| {
+            a + b.list.iter().fold(0_f64, |a, b| {
+                a + market_provider
+                    .try_lookup_currency_in_divines_default_if_fail(b, &item_info)
+                    .get_divine_value()
+            })
+        }));
+
+        pc
     }
 }

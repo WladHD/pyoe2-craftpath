@@ -16,7 +16,7 @@ pub enum MatrixBuilderPreset {
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pymethods)]
 #[cfg_attr(feature = "python", pyo3::pymethods)]
 impl MatrixBuilderPreset {
-    pub fn get_matrix_builder_instance(&self) -> DynMatrixBuilder {
+    pub fn get_instance(&self) -> DynMatrixBuilder {
         match self {
             MatrixBuilderPreset::HappyPathMatrixBuilder => {
                 DynMatrixBuilder(Box::new(HappyPathMatrixBuilderImpl))

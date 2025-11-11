@@ -7,7 +7,7 @@ use tracing::instrument;
 
 use crate::{
     api::{
-        calculator::{Calculator, GroupRoute, ItemMatrix, StatisticAnalyzerCurrencyGroups},
+        calculator::{Calculator, GroupRoute, StatisticAnalyzerCurrencyGroups},
         currency::CraftCurrencyList,
         provider::{
             item_info::ItemInfoProvider,
@@ -16,9 +16,11 @@ use crate::{
         types::THashMap,
     },
     calc::statistics::{
-        helpers::{ItemRouteNodeRef, StatisticAnalyzerCurrencyGroupCollectorTrait},
+        collectors::group_collector::CurrencyGroupChanceCollector,
+        helpers::{RouteChance, RouteCustomWeight, StatisticAnalyzerCurrencyGroupCollectorTrait},
         statistic_analyzer_currency_grouped_collector::calculate_currency_groups,
     },
+    utils::float_compare,
 };
 
 pub struct CurrencyGroupChanceStatisticAnalyzer;
@@ -48,71 +50,47 @@ impl StatisticAnalyzerCurrencyGroups for CurrencyGroupChanceStatisticAnalyzer {
         market_provider: &MarketPriceProvider,
         max_ram_in_bytes: u64,
     ) -> Result<Vec<GroupRoute>> {
-        let res: THashMap<Vec<&CraftCurrencyList>, Vec<Vec<f64>>> =
-            calculate_currency_groups::<UniquePathChanceCollector>(
-                calculator,
-                item_provider,
-                market_provider,
-                max_ram_in_bytes,
-            )?;
+        let res: THashMap<
+            Vec<&CraftCurrencyList>,
+            Vec<Vec<(RouteCustomWeight, RouteChance, u64)>>,
+        > = calculate_currency_groups::<CurrencyGroupChanceCollector>(
+            calculator,
+            item_provider,
+            market_provider,
+            max_ram_in_bytes,
+        )?;
 
         let mut data: Vec<GroupRoute> = res
             .into_par_iter()
             .map(|(k, v)| {
                 let key_owned: Vec<CraftCurrencyList> = k.into_iter().cloned().collect();
-                let weight = UniquePathChanceCollector::calculate_group_weight(&key_owned, &v);
+                let weight = CurrencyGroupChanceCollector::calculate_group_weight(&key_owned, &v);
+                let chance = CurrencyGroupChanceCollector::calculate_group_chance(&v);
 
                 GroupRoute {
                     group: key_owned,
-                    weight: weight,
+                    weight,
                     unique_route_weights: v,
+                    chance,
                 }
             })
             .collect();
 
         if self.lower_is_better() {
             data.par_sort_unstable_by(|a, b| {
-                a.weight
-                    .partial_cmp(&b.weight)
-                    .unwrap_or(std::cmp::Ordering::Equal)
+                float_compare::cmp_f64(*a.weight.get_raw_value(), *b.weight.get_raw_value()).then(
+                    float_compare::cmp_f64(*a.chance.get_raw_value(), *b.chance.get_raw_value()),
+                )
             });
         } else {
             data.par_sort_unstable_by(|a, b| {
-                b.weight
-                    .partial_cmp(&a.weight)
-                    .unwrap_or(std::cmp::Ordering::Equal)
+                float_compare::cmp_f64(*b.weight.get_raw_value(), *a.weight.get_raw_value()).then(
+                    float_compare::cmp_f64(*a.chance.get_raw_value(), *b.chance.get_raw_value()),
+                )
             });
         }
 
         Ok(data)
-    }
-
-    fn calculate_weight_for_60_percent(
-        &self,
-        route: &GroupRoute,
-        _: &ItemInfoProvider,
-        _: &MarketPriceProvider,
-    ) -> f64 {
-        let tries_for_60_percent =
-            (((1.0_f64 - 0.6_f64).ln() / (1.0_f64 - route.weight).ln()).ceil()).max(1_f64);
-
-        tries_for_60_percent
-    }
-
-    fn template_group_weight_name(&self) -> &'static str {
-        "Chance"
-    }
-
-    fn template_60_percent_group_name(&self) -> &'static str {
-        "Tries needed for"
-    }
-
-    fn format_group_weight(&self, weight: f64) -> String {
-        format!("{:.5} %", weight * 100_f64)
-    }
-
-    fn format_60_percent_group_weight(&self, weight: f64) -> String {
-        format!("{} tries", weight as u64)
     }
 
     fn format_display_more_info(
@@ -124,30 +102,23 @@ impl StatisticAnalyzerCurrencyGroups for CurrencyGroupChanceStatisticAnalyzer {
         None
     }
 
-    fn calculate_weight_for_group_step_index(
+    fn calculate_chance_for_group_step_index(
         &self,
-        group_routes: &Vec<Vec<f64>>,
+        group_routes: &Vec<Vec<(RouteCustomWeight, RouteChance, u64)>>,
         index: usize,
-    ) -> f64 {
-        let route_weights: Vec<f64> = group_routes
-            .iter()
-            .map(|route| route.iter().product::<f64>())
-            .collect();
+    ) -> RouteChance {
+        let mut hm: THashMap<u64, Vec<RouteChance>> = THashMap::default();
 
-        let total_weight: f64 = route_weights.iter().sum();
+        for gr in group_routes.iter() {
+            let curr = gr.get(index).unwrap();
+            hm.entry(curr.2.clone()).or_default().push(curr.1.clone());
+        }
 
-        // weighted sum of the probability at this step
-        let step_weight: f64 = group_routes
-            .iter()
-            .zip(route_weights.iter())
-            .map(|(route, w)| route[index] * w)
-            .sum();
+        let sum_max: f64 = hm.values().fold(0_f64, |acc, v| {
+            acc + (v.iter().map(|e| *e.get_raw_value()).sum::<f64>() / (v.len() as f64))
+        });
 
-        step_weight / total_weight
-    }
-
-    fn template_weight_for_group_step_index(&self, weight: f64) -> String {
-        format!("{:.5} %", weight * 100_f64)
+        RouteChance::new(sum_max.clamp(0_f64, 1_f64))
     }
 
     fn calculate_cost_per_craft(
@@ -167,31 +138,12 @@ impl StatisticAnalyzerCurrencyGroups for CurrencyGroupChanceStatisticAnalyzer {
         pc
     }
 
-    fn calculate_cost_per_60_percent(
-        &self,
-        tries: f64,
-        tries_per_1: &PriceInDivines,
-    ) -> PriceInDivines {
-        PriceInDivines::new(tries * tries_per_1.get_divine_value())
-    }
-}
+    fn calculate_tries_needed_for_60_percent(&self, group_route: &GroupRoute) -> u64 {
+        let tries_for_60 = ((((1.0_f64 - 0.6_f64).ln()
+            / (1.0_f64 - group_route.chance.get_raw_value()).ln())
+        .ceil()) as u64)
+            .max(1);
 
-struct UniquePathChanceCollector;
-
-impl StatisticAnalyzerCurrencyGroupCollectorTrait for UniquePathChanceCollector {
-    fn get_partial_weights(
-        path: &Vec<ItemRouteNodeRef<'_>>,
-        _: &ItemMatrix,
-        _: &ItemInfoProvider,
-        _: &MarketPriceProvider,
-    ) -> Vec<f64> {
-        path.iter().fold(Vec::new(), |mut a, b| {
-            a.push(b.chance.to_f64());
-            a
-        })
-    }
-
-    fn calculate_group_weight(_: &Vec<CraftCurrencyList>, paths: &Vec<Vec<f64>>) -> f64 {
-        paths.iter().map(|e| e.iter().product::<f64>()).sum::<f64>()
+        tries_for_60
     }
 }

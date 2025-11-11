@@ -4,7 +4,7 @@ use crate::api::{
     calculator::{DynStatisticAnalyzerCurrencyGroups, GroupRoute, StatisticAnalyzerCurrencyGroups},
     provider::{
         item_info::ItemInfoProvider,
-        market_prices::{MarketPriceProvider, PriceKind},
+        market_prices::{MarketPriceProvider, PriceInDivines, PriceKind},
     },
 };
 use std::fmt::Write;
@@ -14,32 +14,29 @@ impl GroupRoute {
         &self,
         item_provider: &ItemInfoProvider,
         market_provider: &MarketPriceProvider,
-        statistic_analyzer: &dyn StatisticAnalyzerCurrencyGroups,
+        grouped_statistic_analyzer: &dyn StatisticAnalyzerCurrencyGroups,
     ) -> String {
         let mut out = String::new();
 
-        let tries_for_60 = statistic_analyzer.calculate_weight_for_60_percent(
-            &self,
-            &item_provider,
-            &market_provider,
-        );
-
-        let cost_per_1 = statistic_analyzer.calculate_cost_per_craft(
+        let cost_per_1 = grouped_statistic_analyzer.calculate_cost_per_craft(
             &self.group,
             &item_provider,
             &market_provider,
         );
 
+        let tries_for_60 = ((((1.0_f64 - 0.6_f64).ln()
+            / (1.0_f64 - self.chance.get_raw_value()).ln())
+        .ceil()) as u64)
+            .max(1);
+
         let cost_per_60 =
-            statistic_analyzer.calculate_cost_per_60_percent(tries_for_60, &cost_per_1);
+            PriceInDivines::new((tries_for_60 as f64) * cost_per_1.get_divine_value());
 
         writeln!(
             &mut out,
-            "{}: {} | {} 60% Chance: {} | Cost {} per Craft | Cost {} for 60 %]{}",
-            statistic_analyzer.template_group_weight_name(),
-            statistic_analyzer.format_group_weight(self.weight),
-            statistic_analyzer.template_60_percent_group_name(),
-            statistic_analyzer.format_60_percent_group_weight(tries_for_60),
+            "Group Chance: {:.5}% | Tries needed for 60%: {} | Cost per Craft: {} | Cost for 60%: {}{}",
+            self.chance.get_raw_value() * 100_f64,
+            tries_for_60.to_formatted_string(&Locale::en),
             format!(
                 "{} EX",
                 (market_provider
@@ -54,7 +51,7 @@ impl GroupRoute {
                     .ceil() as u64)
                     .to_formatted_string(&Locale::en)
             ),
-            match statistic_analyzer.format_display_more_info(
+            match grouped_statistic_analyzer.format_display_more_info(
                 &self,
                 &item_provider,
                 &market_provider
@@ -66,14 +63,12 @@ impl GroupRoute {
         .unwrap();
 
         for (index, currency_list) in self.group.iter().enumerate() {
-            let index_weight = statistic_analyzer
-                .calculate_weight_for_group_step_index(&self.unique_route_weights, index);
-            let index_weight_formatted =
-                statistic_analyzer.template_weight_for_group_step_index(index_weight);
+            let index_weight = grouped_statistic_analyzer
+                .calculate_chance_for_group_step_index(&self.unique_route_weights, index);
 
             writeln!(
                 &mut out,
-                "{}. \t{} [WORK IN PROGRESS: {} (avg. *SINGLE* chance)]",
+                "{}. {} [ROUGH (!) avg. chance: {:.5}%]",
                 index + 1,
                 currency_list
                     .list
@@ -81,7 +76,7 @@ impl GroupRoute {
                     .map(|e| format!("{}", e.get_item_name(&item_provider)))
                     .collect::<Vec<String>>()
                     .join(" + "),
-                index_weight_formatted
+                index_weight.get_raw_value() * 100_f64
             )
             .unwrap();
         }

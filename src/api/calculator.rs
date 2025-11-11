@@ -4,8 +4,7 @@ use crate::api::calculator_utils::calculate_target_proximity::calculate_target_p
 use crate::api::errors::CraftPathError;
 use crate::api::item::ItemTechnicalMeta;
 use crate::api::provider::market_prices::PriceInDivines;
-use crate::calc::statistics::statistic_analyzer_currency_group_presets::StatisticAnalyzerCurrencyGroupPreset;
-use crate::calc::statistics::statistic_analyzer_path_presets::StatisticAnalyzerPathPreset;
+use crate::calc::statistics::helpers::{RouteChance, RouteCustomWeight};
 use crate::{
     api::{
         currency::CraftCurrencyList,
@@ -13,7 +12,6 @@ use crate::{
         provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
         types::THashMap,
     },
-    calc::matrix::matrix_builder_presets::MatrixBuilderPreset,
     utils::fraction_utils::Fraction,
 };
 use anyhow::Result;
@@ -77,7 +75,8 @@ pub struct ItemRouteNode {
 )]
 pub struct ItemRoute {
     pub route: Vec<ItemRouteNode>,
-    pub weight: f64, // for internal 15-17 digit precision, i think inaccuracies on deep paths are acceptable, if not swap to rust_decimal
+    pub weight: RouteCustomWeight, // for internal 15-17 digit precision, i think inaccuracies on deep paths are acceptable, if not swap to rust_decimal
+    pub chance: RouteChance,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -89,8 +88,9 @@ pub struct ItemRoute {
 )]
 pub struct GroupRoute {
     pub group: Vec<CraftCurrencyList>,
-    pub weight: f64,
-    pub unique_route_weights: Vec<Vec<f64>>,
+    pub weight: RouteCustomWeight,
+    pub unique_route_weights: Vec<Vec<(RouteCustomWeight, RouteChance, u64)>>,
+    pub chance: RouteChance,
 }
 
 impl PartialEq for ItemRoute {
@@ -148,13 +148,30 @@ pub trait StatisticAnalyzerPaths {
         max_routes: u32,
         max_ram_in_bytes: u64,
     ) -> Result<Vec<ItemRoute>>;
+    fn calculate_cost_per_craft(
+        &self,
+        currency: &Vec<CraftCurrencyList>,
+        item_info: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+    ) -> PriceInDivines;
+    fn calculate_tries_needed_for_60_percent(&self, route: &ItemRoute) -> u64;
+    fn format_display_more_info(
+        &self,
+        route: &ItemRoute,
+        item_provider: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+    ) -> Option<String>;
 }
 
 pub trait StatisticAnalyzerCurrencyGroups {
     fn get_name(&self) -> &'static str;
+
     fn get_description(&self) -> &'static str;
+
     fn get_unit_type(&self) -> &'static str;
+
     fn lower_is_better(&self) -> bool;
+
     fn get_statistic(
         &self,
         calculator: &Calculator,
@@ -163,33 +180,21 @@ pub trait StatisticAnalyzerCurrencyGroups {
         max_ram_in_bytes: u64,
     ) -> Result<Vec<GroupRoute>>;
 
-    fn calculate_weight_for_60_percent(
+    fn calculate_chance_for_group_step_index(
         &self,
-        group_route: &GroupRoute,
-        item_provider: &ItemInfoProvider,
-        market_provider: &MarketPriceProvider,
-    ) -> f64;
-    fn calculate_weight_for_group_step_index(
-        &self,
-        group_routes: &Vec<Vec<f64>>,
+        group_routes: &Vec<Vec<(RouteCustomWeight, RouteChance, u64)>>,
         index: usize,
-    ) -> f64;
+    ) -> RouteChance;
+
     fn calculate_cost_per_craft(
         &self,
         currency: &Vec<CraftCurrencyList>,
         item_info: &ItemInfoProvider,
         market_provider: &MarketPriceProvider,
     ) -> PriceInDivines;
-    fn calculate_cost_per_60_percent(
-        &self,
-        tries: f64,
-        tries_per_1: &PriceInDivines,
-    ) -> PriceInDivines;
-    fn template_weight_for_group_step_index(&self, weight: f64) -> String;
-    fn template_group_weight_name(&self) -> &'static str;
-    fn template_60_percent_group_name(&self) -> &'static str;
-    fn format_group_weight(&self, weight: f64) -> String;
-    fn format_60_percent_group_weight(&self, weight: f64) -> String;
+
+    fn calculate_tries_needed_for_60_percent(&self, group_route: &GroupRoute) -> u64;
+
     fn format_display_more_info(
         &self,
         group_route: &GroupRoute,
@@ -253,43 +258,13 @@ impl DynStatisticAnalyzerCurrencyGroups {
             .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
     }
 
-    fn calculate_weight_for_60_percent(
-        &self,
-        group_route: &GroupRoute,
-        item_provider: &ItemInfoProvider,
-        market_provider: &MarketPriceProvider,
-    ) -> f64 {
-        self.0
-            .calculate_weight_for_60_percent(group_route, item_provider, market_provider)
-    }
-
     fn calculate_weight_for_group_step_index(
         &self,
-        group_routes: Vec<Vec<f64>>,
+        group_routes: Vec<Vec<(RouteCustomWeight, RouteChance, u64)>>,
         index: usize,
-    ) -> f64 {
+    ) -> RouteChance {
         self.0
-            .calculate_weight_for_group_step_index(&group_routes, index)
-    }
-
-    fn template_weight_for_group_step_index(&self, weight: f64) -> String {
-        self.0.template_weight_for_group_step_index(weight)
-    }
-
-    fn template_group_weight_name(&self) -> &'static str {
-        self.0.template_group_weight_name()
-    }
-
-    fn template_60_percent_group_name(&self) -> &'static str {
-        self.0.template_60_percent_group_name()
-    }
-
-    fn format_group_weight(&self, weight: f64) -> String {
-        self.0.format_group_weight(weight)
-    }
-
-    fn format_60_percent_group_weight(&self, weight: f64) -> String {
-        self.0.format_60_percent_group_weight(weight)
+            .calculate_chance_for_group_step_index(&group_routes, index)
     }
 
     fn format_display_more_info(
@@ -300,6 +275,20 @@ impl DynStatisticAnalyzerCurrencyGroups {
     ) -> Option<String> {
         self.0
             .format_display_more_info(group_route, item_provider, market_provider)
+    }
+
+    fn calculate_cost_per_craft(
+        &self,
+        currency: Vec<CraftCurrencyList>,
+        item_info: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+    ) -> PriceInDivines {
+        self.0
+            .calculate_cost_per_craft(&currency, item_info, market_provider)
+    }
+
+    fn calculate_tries_needed_for_60_percent(&self, group_route: &GroupRoute) -> u64 {
+        self.0.calculate_tries_needed_for_60_percent(group_route)
     }
 }
 
@@ -336,6 +325,7 @@ pub struct Calculator {
     pub starting_item: ItemSnapshot,
     pub target_item: ItemSnapshot,
     pub statistics: THashMap<String, StatisticResult>,
+    pub statistics_grouped: THashMap<String, Vec<GroupRoute>>,
 }
 
 impl Calculator {
@@ -345,17 +335,15 @@ impl Calculator {
         target: ItemSnapshot,
         item_provider: &ItemInfoProvider,
         market_info: &MarketPriceProvider,
-        matrix_builder: MatrixBuilderPreset,
+        matrix_builder: &dyn MatrixBuilder,
     ) -> Result<Self> {
-        let matrix_builder = matrix_builder.get_matrix_builder_instance();
-
         tracing::info!(
             "Using '{}' to generate item matrix ...",
-            matrix_builder.0.get_name()
+            matrix_builder.get_name()
         );
-        tracing::info!("Description: {}", matrix_builder.0.get_description());
+        tracing::info!("Description: {}", matrix_builder.get_description());
 
-        let res = matrix_builder.0.generate_item_matrix(
+        let res = matrix_builder.generate_item_matrix(
             starting_item.clone(),
             target.clone(),
             item_provider,
@@ -377,25 +365,25 @@ impl Calculator {
             starting_item: starting_item,
             target_item: target,
             statistics: THashMap::default(),
+            statistics_grouped: THashMap::default(),
         })
     }
 
     #[instrument(skip_all)]
     pub fn calculate_statistics(
-        &mut self,
+        &self,
         item_provider: &ItemInfoProvider,
         market_provider: &MarketPriceProvider,
         max_routes: u32,
         max_ram_in_bytes: u64,
-        statistic_analyzer: StatisticAnalyzerPathPreset,
-    ) -> Result<&StatisticResult> {
-        let statistic_analyzer = statistic_analyzer.get_statistic_analyzer_instance();
+        statistic_analyzer: &dyn StatisticAnalyzerPaths,
+    ) -> Result<StatisticResult> {
         tracing::info!(
             "Using '{}' to calculate statistics ...",
-            statistic_analyzer.0.get_name()
+            statistic_analyzer.get_name()
         );
-        tracing::info!("Description: {}", statistic_analyzer.0.get_description());
-        let res = statistic_analyzer.0.get_statistic(
+        tracing::info!("Description: {}", statistic_analyzer.get_description());
+        let res = statistic_analyzer.get_statistic(
             &self,
             item_provider,
             market_provider,
@@ -404,19 +392,11 @@ impl Calculator {
         )?;
         tracing::info!("Successfully calculated statistics. (TODO SHOW STATS)");
 
-        self.statistics.insert(
-            statistic_analyzer.0.get_name().to_string(),
-            StatisticResult {
-                sorted_routes: res,
-                lower_is_better: statistic_analyzer.0.lower_is_better(),
-                unit_type: statistic_analyzer.0.get_unit_type().to_string(),
-            },
-        );
-
-        Ok(self
-            .statistics
-            .get(statistic_analyzer.0.get_name())
-            .unwrap())
+        Ok(StatisticResult {
+            sorted_routes: res,
+            lower_is_better: statistic_analyzer.lower_is_better(),
+            unit_type: statistic_analyzer.get_unit_type().to_string(),
+        })
     }
 
     #[instrument(skip_all)]
@@ -425,20 +405,21 @@ impl Calculator {
         item_provider: &ItemInfoProvider,
         market_provider: &MarketPriceProvider,
         max_ram_in_bytes: u64,
-        statistic_analyzer: StatisticAnalyzerCurrencyGroupPreset,
+        statistic_analyzer: &dyn StatisticAnalyzerCurrencyGroups,
     ) -> Result<Vec<GroupRoute>> {
-        let statistic_analyzer = statistic_analyzer.get_statistic_analyzer_instance();
         tracing::info!(
             "Using '{}' to calculate statistics ...",
-            statistic_analyzer.0.get_name()
+            statistic_analyzer.get_name()
         );
-        tracing::info!("Description: {}", statistic_analyzer.0.get_description());
-        let res = statistic_analyzer.0.get_statistic(
+        tracing::info!("Description: {}", statistic_analyzer.get_description());
+
+        let res = statistic_analyzer.get_statistic(
             &self,
             item_provider,
             market_provider,
             max_ram_in_bytes,
         )?;
+
         tracing::info!("Successfully calculated statistics. (TODO SHOW STATS)");
 
         Ok(res)
@@ -475,14 +456,14 @@ impl Calculator {
         target: ItemSnapshot,
         item_provider: &ItemInfoProvider,
         market_info: &MarketPriceProvider,
-        matrix_builder: MatrixBuilderPreset,
+        matrix_builder: &DynMatrixBuilder,
     ) -> pyo3::PyResult<Self> {
         Calculator::generate_item_matrix(
             starting_item,
             target,
             item_provider,
             market_info,
-            matrix_builder,
+            matrix_builder.0.as_ref(),
         )
         .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
     }
@@ -495,7 +476,7 @@ impl Calculator {
         market_provider: &MarketPriceProvider,
         max_routes: u32,
         max_ram_in_bytes: u64,
-        statistic_analyzer: StatisticAnalyzerPathPreset,
+        statistic_analyzer: &DynStatisticAnalyzerPaths,
     ) -> pyo3::PyResult<StatisticResult> {
         // allow parallelization
         py.detach(move || {
@@ -504,26 +485,25 @@ impl Calculator {
                 market_provider,
                 max_routes,
                 max_ram_in_bytes,
-                statistic_analyzer,
+                statistic_analyzer.0.as_ref(),
             )
-            .cloned()
             .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
         })
     }
 
     #[pyo3(name = "calculate_statistics_currency_group")]
     pub fn calculate_statistics_currency_group_py(
-        &self,
+        &mut self,
         item_provider: &ItemInfoProvider,
         market_provider: &MarketPriceProvider,
         max_ram_in_bytes: u64,
-        statistic_analyzer: StatisticAnalyzerCurrencyGroupPreset,
+        statistic_analyzer: &DynStatisticAnalyzerCurrencyGroups,
     ) -> pyo3::PyResult<Vec<GroupRoute>> {
         self.calculate_statistics_currency_group(
             item_provider,
             market_provider,
             max_ram_in_bytes,
-            statistic_analyzer,
+            statistic_analyzer.0.as_ref(),
         )
         .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
     }
