@@ -14,8 +14,7 @@ use crate::{
         types::THashMap,
     },
     calc::statistics::helpers::{
-        ItemRouteNodeRef, RouteChance, RouteCustomWeight,
-        StatisticAnalyzerCurrencyGroupCollectorTrait,
+        ItemRouteNodeRef, RouteChance, StatisticAnalyzerCurrencyGroupCollectorTrait,
     },
     utils::hash_utils::hash_value,
 };
@@ -25,16 +24,14 @@ pub fn calculate_currency_groups<'a, T: StatisticAnalyzerCurrencyGroupCollectorT
     item_provider: &'a ItemInfoProvider,
     market_provider: &'a MarketPriceProvider,
     max_ram_in_bytes: u64,
-) -> Result<THashMap<Vec<&'a CraftCurrencyList>, Vec<Vec<(RouteCustomWeight, RouteChance, u64)>>>> {
+) -> Result<THashMap<Vec<&'a CraftCurrencyList>, Vec<Vec<(RouteChance, u64)>>>> {
     tracing::info!("Generating unique craft paths based on item matrix");
 
     // current path, build for item
     let mut stack: Vec<(Vec<ItemRouteNodeRef>, &ItemMatrixNode)> = Vec::new();
     // sorted collection
-    let mut results: THashMap<
-        Vec<&CraftCurrencyList>,
-        Vec<Vec<(RouteCustomWeight, RouteChance, u64)>>,
-    > = THashMap::default();
+    let mut results: THashMap<Vec<&CraftCurrencyList>, Vec<Vec<(RouteChance, u64)>>> =
+        THashMap::default();
 
     let mut actual_ram: u64 = 0;
 

@@ -89,7 +89,7 @@ pub struct ItemRoute {
 pub struct GroupRoute {
     pub group: Vec<CraftCurrencyList>,
     pub weight: RouteCustomWeight,
-    pub unique_route_weights: Vec<Vec<(RouteCustomWeight, RouteChance, u64)>>,
+    pub unique_route_weights: Vec<Vec<(RouteChance, u64)>>,
     pub chance: RouteChance,
 }
 
@@ -182,7 +182,7 @@ pub trait StatisticAnalyzerCurrencyGroups {
 
     fn calculate_chance_for_group_step_index(
         &self,
-        group_routes: &Vec<Vec<(RouteCustomWeight, RouteChance, u64)>>,
+        group_routes: &Vec<Vec<(RouteChance, u64)>>,
         index: usize,
     ) -> RouteChance;
 
@@ -261,7 +261,7 @@ impl DynStatisticAnalyzerCurrencyGroups {
 
     fn calculate_weight_for_group_step_index(
         &self,
-        group_routes: Vec<Vec<(RouteCustomWeight, RouteChance, u64)>>,
+        group_routes: Vec<Vec<(RouteChance, u64)>>,
         index: usize,
     ) -> RouteChance {
         self.0

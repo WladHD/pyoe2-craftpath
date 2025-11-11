@@ -4,17 +4,14 @@ use tracing::instrument;
 use crate::{
     api::{
         calculator::{Calculator, ItemRoute, StatisticAnalyzerPaths},
-        currency::CraftCurrencyList,
-        provider::{
-            item_info::ItemInfoProvider,
-            market_prices::{MarketPriceProvider, PriceInDivines},
-        },
+        provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
     },
     calc::statistics::{
         collectors::chance_collector::UniquePathChanceCollector,
         helpers::{ItemRouteRef, finalize_routes},
         statistic_analyzer_unique_collector::calculate_crafting_paths,
     },
+    impl_common_unique_path_analyzer_methods,
 };
 
 pub struct UniquePathChanceStatisticAnalyzer;
@@ -57,38 +54,14 @@ impl StatisticAnalyzerPaths for UniquePathChanceStatisticAnalyzer {
         Ok(finalize_routes(res))
     }
 
-    fn calculate_tries_needed_for_60_percent(&self, route: &ItemRoute) -> u64 {
-        let tries_for_60_percent = ((((1.0_f64 - 0.6_f64).ln()
-            / (1.0_f64 - route.chance.get_raw_value()).ln())
-        .ceil()) as u64)
-            .max(1);
-
-        tries_for_60_percent
-    }
-
     fn format_display_more_info(
         &self,
-        _: &ItemRoute,
-        _: &ItemInfoProvider,
-        _: &MarketPriceProvider,
+        _: &crate::api::calculator::ItemRoute,
+        _: &crate::api::provider::item_info::ItemInfoProvider,
+        _: &crate::api::provider::market_prices::MarketPriceProvider,
     ) -> Option<String> {
         None
     }
 
-    fn calculate_cost_per_craft(
-        &self,
-        currency: &Vec<CraftCurrencyList>,
-        item_info: &ItemInfoProvider,
-        market_provider: &MarketPriceProvider,
-    ) -> PriceInDivines {
-        let pc = PriceInDivines::new(currency.iter().fold(0_f64, |a, b| {
-            a + b.list.iter().fold(0_f64, |a, b| {
-                a + market_provider
-                    .try_lookup_currency_in_divines_default_if_fail(b, &item_info)
-                    .get_divine_value()
-            })
-        }));
-
-        pc
-    }
+    impl_common_unique_path_analyzer_methods!();
 }
