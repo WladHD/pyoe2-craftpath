@@ -50,7 +50,7 @@ def main():
             target=end_item,
             item_provider=coe_data,
             market_info=economy,
-            matrix_builder=pc.MatrixBuilderPreset.HappyPathMatrixBuilder)
+            matrix_builder=inst)
 
         assert False, "Matrix propagation did not fail, but should"
     except Exception as e:

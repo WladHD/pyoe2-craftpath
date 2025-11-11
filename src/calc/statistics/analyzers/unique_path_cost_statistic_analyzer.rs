@@ -1,0 +1,67 @@
+use anyhow::Result;
+use tracing::instrument;
+
+use crate::{
+    api::{
+        calculator::{Calculator, ItemRoute, StatisticAnalyzerPaths},
+        provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
+    },
+    calc::statistics::{
+        collectors::chance_collector::UniquePathChanceCollector,
+        helpers::{ItemRouteRef, finalize_routes},
+        statistic_analyzer_unique_collector::calculate_crafting_paths,
+    },
+    impl_common_unique_path_analyzer_methods,
+};
+
+pub struct UniquePathCostStatisticAnalyzer;
+
+impl StatisticAnalyzerPaths for UniquePathCostStatisticAnalyzer {
+    fn get_name(&self) -> &'static str {
+        "Unique Path by Lowest Cost"
+    }
+
+    fn get_description(&self) -> &'static str {
+        "Retrieves N number of unique paths memory efficiently from all possible combinations, sorted by cost."
+    }
+
+    fn get_unit_type(&self) -> &'static str {
+        "EX"
+    }
+
+    fn lower_is_better(&self) -> bool {
+        true
+    }
+
+    #[instrument(skip_all)]
+    fn get_statistic(
+        &self,
+        calculator: &Calculator,
+        item_provider: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+        max_routes: u32,
+        max_ram_in_bytes: u64,
+    ) -> Result<Vec<ItemRoute>> {
+        let res: Vec<ItemRouteRef<'_>> = calculate_crafting_paths::<UniquePathChanceCollector>(
+            calculator,
+            item_provider,
+            market_provider,
+            max_routes,
+            max_ram_in_bytes,
+            self.lower_is_better(),
+        )?;
+
+        Ok(finalize_routes(res))
+    }
+
+    fn format_display_more_info(
+        &self,
+        _: &crate::api::calculator::ItemRoute,
+        _: &crate::api::provider::item_info::ItemInfoProvider,
+        _: &crate::api::provider::market_prices::MarketPriceProvider,
+    ) -> Option<String> {
+        None
+    }
+
+    impl_common_unique_path_analyzer_methods!();
+}

@@ -314,7 +314,6 @@ impl std::fmt::Display for DynStatisticAnalyzerCurrencyGroups {
 pub struct StatisticResult {
     pub sorted_routes: Vec<ItemRoute>,
     pub lower_is_better: bool,
-    pub unit_type: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -359,7 +358,7 @@ impl Calculator {
             return Err(CraftPathError::ItemMatrixCouldNotReachTarget().into());
         }
 
-        tracing::info!("Successfully generated item matrix. (TODO SHOW STATS)");
+        tracing::info!("Successfully generated item matrix.");
 
         Ok(Self {
             matrix: res,
@@ -378,7 +377,7 @@ impl Calculator {
         max_routes: u32,
         max_ram_in_bytes: u64,
         statistic_analyzer: &dyn StatisticAnalyzerPaths,
-    ) -> Result<StatisticResult> {
+    ) -> Result<Vec<ItemRoute>> {
         tracing::info!(
             "Using '{}' to calculate statistics ...",
             statistic_analyzer.get_name()
@@ -391,13 +390,9 @@ impl Calculator {
             max_routes,
             max_ram_in_bytes,
         )?;
-        tracing::info!("Successfully calculated statistics. (TODO SHOW STATS)");
+        tracing::info!("Successfully calculated statistics.");
 
-        Ok(StatisticResult {
-            sorted_routes: res,
-            lower_is_better: statistic_analyzer.lower_is_better(),
-            unit_type: statistic_analyzer.get_unit_type().to_string(),
-        })
+        Ok(res)
     }
 
     #[instrument(skip_all)]
@@ -478,7 +473,7 @@ impl Calculator {
         max_routes: u32,
         max_ram_in_bytes: u64,
         statistic_analyzer: &DynStatisticAnalyzerPaths,
-    ) -> pyo3::PyResult<StatisticResult> {
+    ) -> pyo3::PyResult<Vec<ItemRoute>> {
         // allow parallelization
         py.detach(move || {
             self.calculate_statistics(

@@ -79,7 +79,7 @@ def main():
             statistic_analyzer=group_chance_instance
         ))
 
-    for route in res.sorted_routes[:2]:
+    for route in res[:2]:
         pretty = route.to_pretty_string(
             item_provider=coe_data,
             market_provider=economy,
@@ -95,7 +95,7 @@ def main():
 
         print(pretty)
 
-    for route in res.sorted_routes[2:]:
+    for route in res[2:]:
         pretty = route.to_pretty_string(
             item_provider=coe_data,
             market_provider=economy,

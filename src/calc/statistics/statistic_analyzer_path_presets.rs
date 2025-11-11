@@ -5,6 +5,7 @@ use crate::{
     calc::statistics::analyzers::{
         all_path_chance_statistic_analyzer::AllUniquePathsChanceStatisticAnalyzer,
         unique_path_chance_statistic_analyzer::UniquePathChanceStatisticAnalyzer,
+        unique_path_cost_statistic_analyzer::UniquePathCostStatisticAnalyzer,
     },
 };
 
@@ -24,9 +25,14 @@ pub enum StatisticAnalyzerPathPreset {
 impl StatisticAnalyzerPathPreset {
     pub fn get_instance(&self) -> DynStatisticAnalyzerPaths {
         match self {
+            // default
             &StatisticAnalyzerPathPreset::UniquePathChance => {
                 DynStatisticAnalyzerPaths(Box::new(UniquePathChanceStatisticAnalyzer))
             }
+            &StatisticAnalyzerPathPreset::UniquePathCost => {
+                DynStatisticAnalyzerPaths(Box::new(UniquePathCostStatisticAnalyzer))
+            }
+            // efficient for calc all
             &StatisticAnalyzerPathPreset::AllUniquePathChance => {
                 DynStatisticAnalyzerPaths(Box::new(AllUniquePathsChanceStatisticAnalyzer))
             }

@@ -99,6 +99,16 @@ mod tests {
             chance_inst.0.as_ref(),
         )?;
 
+        let cost_inst = StatisticAnalyzerPathPreset::UniquePathCost.get_instance();
+
+        let best_routes_cost = calculator.calculate_statistics(
+            &item_provider,
+            &market_info,
+            5,
+            1000000000,
+            cost_inst.0.as_ref(),
+        )?;
+
         let group_instance =
             StatisticAnalyzerCurrencyGroupPreset::CurrencyGroupChance.get_instance();
 
@@ -121,15 +131,22 @@ mod tests {
             tracing::info!("{}", out);
         }
 
-        for br in best_routes_chance.sorted_routes {
-            let out = br.to_pretty_string(
-                &item_provider,
-                &market_info,
-                chance_inst.0.as_ref(),
-                &calculator,
-                Some(&groups),
-            );
-            tracing::info!("{}", out);
+        for (analyzer, routes) in vec![
+            (&chance_inst, best_routes_chance),
+            (&cost_inst, best_routes_cost),
+        ] {
+            tracing::warn!("Printing results for '{}'", analyzer.0.get_name());
+
+            for br in routes {
+                let out = br.to_pretty_string(
+                    &item_provider,
+                    &market_info,
+                    cost_inst.0.as_ref(),
+                    &calculator,
+                    Some(&groups),
+                );
+                tracing::info!("{}", out);
+            }
         }
 
         Ok(())

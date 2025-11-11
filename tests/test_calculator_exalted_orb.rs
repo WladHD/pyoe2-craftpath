@@ -89,8 +89,7 @@ mod tests {
                 .as_ref(),
         )?;
 
-        let chance_inst =
-            StatisticAnalyzerPathPreset::UniquePathChance.get_instance();
+        let chance_inst = StatisticAnalyzerPathPreset::UniquePathChance.get_instance();
 
         let best_routes_chance = calculator.calculate_statistics(
             &item_provider,
@@ -100,8 +99,8 @@ mod tests {
             chance_inst.0.as_ref(),
         )?;
 
-        let group_instance = StatisticAnalyzerCurrencyGroupPreset::CurrencyGroupChance
-            .get_instance();
+        let group_instance =
+            StatisticAnalyzerCurrencyGroupPreset::CurrencyGroupChance.get_instance();
 
         let groups = calculator.calculate_statistics_currency_group(
             &item_provider,
@@ -120,7 +119,7 @@ mod tests {
             tracing::info!("{}", out);
         }
 
-        for br in best_routes_chance.sorted_routes {
+        for br in best_routes_chance {
             let out = br.to_pretty_string(
                 &item_provider,
                 &market_info,
