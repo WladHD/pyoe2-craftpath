@@ -6,6 +6,7 @@ use crate::{
         all_path_chance_statistic_analyzer::AllUniquePathsChanceStatisticAnalyzer,
         unique_path_chance_statistic_analyzer::UniquePathChanceStatisticAnalyzer,
         unique_path_cost_statistic_analyzer::UniquePathCostStatisticAnalyzer,
+        unique_path_efficient_cost_statistic_analyzer::UniquePathEfficientCostStatisticAnalyzer,
     },
 };
 
@@ -32,11 +33,13 @@ impl StatisticAnalyzerPathPreset {
             &StatisticAnalyzerPathPreset::UniquePathCost => {
                 DynStatisticAnalyzerPaths(Box::new(UniquePathCostStatisticAnalyzer))
             }
+            &StatisticAnalyzerPathPreset::UniquePathEfficiency => {
+                DynStatisticAnalyzerPaths(Box::new(UniquePathEfficientCostStatisticAnalyzer))
+            }
             // efficient for calc all
             &StatisticAnalyzerPathPreset::AllUniquePathChance => {
                 DynStatisticAnalyzerPaths(Box::new(AllUniquePathsChanceStatisticAnalyzer))
             }
-            _ => todo!(),
         }
     }
 }

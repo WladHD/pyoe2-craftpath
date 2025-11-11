@@ -7,22 +7,22 @@ use crate::{
         provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
     },
     calc::statistics::{
-        collectors::cost_collector::UniquePathCostCollector,
+        collectors::efficient_cost_collector::UniquePathEfficientCostCollector,
         helpers::{ItemRouteRef, finalize_routes},
         statistic_analyzer_unique_collector::calculate_crafting_paths,
     },
     impl_common_unique_path_analyzer_methods,
 };
 
-pub struct UniquePathCostStatisticAnalyzer;
+pub struct UniquePathEfficientCostStatisticAnalyzer;
 
-impl StatisticAnalyzerPaths for UniquePathCostStatisticAnalyzer {
+impl StatisticAnalyzerPaths for UniquePathEfficientCostStatisticAnalyzer {
     fn get_name(&self) -> &'static str {
-        "Unique Path by Lowest Cost"
+        "Unique Path by Efficient Cost"
     }
 
     fn get_description(&self) -> &'static str {
-        "Retrieves N number of unique paths memory efficiently from all possible combinations, sorted by cost."
+        "Retrieves N number of unique paths memory efficiently from all possible combinations, sorted by cost multiplied by amount of tries needed to reach at least 60% chance to gain the item."
     }
 
     fn get_unit_type(&self) -> &'static str {
@@ -42,14 +42,15 @@ impl StatisticAnalyzerPaths for UniquePathCostStatisticAnalyzer {
         max_routes: u32,
         max_ram_in_bytes: u64,
     ) -> Result<Vec<ItemRoute>> {
-        let res: Vec<ItemRouteRef<'_>> = calculate_crafting_paths::<UniquePathCostCollector>(
-            calculator,
-            item_provider,
-            market_provider,
-            max_routes,
-            max_ram_in_bytes,
-            self.lower_is_better(),
-        )?;
+        let res: Vec<ItemRouteRef<'_>> =
+            calculate_crafting_paths::<UniquePathEfficientCostCollector>(
+                calculator,
+                item_provider,
+                market_provider,
+                max_routes,
+                max_ram_in_bytes,
+                self.lower_is_better(),
+            )?;
 
         Ok(finalize_routes(res))
     }

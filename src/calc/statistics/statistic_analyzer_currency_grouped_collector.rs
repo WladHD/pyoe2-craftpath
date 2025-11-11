@@ -96,7 +96,7 @@ pub fn calculate_currency_groups<'a, T: StatisticAnalyzerCurrencyGroupCollectorT
                 a
             });
 
-            actual_ram += (4 * 8 as u64) * (path.len() as u64);
+            actual_ram += (3 * 8 as u64) * (path.len() as u64);
 
             results.entry(path).or_default().push(weights);
             continue;

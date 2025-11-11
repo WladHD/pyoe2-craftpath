@@ -109,6 +109,16 @@ mod tests {
             cost_inst.0.as_ref(),
         )?;
 
+        let efficient_cost_inst = StatisticAnalyzerPathPreset::UniquePathCost.get_instance();
+
+        let best_routes_efficient_cost = calculator.calculate_statistics(
+            &item_provider,
+            &market_info,
+            5,
+            1000000000,
+            efficient_cost_inst.0.as_ref(),
+        )?;
+
         let group_instance =
             StatisticAnalyzerCurrencyGroupPreset::CurrencyGroupChance.get_instance();
 
@@ -133,6 +143,7 @@ mod tests {
 
         for (analyzer, routes) in vec![
             (&chance_inst, best_routes_chance),
+            (&efficient_cost_inst, best_routes_efficient_cost),
             (&cost_inst, best_routes_cost),
         ] {
             tracing::warn!("Printing results for '{}'", analyzer.0.get_name());

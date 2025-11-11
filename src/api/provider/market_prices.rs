@@ -26,16 +26,16 @@ impl MarketPriceProvider {
         item_provider: &ItemInfoProvider,
     ) -> PriceInDivines {
         let item_name = ItemName::from(currency.get_item_name(&item_provider).to_string());
-        let res = self.cache_market_prices
+        let res = self
+            .cache_market_prices
             .get(&item_name)
             .cloned()
             .unwrap_or_else(|| {
-                    tracing::warn!("Could not find price in divines for '{}' ... using 1 Exalted Orb as placeholder value.", item_name.get_raw_value());
-                    PriceInDivines {
-                        raw_value: self.currency_convert_from_exalted(1_f64, &PriceKind::Divine)
-                    }
+                // tracing::warn!("Could not find price in divines for '{}' ... using 1 Exalted Orb as placeholder value.", item_name.get_raw_value());
+                PriceInDivines {
+                    raw_value: self.currency_convert_from_exalted(1_f64, &PriceKind::Divine),
                 }
-            );
+            });
 
         res
     }
