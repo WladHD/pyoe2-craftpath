@@ -220,6 +220,70 @@ impl std::fmt::Display for DynStatisticAnalyzerPaths {
     }
 }
 
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pymethods)]
+#[cfg_attr(feature = "python", pyo3::prelude::pymethods)]
+impl DynStatisticAnalyzerPaths {
+    fn get_name(&self) -> &'static str {
+        self.0.get_name()
+    }
+
+    fn get_description(&self) -> &'static str {
+        self.0.get_description()
+    }
+
+    fn get_unit_type(&self) -> &'static str {
+        self.0.get_unit_type()
+    }
+
+    fn lower_is_better(&self) -> bool {
+        self.0.lower_is_better()
+    }
+
+    #[cfg(feature = "python")]
+    fn get_statistic(
+        &self,
+        calculator: &Calculator,
+        item_provider: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+        max_routes: u32,
+        max_ram_in_bytes: u64,
+    ) -> pyo3::PyResult<Vec<ItemRoute>> {
+        self.0
+            .get_statistic(
+                calculator,
+                item_provider,
+                market_provider,
+                max_routes,
+                max_ram_in_bytes,
+            )
+            .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
+    }
+
+    fn calculate_cost_per_craft(
+        &self,
+        currency: Vec<CraftCurrencyList>,
+        item_info: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+    ) -> PriceInDivines {
+        self.0
+            .calculate_cost_per_craft(&currency, item_info, market_provider)
+    }
+
+    fn calculate_tries_needed_for_60_percent(&self, route: &ItemRoute) -> u64 {
+        self.0.calculate_tries_needed_for_60_percent(route)
+    }
+
+    fn format_display_more_info(
+        &self,
+        route: &ItemRoute,
+        item_provider: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+    ) -> Option<String> {
+        self.0
+            .format_display_more_info(route, item_provider, market_provider)
+    }
+}
+
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[cfg_attr(feature = "python", pyo3(str))]
@@ -416,7 +480,7 @@ impl Calculator {
             max_ram_in_bytes,
         )?;
 
-        tracing::info!("Successfully calculated statistics. (TODO SHOW STATS)");
+        tracing::info!("Successfully calculated statistics.");
 
         Ok(res)
     }

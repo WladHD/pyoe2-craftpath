@@ -257,6 +257,11 @@ pub fn print_affix(
             .to_string(),
         ),
         Some(min_ivl),
+        match affix_def.affix_location {
+            AffixLocationEnum::Prefix => Some("Prefix".to_string()),
+            AffixLocationEnum::Suffix => Some("Suffix".to_string()),
+            _ => None,
+        },
         match affix.fractured {
             true => Some("FRAC".to_string()),
             false => None,
@@ -265,11 +270,6 @@ pub fn print_affix(
             AffixClassEnum::Base => None,
             AffixClassEnum::Desecrated => Some("Des.".to_string()),
             AffixClassEnum::Essence => Some("Ess.".to_string()),
-        },
-        match affix_def.affix_location {
-            AffixLocationEnum::Prefix => Some("Prefix".to_string()),
-            AffixLocationEnum::Suffix => Some("Suffix".to_string()),
-            _ => None,
         },
     ];
 
