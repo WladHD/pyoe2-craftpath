@@ -2,6 +2,7 @@ use std::hash::{Hash, Hasher};
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
+use std::fmt::Write;
 
 use crate::{
     api::{
@@ -12,7 +13,7 @@ use crate::{
             AffixTierLevelBoundsEnum, BaseItemId, ItemLevel, ItemRarityEnum, THashSet,
         },
     },
-    utils::hash_utils::hash_set_unordered,
+    utils::{hash_utils::hash_set_unordered, pretty_print_unique_utils::print_affix},
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -30,6 +31,45 @@ pub struct ItemSnapshot {
     pub corrupted: bool,
     pub allowed_sockets: u8,
     pub sockets: THashSet<AffixSpecifier>,
+}
+
+impl ItemSnapshot {
+    pub fn to_pretty_string(&self, item_provider: &ItemInfoProvider) -> String {
+        let mut out = String::new();
+
+        writeln!(
+            &mut out,
+            "BaseId: {}, Rarity: {:?}, ItemLevel: {}",
+            self.base_id.get_raw_value(),
+            self.rarity,
+            self.item_level.get_raw_value(),
+        )
+        .unwrap();
+
+        for affix in &self.affixes {
+            print_affix(
+                &mut out,
+                0,
+                affix,
+                None,
+                &item_provider,
+                false,
+                &self.base_id,
+            );
+        }
+
+        return out;
+    }
+}
+
+#[cfg(feature = "python")]
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pymethods)]
+#[cfg_attr(feature = "python", pyo3::prelude::pymethods)]
+impl ItemSnapshot {
+    #[pyo3(name = "to_pretty_string")]
+    pub fn to_pretty_string_py(&self, item_provider: &ItemInfoProvider) -> String {
+        self.to_pretty_string(item_provider)
+    }
 }
 
 impl Hash for ItemSnapshot {

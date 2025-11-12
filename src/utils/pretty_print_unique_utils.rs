@@ -11,7 +11,8 @@ use crate::{
             market_prices::{MarketPriceProvider, PriceInDivines, PriceKind},
         },
         types::{
-            AffixClassEnum, AffixLocationEnum, AffixSpecifier, AffixTierLevelBoundsEnum, THashSet,
+            AffixClassEnum, AffixLocationEnum, AffixSpecifier, AffixTierLevelBoundsEnum,
+            BaseItemId, THashSet,
         },
     },
     calc::statistics::statistic_analyzer_currency_group_presets::StatisticAnalyzerCurrencyGroupPreset,
@@ -122,94 +123,6 @@ impl ItemRoute {
         )
         .unwrap();
 
-        fn print_affix(
-            out: &mut String,
-            index: usize,
-            affix: &AffixSpecifier,
-            chance: Option<Fraction>,
-            item_provider: &ItemInfoProvider,
-            is_added: bool,
-            calculator: &Calculator,
-        ) {
-            let affix_def = item_provider.lookup_affix_definition(&affix.affix).unwrap();
-
-            let name = &affix_def.description_template;
-
-            let min_ivl = match affix_def.affix_class {
-                AffixClassEnum::Base | AffixClassEnum::Desecrated | AffixClassEnum::Essence => {
-                    let ilvl = &item_provider
-                        .lookup_base_item_mods(&calculator.starting_item.base_id)
-                        .unwrap()
-                        .get(&affix.affix)
-                        .unwrap()
-                        .iter()
-                        .find(|e| e.0 == &affix.tier.tier)
-                        .unwrap()
-                        .1
-                        .min_item_level;
-
-                    format!("ilvl {}", ilvl.get_raw_value()).to_string()
-                }
-            };
-
-            let more_meta: Vec<Option<String>> = vec![
-                Some(
-                    format!(
-                        "Tier {}{}",
-                        affix.tier.tier.get_raw_value(),
-                        match affix.tier.bounds {
-                            AffixTierLevelBoundsEnum::Exact => "=",
-                            AffixTierLevelBoundsEnum::Minimum => "+",
-                        }
-                    )
-                    .to_string(),
-                ),
-                Some(min_ivl),
-                match affix.fractured {
-                    true => Some("FRAC".to_string()),
-                    false => None,
-                },
-                match affix_def.affix_class {
-                    AffixClassEnum::Base => None,
-                    AffixClassEnum::Desecrated => Some("Des.".to_string()),
-                    AffixClassEnum::Essence => Some("Ess.".to_string()),
-                },
-                match affix_def.affix_location {
-                    AffixLocationEnum::Prefix => Some("Prefix".to_string()),
-                    AffixLocationEnum::Suffix => Some("Suffix".to_string()),
-                    _ => None,
-                },
-            ];
-
-            let more_meta = more_meta
-                .iter()
-                .filter_map(|test| test.clone())
-                .collect::<Vec<String>>();
-
-            writeln!(
-                out,
-                "{}.\t{}[{}{}] '{}'",
-                index,
-                if index == 0 {
-                    ""
-                } else if is_added {
-                    "+ "
-                } else {
-                    "- "
-                },
-                match chance {
-                    Some(c) => format!("{} (~{:.3}%), ", c, c.to_f64() * 100_f64).to_string(),
-                    None => "".to_string(),
-                },
-                match more_meta.is_empty() {
-                    true => "".to_string(),
-                    false => format!("{}", more_meta.join(", ")).as_str().to_string(),
-                },
-                name
-            )
-            .unwrap();
-        }
-
         writeln!(
             out,
             "0. Starting with ...{}",
@@ -222,7 +135,15 @@ impl ItemRoute {
         .unwrap();
 
         for affix in &start_item.affixes {
-            print_affix(&mut out, 0, affix, None, item_provider, true, &calculator);
+            print_affix(
+                &mut out,
+                0,
+                affix,
+                None,
+                item_provider,
+                true,
+                &calculator.starting_item.base_id,
+            );
         }
 
         let mut prev_affixes = start_item.affixes.clone();
@@ -258,7 +179,7 @@ impl ItemRoute {
                     Some(path.chance),
                     item_provider,
                     false,
-                    &calculator,
+                    &calculator.starting_item.base_id,
                 );
             }
 
@@ -270,7 +191,7 @@ impl ItemRoute {
                     Some(path.chance),
                     item_provider,
                     true,
-                    &calculator,
+                    &calculator.starting_item.base_id,
                 );
             }
 
@@ -291,6 +212,94 @@ impl ItemRoute {
 
         out
     }
+}
+
+pub fn print_affix(
+    out: &mut String,
+    index: usize,
+    affix: &AffixSpecifier,
+    chance: Option<Fraction>,
+    item_provider: &ItemInfoProvider,
+    is_added: bool,
+    base_id: &BaseItemId,
+) {
+    let affix_def = item_provider.lookup_affix_definition(&affix.affix).unwrap();
+
+    let name = &affix_def.description_template;
+
+    let min_ivl = match affix_def.affix_class {
+        AffixClassEnum::Base | AffixClassEnum::Desecrated | AffixClassEnum::Essence => {
+            let ilvl = &item_provider
+                .lookup_base_item_mods(&base_id)
+                .unwrap()
+                .get(&affix.affix)
+                .unwrap()
+                .iter()
+                .find(|e| e.0 == &affix.tier.tier)
+                .unwrap()
+                .1
+                .min_item_level;
+
+            format!("ilvl {}", ilvl.get_raw_value()).to_string()
+        }
+    };
+
+    let more_meta: Vec<Option<String>> = vec![
+        Some(
+            format!(
+                "Tier {}{}",
+                affix.tier.tier.get_raw_value(),
+                match affix.tier.bounds {
+                    AffixTierLevelBoundsEnum::Exact => "=",
+                    AffixTierLevelBoundsEnum::Minimum => "+",
+                }
+            )
+            .to_string(),
+        ),
+        Some(min_ivl),
+        match affix.fractured {
+            true => Some("FRAC".to_string()),
+            false => None,
+        },
+        match affix_def.affix_class {
+            AffixClassEnum::Base => None,
+            AffixClassEnum::Desecrated => Some("Des.".to_string()),
+            AffixClassEnum::Essence => Some("Ess.".to_string()),
+        },
+        match affix_def.affix_location {
+            AffixLocationEnum::Prefix => Some("Prefix".to_string()),
+            AffixLocationEnum::Suffix => Some("Suffix".to_string()),
+            _ => None,
+        },
+    ];
+
+    let more_meta = more_meta
+        .iter()
+        .filter_map(|test| test.clone())
+        .collect::<Vec<String>>();
+
+    writeln!(
+        out,
+        "{}.\t{}[{}{}] '{}'",
+        index,
+        if index == 0 {
+            ""
+        } else if is_added {
+            "+ "
+        } else {
+            "- "
+        },
+        match chance {
+            Some(c) => format!("{} (~{:.3}%), ", c, c.to_f64() * 100_f64).to_string(),
+            None => "".to_string(),
+        },
+        match more_meta.is_empty() {
+            true => "".to_string(),
+            false => format!("{}", more_meta.join(", ")).as_str().to_string(),
+        },
+        name
+    )
+    .unwrap();
 }
 
 #[cfg(feature = "python")]
