@@ -55,10 +55,14 @@ mod tests {
             ),
         ]);
 
-        let item_cached_jsons =
-            retrieve_contents_from_urls_with_cache_unstable_order(item_provider_hm, 60_u64 * 60_u64 * 24_u64)?;
-        let economy_cached_jsons =
-            retrieve_contents_from_urls_with_cache_unstable_order(economy_provider_hm, 60_u64 * 60_u64)?;
+        let item_cached_jsons = retrieve_contents_from_urls_with_cache_unstable_order(
+            item_provider_hm,
+            60_u64 * 60_u64 * 24_u64,
+        )?;
+        let economy_cached_jsons = retrieve_contents_from_urls_with_cache_unstable_order(
+            economy_provider_hm,
+            60_u64 * 60_u64,
+        )?;
 
         let item_provider =
             CraftOfExileItemInfoProvider::parse_from_json(item_cached_jsons.first().unwrap())?;

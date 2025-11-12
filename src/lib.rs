@@ -3,7 +3,7 @@ pub mod calc;
 pub mod external_api;
 pub mod utils;
 
-const GITHUB_REPOSITORY: &str = "WladHD/pyoe2-craftpath";
+pub const GITHUB_REPOSITORY: &str = "WladHD/pyoe2-craftpath";
 
 #[cfg(feature = "python")]
 pub mod py {

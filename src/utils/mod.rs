@@ -6,4 +6,5 @@ pub(crate) mod logger_utils;
 pub(crate) mod newtype_macro_utils;
 pub mod pretty_print_unique_utils;
 pub mod pretty_print_utils;
+pub(crate) mod ram_input_utils;
 pub(crate) mod version_checker_utils;
