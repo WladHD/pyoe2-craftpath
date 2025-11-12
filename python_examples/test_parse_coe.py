@@ -21,7 +21,7 @@ def main():
     ########################################
     ###     this is the magic line         #
     ########################################
-    data = pc.parse_item_data_from_json(text)
+    data = pc.CraftOfExileItemInfoProvider.parse_from_json(text)
 
     # Everything else just checks validity
     assert (AffixId(5) == AffixId(5))

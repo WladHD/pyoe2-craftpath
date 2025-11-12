@@ -20,7 +20,22 @@ struct ItemDataProviderCache {
     pub essence_definition_table: THashMap<EssenceId, EssenceDefinition>,
 }
 
+#[derive(Debug)]
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
+#[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 pub struct CraftOfExileItemInfoProvider;
+
+#[cfg(feature = "python")]
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pymethods)]
+#[cfg_attr(feature = "python", pyo3::prelude::pymethods)]
+impl CraftOfExileItemInfoProvider {
+    #[pyo3(name = "parse_from_json")]
+    #[staticmethod]
+    pub fn parse_from_json_py(text: &str) -> pyo3::PyResult<ItemInfoProvider> {
+        Self::parse_from_json(text)
+            .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
+    }
+}
 
 impl CraftOfExileItemInfoProvider {
     pub fn parse_from_json(mut text: &str) -> Result<ItemInfoProvider> {

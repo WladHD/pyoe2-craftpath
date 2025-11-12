@@ -12,7 +12,24 @@ use crate::{
     external_api::coe_emulator::coe_emulator_item_snapshot_definition::EmulatorItemExport,
 };
 
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
+#[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 pub struct CraftOfExileEmulatorItemImport;
+
+#[cfg(feature = "python")]
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pymethods)]
+#[cfg_attr(feature = "python", pyo3::prelude::pymethods)]
+impl CraftOfExileEmulatorItemImport {
+    #[pyo3(name = "parse_itemsnapshot_from_string")]
+    #[staticmethod]
+    pub fn parse_itemsnapshot_from_string_py(
+        item_json: &str,
+        provider: &ItemInfoProvider,
+    ) -> pyo3::PyResult<ItemSnapshot> {
+        Self::parse_itemsnapshot_from_string(item_json, provider)
+            .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
+    }
+}
 
 impl CraftOfExileEmulatorItemImport {
     pub fn parse_itemsnapshot_from_string(

@@ -371,6 +371,16 @@ class CraftCurrencyList:
     def __str__(self) -> builtins.str: ...
 
 @typing.final
+class CraftOfExileEmulatorItemImport:
+    @staticmethod
+    def parse_itemsnapshot_from_string(item_json: builtins.str, provider: ItemInfoProvider) -> ItemSnapshot: ...
+
+@typing.final
+class CraftOfExileItemInfoProvider:
+    @staticmethod
+    def parse_from_json(text: builtins.str) -> ItemInfoProvider: ...
+
+@typing.final
 class DynMatrixBuilder:
     def __str__(self) -> builtins.str: ...
 
@@ -609,6 +619,11 @@ class MarketPriceProvider:
     def currency_convert_from_exalted(self, from_ex: builtins.float, to_kind: PriceKind) -> builtins.float: ...
 
 @typing.final
+class PoeNinjaMarketPriceProvider:
+    @staticmethod
+    def parse_from_json_list(texts: typing.Sequence[builtins.str]) -> MarketPriceProvider: ...
+
+@typing.final
 class PriceInDivines:
     def __eq__(self, other: builtins.object) -> builtins.bool: ...
     def __lt__(self, other: builtins.object) -> builtins.bool: ...
@@ -712,11 +727,9 @@ class StatisticAnalyzerPathPreset(enum.Enum):
 
     def get_instance(self) -> DynStatisticAnalyzerPaths: ...
 
-def parse_economy_from_jsons(json: typing.Sequence[builtins.str]) -> MarketPriceProvider: ...
-
-def parse_item_data_from_json(json: builtins.str) -> ItemInfoProvider: ...
-
-def parse_itemsnapshot_from_string(item_emulator_json: builtins.str, provider: ItemInfoProvider) -> ItemSnapshot: ...
-
-def retrieve_jsons_from_urls_with_cache(cache_url_map: typing.Mapping[builtins.str, builtins.str], max_cache_duration_in_sec: builtins.int) -> builtins.list[builtins.str]: ...
+def retrieve_jsons_from_urls_with_cache(cache_url_map: typing.Mapping[builtins.str, builtins.str], max_cache_duration_in_sec: builtins.int) -> builtins.list[builtins.str]:
+    r"""
+    * Order-preservation `cache_url_map` is not guaranteed.
+    * If order is required, split requests into single groups.
+    """
 

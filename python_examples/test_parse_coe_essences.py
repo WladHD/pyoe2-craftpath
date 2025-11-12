@@ -11,7 +11,7 @@ CACHE_TTL_IN_SECONDS = 60 * 60 * 24  # 1 day in seconds, coe doesnt change often
 def main():
     text = pc.retrieve_jsons_from_urls_with_cache(
         COE_CACHE_MAP, CACHE_TTL_IN_SECONDS)[0]
-    data = pc.parse_item_data_from_json(text)
+    data = pc.CraftOfExileItemInfoProvider.parse_from_json(text)
 
     bow_base_item_id = pc.BaseItemId(20)
 

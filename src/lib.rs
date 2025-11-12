@@ -14,11 +14,7 @@ pub mod py {
         Calculator, DynMatrixBuilder, DynStatisticAnalyzerCurrencyGroups, DynStatisticAnalyzerPaths,
     };
     use crate::api::currency::CraftCurrencyEnum;
-    use crate::api::item::ItemSnapshot;
-    use crate::api::provider::item_info::ItemInfoProvider;
-    use crate::api::provider::market_prices::{
-        ItemName, MarketPriceProvider, PriceInDivines, PriceKind,
-    };
+    use crate::api::provider::market_prices::{ItemName, PriceInDivines, PriceKind};
     use crate::api::types::{
         AffixClassEnum, AffixDefinition, AffixId, AffixLocationEnum, BaseItemId, EssenceDefinition,
         EssenceId, THashMap,
@@ -33,20 +29,10 @@ pub mod py {
 
     #[gen_stub_pyfunction]
     #[pyfunction]
-    fn parse_item_data_from_json(json: &str) -> PyResult<ItemInfoProvider> {
-        CraftOfExileItemInfoProvider::parse_from_json(json)
-            .map_err(|err| PyRuntimeError::new_err(err.to_string()))
-    }
-
-    #[gen_stub_pyfunction]
-    #[pyfunction]
-    fn parse_economy_from_jsons(json: Vec<String>) -> PyResult<MarketPriceProvider> {
-        PoeNinjaMarketPriceProvider::parse_from_json(json.as_slice())
-            .map_err(|err| PyRuntimeError::new_err(err.to_string()))
-    }
-
-    #[gen_stub_pyfunction]
-    #[pyfunction]
+    /**
+     * Order-preservation `cache_url_map` is not guaranteed.
+     * If order is required, split requests into single groups.
+     */
     fn retrieve_jsons_from_urls_with_cache(
         cache_url_map: THashMap<String, String>,
         max_cache_duration_in_sec: u64,
@@ -54,19 +40,6 @@ pub mod py {
         crate::external_api::fetch_json_from_urls::retrieve_jsons_from_urls_with_cache(
             cache_url_map,
             max_cache_duration_in_sec,
-        )
-        .map_err(|err| PyRuntimeError::new_err(err.to_string()))
-    }
-
-    #[gen_stub_pyfunction]
-    #[pyfunction]
-    fn parse_itemsnapshot_from_string(
-        item_emulator_json: String,
-        provider: &ItemInfoProvider,
-    ) -> PyResult<ItemSnapshot> {
-        CraftOfExileEmulatorItemImport::parse_itemsnapshot_from_string(
-            item_emulator_json.as_str(),
-            provider,
         )
         .map_err(|err| PyRuntimeError::new_err(err.to_string()))
     }
@@ -101,11 +74,13 @@ pub mod py {
         m.add_class::<EssenceId>()?;
         m.add_class::<EssenceDefinition>()?;
 
+        // providers
+        m.add_class::<PoeNinjaMarketPriceProvider>()?;
+        m.add_class::<CraftOfExileEmulatorItemImport>()?;
+        m.add_class::<CraftOfExileItemInfoProvider>()?;
+
         // general utility
         m.add_function(wrap_pyfunction!(retrieve_jsons_from_urls_with_cache, m)?)?;
-        m.add_function(wrap_pyfunction!(parse_item_data_from_json, m)?)?;
-        m.add_function(wrap_pyfunction!(parse_economy_from_jsons, m)?)?;
-        m.add_function(wrap_pyfunction!(parse_itemsnapshot_from_string, m)?)?;
 
         Ok(())
     }

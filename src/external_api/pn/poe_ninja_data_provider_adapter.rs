@@ -8,10 +8,24 @@ use crate::{
     external_api::pn::poe_ninja_json_definition::{Data, Item, Line},
 };
 
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
+#[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 pub struct PoeNinjaMarketPriceProvider;
 
+#[cfg(feature = "python")]
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pymethods)]
+#[cfg_attr(feature = "python", pyo3::prelude::pymethods)]
 impl PoeNinjaMarketPriceProvider {
-    pub fn parse_from_json(texts: &[String]) -> Result<MarketPriceProvider> {
+    #[pyo3(name = "parse_from_json_list")]
+    #[staticmethod]
+    pub fn parse_from_json_list_py(texts: Vec<String>) -> pyo3::PyResult<MarketPriceProvider> {
+        Self::parse_from_json_list(texts.as_ref())
+            .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
+    }
+}
+
+impl PoeNinjaMarketPriceProvider {
+    pub fn parse_from_json_list(texts: &[String]) -> Result<MarketPriceProvider> {
         let mut combined_lines: Vec<Line> = Vec::new();
         let mut combined_items: THashMap<String, Item> = THashMap::default();
 

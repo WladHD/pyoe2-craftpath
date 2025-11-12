@@ -22,7 +22,8 @@ def main():
     ########################################
     ###     this is the magic line       ###
     ########################################
-    economy = pc.parse_economy_from_jsons(raw_fetched_responses)
+    economy = pc.PoeNinjaMarketPriceProvider.parse_from_json_list(
+        raw_fetched_responses)
 
     # everything else just checks validity
     test_currency = economy.cache_market_prices.get(
