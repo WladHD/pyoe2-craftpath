@@ -17,6 +17,8 @@ pub enum CraftPathError {
     AffixWithoutEssence(AffixId),
     #[error("Could not find essence definition for '{0:?}'.")]
     EssenceWithoutDefinition(EssenceId),
+    #[error("Base item '{0:?}' without base group.")]
+    BaseItemWithoutBaseGroup(BaseItemId),
     #[error(
         "The target item could not be reached from the given starting item. If you think that it is a bug, open an issue at https://github.com/WladHD/pyoe2-craftpath/issues"
     )]

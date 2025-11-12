@@ -13,6 +13,7 @@ explicit_type!(EssenceId, u16);
 explicit_type!(AffixId, u16);
 // ITEMS
 explicit_type!(ItemId, u16);
+explicit_type!(BaseGroupId, u16);
 explicit_type!(BaseItemId, u16);
 explicit_type!(ItemLevel, u8);
 

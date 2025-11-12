@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     api::{
         provider::item_info::ItemInfoProvider,
-        types::{BaseItemId, EssenceId, THashSet},
+        types::{BaseGroupId, BaseItemId, EssenceId, THashSet},
     },
     utils::hash_utils::hash_set_unordered,
 };
@@ -40,7 +40,7 @@ pub enum CraftCurrencyEnum {
     ChaosOrbPerfect(),
 
     // DESECRATION
-    Desecrator(BaseItemId),
+    Desecrator(BaseItemId, BaseGroupId),
     // CAN REROLL ONCE
     AbyssalEchoes(),
     // KURGAL MOD
@@ -126,12 +126,31 @@ impl CraftCurrencyEnum {
             CraftCurrencyEnum::TheLiege() => "Omen of the Liege",
             CraftCurrencyEnum::TheSovereign() => "Omen of the Sovereign",
             CraftCurrencyEnum::Whittling() => "Omen of Whittling",
-            CraftCurrencyEnum::Desecrator(bid) => {
-                // TODO: complete mappings for normal desecrators. unconstrained propagation not supported, so ancient stuff can be ignored.
-                match bid {
-                    _ => "Preserved Jawbone",
+            CraftCurrencyEnum::Desecrator(base_item_id, base_group_id) => {
+                // Thanks for the info in https://www.craftofexile.com/js/poe2.js !
+                // My alg. doesnt handle loose propagation, so Ancient Bones are not needed for now
+                match base_item_id.get_raw_value() {
+                    // Jawbones
+                    4 | 11 | 12 | 13 | 15 | 16 | 17 | 18 | 20 | 21 | 22 | 23 | 24 | 25 | 216
+                    | 217 | 218 | 219 | 220 | 221 | 222 | 223 | 224 | 225 | 226 | 227 | 228 => {
+                        "Preserved Jawbone"
+                    }
+
+                    // Ribs
+                    5 | 6 | 8 | 9 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44
+                    | 45 | 46 | 47 | 48 | 49 | 50 | 51 | 52 | 53 | 54 | 55 | 56 | 57 | 229
+                    | 230 | 231 | 232 => "Preserved Rib",
+
+                    // Fallback for base items that are not jawbones or ribs
+                    _ => match base_group_id.get_raw_value() {
+                        1 => "Preserved Collarbone",
+                        9 => "Preserved Cranium",
+                        11 => "Preserved Spine",
+                        _ => todo!("Unhandled bone type"),
+                    },
                 }
             }
+
             CraftCurrencyEnum::Essence(bid) => item_info
                 .cache_essence_def
                 .get(bid)

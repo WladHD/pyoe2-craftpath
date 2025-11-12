@@ -290,6 +290,7 @@ impl MatrixPropagator for DesecrationPropagator {
                             .list
                             .insert(CraftCurrencyEnum::Desecrator(
                                 item_instance.snapshot.base_id.clone(),
+                                provider.lookup_base_group(&item_instance.snapshot.base_id)?,
                             ));
 
                         propagation_result.insert(unique_currency_list, next_items);

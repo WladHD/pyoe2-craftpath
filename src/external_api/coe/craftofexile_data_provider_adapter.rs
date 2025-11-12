@@ -4,7 +4,7 @@ use crate::{
     api::{
         provider::item_info::{AffixWeightTable, ItemInfoProvider},
         types::{
-            AffixDefinition, AffixId, AffixTierLevel, AffixTierLevelMeta, BaseItemId,
+            AffixDefinition, AffixId, AffixTierLevel, AffixTierLevelMeta, BaseGroupId, BaseItemId,
             EssenceDefinition, EssenceId, EssenceTierLevelMeta, ItemLevel, THashMap, THashSet,
             Weight,
         },
@@ -18,6 +18,7 @@ struct ItemDataProviderCache {
     pub affix_definition_table: THashMap<AffixId, AffixDefinition>,
     pub affix_essence_table: THashMap<(AffixId, BaseItemId), THashSet<EssenceId>>,
     pub essence_definition_table: THashMap<EssenceId, EssenceDefinition>,
+    pub base_group_mappings: THashMap<BaseItemId, BaseGroupId>,
 }
 
 #[derive(Debug)]
@@ -52,7 +53,15 @@ impl CraftOfExileItemInfoProvider {
             base_item_affix_weight_table: THashMap::default(),
             affix_essence_table: THashMap::default(),
             essence_definition_table: THashMap::default(),
+            base_group_mappings: THashMap::default(),
         };
+
+        for base in parsed.bases.seq.iter() {
+            transformed_cache.base_group_mappings.insert(
+                BaseItemId::from(base.id_base),
+                BaseGroupId::from(base.id_bgroup),
+            );
+        }
 
         for instantiated_item in parsed.bitems.seq.iter() {
             let base_item_id = BaseItemId::from(instantiated_item.id_base);
@@ -231,6 +240,7 @@ impl CraftOfExileItemInfoProvider {
             cache_item_affix_table: transformed_cache.base_item_affix_weight_table,
             cache_affix_essence_table: transformed_cache.affix_essence_table,
             cache_essence_def: transformed_cache.essence_definition_table,
+            cache_base_group_table: transformed_cache.base_group_mappings,
         })
     }
 }
