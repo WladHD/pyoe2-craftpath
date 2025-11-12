@@ -3,6 +3,8 @@ pub mod calc;
 pub mod external_api;
 pub mod utils;
 
+const GITHUB_REPOSITORY: &str = "WladHD/pyoe2-craftpath";
+
 #[cfg(feature = "python")]
 pub mod py {
     use pyo3::exceptions::PyRuntimeError;
@@ -10,6 +12,7 @@ pub mod py {
     use pyo3_stub_gen::define_stub_info_gatherer;
     use pyo3_stub_gen::derive::gen_stub_pyfunction;
 
+    use crate::GITHUB_REPOSITORY;
     use crate::api::calculator::{
         Calculator, DynMatrixBuilder, DynStatisticAnalyzerCurrencyGroups, DynStatisticAnalyzerPaths,
     };
@@ -26,22 +29,30 @@ pub mod py {
     use crate::external_api::coe_emulator::coe_emulator_item_snapshot_provider::CraftOfExileEmulatorItemImport;
     use crate::external_api::pn::poe_ninja_data_provider_adapter::PoeNinjaMarketPriceProvider;
     use crate::utils::logger_utils::init_tracing;
+    use crate::utils::version_checker_utils::check_new_version;
 
     #[gen_stub_pyfunction]
     #[pyfunction]
     /**
-     * Order-preservation `cache_url_map` is not guaranteed.
-     * If order is required, split requests into single groups.
+     * Order-preservation of `cache_url_map` is not guaranteed.
+     * If order is required, split requests into single function calls.
+     * E. g. Group 1. item info, Group 2. economy.
      */
-    fn retrieve_jsons_from_urls_with_cache(
+    fn retrieve_contents_from_urls_with_cache_unstable_order(
         cache_url_map: THashMap<String, String>,
         max_cache_duration_in_sec: u64,
     ) -> PyResult<Vec<String>> {
-        crate::external_api::fetch_json_from_urls::retrieve_jsons_from_urls_with_cache(
+        crate::external_api::fetch_json_from_urls::retrieve_contents_from_urls_with_cache_unstable_order(
             cache_url_map,
             max_cache_duration_in_sec,
         )
         .map_err(|err| PyRuntimeError::new_err(err.to_string()))
+    }
+
+    #[gen_stub_pyfunction]
+    #[pyfunction]
+    fn check_for_updates_and_print() -> PyResult<()> {
+        check_new_version(GITHUB_REPOSITORY).map_err(|err| PyRuntimeError::new_err(err.to_string()))
     }
 
     #[pymodule]
@@ -80,7 +91,11 @@ pub mod py {
         m.add_class::<CraftOfExileItemInfoProvider>()?;
 
         // general utility
-        m.add_function(wrap_pyfunction!(retrieve_jsons_from_urls_with_cache, m)?)?;
+        m.add_function(wrap_pyfunction!(
+            retrieve_contents_from_urls_with_cache_unstable_order,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(check_for_updates_and_print, m)?)?;
 
         Ok(())
     }

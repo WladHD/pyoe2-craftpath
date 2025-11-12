@@ -11,7 +11,7 @@ use tracing::instrument;
 use crate::api::types::THashMap;
 
 #[instrument(skip_all)]
-pub fn retrieve_jsons_from_urls_with_cache(
+pub fn retrieve_contents_from_urls_with_cache_unstable_order(
     cache_url_map: THashMap<String, String>,
     max_cache_duration_in_sec: u64,
 ) -> Result<Vec<String>> {

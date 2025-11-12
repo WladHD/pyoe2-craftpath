@@ -14,7 +14,7 @@ CACHE_TTL_IN_SECONDS = 60 * 60  # 1 hour in seconds
 
 
 def main():
-    raw_fetched_responses = pc.retrieve_jsons_from_urls_with_cache(
+    raw_fetched_responses = pc.retrieve_contents_from_urls_with_cache_unstable_order(
         cache_url_map=MARKET_MAP,
         max_cache_duration_in_sec=CACHE_TTL_IN_SECONDS
     )

@@ -18,12 +18,12 @@ ECONOMY_MAP = {
 
 
 def main():
-    raw_fetched_responses_coe = pc.retrieve_jsons_from_urls_with_cache(
+    raw_fetched_responses_coe = pc.retrieve_contents_from_urls_with_cache_unstable_order(
         cache_url_map=COE_MAP,
         max_cache_duration_in_sec=60 * 60 * 24
     )
 
-    raw_fetched_responses_economy = pc.retrieve_jsons_from_urls_with_cache(
+    raw_fetched_responses_economy = pc.retrieve_contents_from_urls_with_cache_unstable_order(
         cache_url_map=ECONOMY_MAP,
         max_cache_duration_in_sec=60 * 60
     )

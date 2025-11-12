@@ -727,9 +727,12 @@ class StatisticAnalyzerPathPreset(enum.Enum):
 
     def get_instance(self) -> DynStatisticAnalyzerPaths: ...
 
-def retrieve_jsons_from_urls_with_cache(cache_url_map: typing.Mapping[builtins.str, builtins.str], max_cache_duration_in_sec: builtins.int) -> builtins.list[builtins.str]:
+def check_for_updates_and_print() -> None: ...
+
+def retrieve_contents_from_urls_with_cache_unstable_order(cache_url_map: typing.Mapping[builtins.str, builtins.str], max_cache_duration_in_sec: builtins.int) -> builtins.list[builtins.str]:
     r"""
-    * Order-preservation `cache_url_map` is not guaranteed.
-    * If order is required, split requests into single groups.
+    * Order-preservation of `cache_url_map` is not guaranteed.
+    * If order is required, split requests into single function calls.
+    * E. g. Group 1. item info, Group 2. economy.
     """
 

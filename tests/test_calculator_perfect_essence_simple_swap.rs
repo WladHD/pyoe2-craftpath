@@ -20,7 +20,7 @@ mod tests {
         external_api::{
             coe::craftofexile_data_provider_adapter::CraftOfExileItemInfoProvider,
             coe_emulator::coe_emulator_item_snapshot_provider::CraftOfExileEmulatorItemImport,
-            fetch_json_from_urls::retrieve_jsons_from_urls_with_cache,
+            fetch_json_from_urls::retrieve_contents_from_urls_with_cache_unstable_order,
             pn::poe_ninja_data_provider_adapter::PoeNinjaMarketPriceProvider,
         },
     };
@@ -56,9 +56,9 @@ mod tests {
         ]);
 
         let item_cached_jsons =
-            retrieve_jsons_from_urls_with_cache(item_provider_hm, 60_u64 * 60_u64 * 24_u64)?;
+            retrieve_contents_from_urls_with_cache_unstable_order(item_provider_hm, 60_u64 * 60_u64 * 24_u64)?;
         let economy_cached_jsons =
-            retrieve_jsons_from_urls_with_cache(economy_provider_hm, 60_u64 * 60_u64)?;
+            retrieve_contents_from_urls_with_cache_unstable_order(economy_provider_hm, 60_u64 * 60_u64)?;
 
         let item_provider =
             CraftOfExileItemInfoProvider::parse_from_json(item_cached_jsons.first().unwrap())?;

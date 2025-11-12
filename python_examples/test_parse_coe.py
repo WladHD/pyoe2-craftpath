@@ -10,7 +10,7 @@ CACHE_TTL_IN_SECONDS = 60 * 60 * 24  # 1 day in seconds, coe doesnt change often
 
 
 def main():
-    text = pc.retrieve_jsons_from_urls_with_cache(
+    text = pc.retrieve_contents_from_urls_with_cache_unstable_order(
         COE_CACHE_MAP, CACHE_TTL_IN_SECONDS)[0]
 
     # redundand, since its handled automatically in

@@ -263,7 +263,7 @@ mod tests {
         },
         external_api::{
             coe::craftofexile_data_provider_adapter::CraftOfExileItemInfoProvider,
-            fetch_json_from_urls::retrieve_jsons_from_urls_with_cache,
+            fetch_json_from_urls::retrieve_contents_from_urls_with_cache_unstable_order,
         },
         utils::logger_utils::init_tracing,
     };
@@ -365,7 +365,7 @@ mod tests {
             .into_iter(),
         );
 
-        let provider = retrieve_jsons_from_urls_with_cache(hm, 60_u64 * 60_u64)?;
+        let provider = retrieve_contents_from_urls_with_cache_unstable_order(hm, 60_u64 * 60_u64)?;
         let provider = CraftOfExileItemInfoProvider::parse_from_json(
             provider.first().expect("Provider returned no item info"),
         )?;
