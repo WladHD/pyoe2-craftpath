@@ -113,14 +113,15 @@ pub struct AffixTierLevelMeta {
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[cfg_attr(feature = "python", pyo3(weakref, get_all, str))]
 pub struct AffixDefinition {
-    /// If exlusive_groups is not empty, other affixes
-    /// with intersecting exlusive_groups cannot be applied
+    /// 2 Affixes with intersecting exlusive groups
+    /// cannot be applied on same item
     pub exlusive_groups: THashSet<String>,
     /// Tags like "Physical" etc. for Homogen Omen
     pub tags: THashSet<u8>,
     pub description_template: String,
     /// Normal, Desecrated, Essence
     pub affix_class: AffixClassEnum,
+    /// Prefix, Suffix, Socket
     pub affix_location: AffixLocationEnum,
 }
 
