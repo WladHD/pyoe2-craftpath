@@ -1435,7 +1435,7 @@ dependencies = [
 
 [[package]]
 name = "pyoe2-craftpath"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "clap",
