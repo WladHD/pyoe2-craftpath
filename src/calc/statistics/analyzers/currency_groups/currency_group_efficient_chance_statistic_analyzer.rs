@@ -6,22 +6,24 @@ use crate::{
         calculator::{Calculator, GroupRoute, StatisticAnalyzerCurrencyGroups},
         provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
     },
-    calc::statistics::{
-        analyzers::common_analyzer_utils::get_grouped_statistic,
-        collectors::group_collector::CurrencyGroupChanceCollector,
+    calc::statistics::analyzers::{
+        collectors::currency_groups::group_chance_memory_efficient_collector::CurrencyGroupChanceMemoryEfficientCollector,
+        common_analyzer_utils::get_grouped_statistic_memory_efficient,
     },
     impl_common_group_analyzer_methods,
 };
 
-pub struct CurrencyGroupChanceStatisticAnalyzer;
+pub struct CurrencyGroupChanceMemoryEfficientStatisticAnalyzer;
 
-impl StatisticAnalyzerCurrencyGroups for CurrencyGroupChanceStatisticAnalyzer {
+impl StatisticAnalyzerCurrencyGroups for CurrencyGroupChanceMemoryEfficientStatisticAnalyzer {
     fn get_name(&self) -> &'static str {
-        "Currency Groups by Highest Chance"
+        "Currency Groups by Highest Chance (No Unique Paths)"
     }
 
     fn get_description(&self) -> &'static str {
-        "Appends all possible paths to own currency sequences, allowing for a more general overview. Best combined with best N routes."
+        "Memory efficient implementation of currency sequence grouping. \
+        Unique paths are not kept, but instead immediatly summed, thus losing information \
+        but allowing memory efficient collection. Best combined with best N routes."
     }
 
     fn get_unit_type(&self) -> &'static str {
@@ -40,7 +42,7 @@ impl StatisticAnalyzerCurrencyGroups for CurrencyGroupChanceStatisticAnalyzer {
         market_provider: &MarketPriceProvider,
         max_ram_in_bytes: u64,
     ) -> Result<Vec<GroupRoute>> {
-        get_grouped_statistic::<CurrencyGroupChanceCollector>(
+        get_grouped_statistic_memory_efficient::<CurrencyGroupChanceMemoryEfficientCollector>(
             self.lower_is_better(),
             calculator,
             item_provider,

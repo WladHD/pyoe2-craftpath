@@ -24,14 +24,13 @@ pub fn calculate_currency_groups<'a, T: StatisticAnalyzerCurrencyGroupCollectorT
     item_provider: &'a ItemInfoProvider,
     market_provider: &'a MarketPriceProvider,
     max_ram_in_bytes: u64,
-) -> Result<THashMap<Vec<&'a CraftCurrencyList>, Vec<Vec<(RouteChance, u64)>>>> {
+) -> Result<THashMap<Vec<&'a CraftCurrencyList>, Vec<Vec<RouteChance>>>> {
     tracing::info!("Generating unique craft paths based on item matrix");
 
     // current path, build for item
     let mut stack: Vec<(Vec<ItemRouteNodeRef>, &ItemMatrixNode)> = Vec::new();
     // sorted collection
-    let mut results: THashMap<Vec<&CraftCurrencyList>, Vec<Vec<(RouteChance, u64)>>> =
-        THashMap::default();
+    let mut results: THashMap<Vec<&CraftCurrencyList>, Vec<Vec<RouteChance>>> = THashMap::default();
 
     let mut actual_ram: u64 = 0;
 
@@ -88,15 +87,15 @@ pub fn calculate_currency_groups<'a, T: StatisticAnalyzerCurrencyGroupCollectorT
         if node.item.helper.target_proximity == 0 {
             // weight is gonna be calculated by statistic
             collected += 1;
-            let weights =
+            let weights: Vec<RouteChance> =
                 T::get_partial_weights(&path, &calculator.matrix, &item_provider, &market_provider);
 
-            let path = path.iter().fold(Vec::new(), |mut a, b| {
+            let path: Vec<&CraftCurrencyList> = path.iter().fold(Vec::new(), |mut a, b| {
                 a.push(b.currency_list);
                 a
             });
-
-            actual_ram += (3 * 8 as u64) * (path.len() as u64);
+            // vec header + vec containting 1 chance
+            actual_ram += 24 + (path.len() as u64) * (24 + 8);
 
             results.entry(path).or_default().push(weights);
             continue;

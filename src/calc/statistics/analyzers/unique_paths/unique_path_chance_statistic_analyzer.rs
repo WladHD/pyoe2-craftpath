@@ -7,9 +7,11 @@ use crate::{
         provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
     },
     calc::statistics::{
-        collectors::chance_collector::UniquePathChanceCollector,
+        analyzers::collectors::{
+            unique_paths::chance_collector::UniquePathChanceCollector,
+            utils::statistic_analyzer_unique_collector::calculate_crafting_paths,
+        },
         helpers::{ItemRouteRef, finalize_routes},
-        statistic_analyzer_unique_collector::calculate_crafting_paths,
     },
     impl_common_unique_path_analyzer_methods,
 };

@@ -11,7 +11,7 @@ use crate::{
         provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
         types::{THashMap, THashSet},
     },
-    calc::matrix::propagators::{
+    calc::matrix::happy_path_impl::propagators::{
         chaos_orb::ChaosOrbPropagator, desecration::DesecrationPropagator,
         exalted_orb::ExaltedOrbPropagator, normal_essences::NormalEssencePropagator,
         orb_of_annulment::OrbOfAnnulmentPropagator,
@@ -58,7 +58,6 @@ fn generate_item_matrix(
     todo_items.insert(starting_item);
 
     // setup propagators
-
     let propagators: Vec<Box<dyn MatrixPropagator>> = vec![
         Box::new(OrbOfTransmutationPropagator),
         Box::new(OrbOfAugmentationPropagator),

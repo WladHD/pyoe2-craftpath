@@ -11,7 +11,7 @@ use crate::{
             AffixClassEnum, AffixLocationEnum, AffixSpecifier, ItemRarityEnum, THashMap, THashSet,
         },
     },
-    calc::matrix::propagators::exalted_orb::ExaltedOrbPropagator,
+    calc::matrix::happy_path_impl::propagators::exalted_orb::ExaltedOrbPropagator,
     utils::fraction_utils::Fraction,
 };
 

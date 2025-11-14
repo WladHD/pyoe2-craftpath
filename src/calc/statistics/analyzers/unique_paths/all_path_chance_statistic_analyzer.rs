@@ -7,30 +7,32 @@ use crate::{
         provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
     },
     calc::statistics::{
-        collectors::cost_collector::UniquePathCostCollector,
+        analyzers::collectors::{
+            unique_paths::chance_collector::UniquePathChanceCollector,
+            utils::statistic_analyzer_all_path_collector::calculate_all_paths,
+        },
         helpers::{ItemRouteRef, finalize_routes},
-        statistic_analyzer_unique_collector::calculate_crafting_paths,
     },
     impl_common_unique_path_analyzer_methods,
 };
 
-pub struct UniquePathCostStatisticAnalyzer;
+pub struct AllUniquePathsChanceStatisticAnalyzer;
 
-impl StatisticAnalyzerPaths for UniquePathCostStatisticAnalyzer {
+impl StatisticAnalyzerPaths for AllUniquePathsChanceStatisticAnalyzer {
     fn get_name(&self) -> &'static str {
-        "Unique Path by Lowest Cost"
+        "ALL Unique Paths by Highest Chance"
     }
 
     fn get_description(&self) -> &'static str {
-        "Retrieves N number of unique paths memory efficiently from all possible combinations, sorted by cost."
+        "Optimized to retrieves ALL unique paths from all possible combinations, sorted by chance. Uses a lot of memory for deep paths."
     }
 
     fn get_unit_type(&self) -> &'static str {
-        "EX"
+        "%"
     }
 
     fn lower_is_better(&self) -> bool {
-        true
+        false
     }
 
     #[instrument(skip_all)]
@@ -39,14 +41,13 @@ impl StatisticAnalyzerPaths for UniquePathCostStatisticAnalyzer {
         calculator: &Calculator,
         item_provider: &ItemInfoProvider,
         market_provider: &MarketPriceProvider,
-        max_routes: u32,
+        _: u32,
         max_ram_in_bytes: u64,
     ) -> Result<Vec<ItemRoute>> {
-        let res: Vec<ItemRouteRef<'_>> = calculate_crafting_paths::<UniquePathCostCollector>(
+        let res: Vec<ItemRouteRef<'_>> = calculate_all_paths::<UniquePathChanceCollector>(
             calculator,
             item_provider,
             market_provider,
-            max_routes,
             max_ram_in_bytes,
             self.lower_is_better(),
         )?;
@@ -56,9 +57,9 @@ impl StatisticAnalyzerPaths for UniquePathCostStatisticAnalyzer {
 
     fn format_display_more_info(
         &self,
-        _: &crate::api::calculator::ItemRoute,
-        _: &crate::api::provider::item_info::ItemInfoProvider,
-        _: &crate::api::provider::market_prices::MarketPriceProvider,
+        _: &ItemRoute,
+        _: &ItemInfoProvider,
+        _: &MarketPriceProvider,
     ) -> Option<String> {
         None
     }

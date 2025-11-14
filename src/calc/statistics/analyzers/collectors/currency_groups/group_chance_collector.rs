@@ -8,7 +8,6 @@ use crate::{
         ItemRouteNodeRef, RouteChance, RouteCustomWeight,
         StatisticAnalyzerCurrencyGroupCollectorTrait,
     },
-    utils::hash_utils::hash_value,
 };
 
 pub struct CurrencyGroupChanceCollector;
@@ -19,31 +18,31 @@ impl StatisticAnalyzerCurrencyGroupCollectorTrait for CurrencyGroupChanceCollect
         _: &ItemMatrix,
         _: &ItemInfoProvider,
         _: &MarketPriceProvider,
-    ) -> Vec<(RouteChance, u64)> {
+    ) -> Vec<RouteChance> {
         path.iter().fold(Vec::new(), |mut a, b| {
-            a.push((RouteChance::new(b.chance.to_f64()), hash_value(b.item)));
+            a.push(RouteChance::new(b.chance.to_f64()));
             a
         })
     }
 
     // in this case we sort by chance, so weight = chance
     fn calculate_group_weight(
-        _: &Vec<CraftCurrencyList>,
-        paths: &Vec<Vec<(RouteChance, u64)>>,
+        _: &Vec<&CraftCurrencyList>,
+        paths: &Vec<Vec<RouteChance>>,
     ) -> RouteCustomWeight {
         RouteCustomWeight::from(
             paths
                 .iter()
-                .map(|e| e.iter().map(|e| *e.0.get_raw_value()).product::<f64>())
+                .map(|e| e.iter().map(|e| *e.get_raw_value()).product::<f64>())
                 .sum::<f64>(),
         )
     }
 
-    fn calculate_group_chance(paths: &Vec<Vec<(RouteChance, u64)>>) -> RouteChance {
+    fn calculate_group_chance(paths: &Vec<Vec<RouteChance>>) -> RouteChance {
         RouteChance::from(
             paths
                 .iter()
-                .map(|e| e.iter().map(|e| *e.0.get_raw_value()).product::<f64>())
+                .map(|e| e.iter().map(|e| *e.get_raw_value()).product::<f64>())
                 .sum::<f64>(),
         )
     }

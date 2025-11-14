@@ -1,0 +1,4 @@
+pub mod statistic_analyzer_all_path_collector;
+pub mod statistic_analyzer_currency_grouped_collector;
+pub mod statistic_analyzer_currency_grouped_memory_efficient_collector;
+pub mod statistic_analyzer_unique_collector;
