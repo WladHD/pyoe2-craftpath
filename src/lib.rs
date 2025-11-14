@@ -61,7 +61,7 @@ pub mod py {
 
     #[gen_stub_pyfunction]
     #[pyfunction]
-    fn check_for_updates_and_print() -> PyResult<()> {
+    fn check_for_updates_and_print() -> PyResult<bool> {
         check_new_version(GITHUB_REPOSITORY).map_err(|err| PyRuntimeError::new_err(err.to_string()))
     }
 

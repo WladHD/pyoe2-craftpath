@@ -1,4 +1,4 @@
-use anyhow::{Result, anyhow};
+use anyhow::Result;
 
 pub mod api;
 pub mod calc;
@@ -14,7 +14,7 @@ fn main() -> Result<()> {
 
     #[cfg(feature = "python")]
     {
-        Err(anyhow!(
+        Err(anyhow::anyhow!(
             "The entrypoint does not exist when compiling with the default 'python' feature"
         ))
     }
@@ -29,7 +29,7 @@ pub mod cli {
         version_checker_utils::check_new_version,
     };
     use anyhow::{Result, anyhow};
-    use clap::{ArgAction, Parser};
+    use clap::{ArgAction, Parser, ValueHint};
     use humansize::SizeFormatter;
     use pyoe2_craftpath::{
         GITHUB_REPOSITORY,
@@ -38,8 +38,8 @@ pub mod cli {
             types::THashMap,
         },
         calc::{
-            matrix::matrix_builder_presets::MatrixBuilderPreset,
-            statistics::{
+            matrix::presets::matrix_builder_presets::MatrixBuilderPreset,
+            statistics::presets::{
                 statistic_analyzer_currency_group_presets::StatisticAnalyzerCurrencyGroupPreset,
                 statistic_analyzer_path_presets::StatisticAnalyzerPathPreset,
             },
@@ -81,7 +81,8 @@ pub mod cli {
             short,
             long,
             env = "START_ITEM_PATH",
-            default_value = "pyoe2-craftpath/startitem.json"
+            default_value = "pyoe2-craftpath/startitem.json",
+            value_hint = ValueHint::FilePath
         )]
         start_item_path: String,
 
@@ -90,12 +91,17 @@ pub mod cli {
             short,
             long,
             env = "TARGET_ITEM_PATH",
-            default_value = "pyoe2-craftpath/targetitem.json"
+            default_value = "pyoe2-craftpath/targetitem.json",
+            value_hint = ValueHint::FilePath
         )]
         target_item_path: String,
 
         /// Path to cache directory to drop data from Craft of Exile and PoE Ninja.
-        #[arg(short, long, env = "CACHE_PATH", default_value = "pyoe2-craftpath")]
+        #[arg(
+            short, long, env = "CACHE_PATH", 
+            default_value = "pyoe2-craftpath", 
+            value_hint = ValueHint::DirPath
+        )]
         cache_path: String,
 
         /// Number of grouped routes and unique paths to search for and print to console.

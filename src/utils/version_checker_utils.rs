@@ -14,7 +14,7 @@ struct GithubRelease {
     prerelease: bool,
 }
 
-pub fn check_new_version(repo: &str) -> Result<()> {
+pub fn check_new_version(repo: &str) -> Result<bool> {
     let current_version = env!("CARGO_PKG_VERSION");
     let pkg_name = env!("CARGO_PKG_NAME");
     let current = Version::parse(current_version)?;
@@ -76,5 +76,5 @@ pub fn check_new_version(repo: &str) -> Result<()> {
         ),
     }
 
-    Ok(())
+    Ok(stable_update_available)
 }
