@@ -1,3 +1,6 @@
+<!---
+GitHub Actions Workflow Status, Version, Version Crates, Version PyPi, License
+-->
 # *Py*oE 2 - CraftPath
 A tool for Path of Exile 2 to find the best craftpaths based on the categories: *most likely, most efficient and cheapest*, between a starting item and a target item.
 
@@ -10,9 +13,14 @@ As big noob, I was completly overwhelmed with the information available.
 
 **Me need simple. Me want good item. How get good item?**
 
-*CraftPath*. The purpose of this tool is give it information about your current item and the affixes you want it to have, then let it efficiently calculate possible craftpaths; Without the need to manually look up mod weights, mod groups, or spend hours crunching probabilities on a Casio calculator, as all true PoE gamers do[^1].
+*CraftPath*. The purpose of this tool is give it information about your current item and the affixes you want it to have, then let it efficiently calculate possible craftpaths; Without the need to manually look up mod weights, mod groups, or spend hours crunching probabilities on a Casio calculator, as all true PoE gamers do[^1]. It simulates all *sensible* currency sequences that can be applied on a starting item, and collects the best routes that lead to the given target item, based on the specified statistic (more in [Development Strategy and Caveats](#strategy-and-development)).
 
-## Features
+## 🚧 Notice for Versions Below 1.0.0
+Keep in mind that this project is in its early stages, and can contain bugs and lack features. [Features](#features) should contain an overview over planned/completed/unplanned currencies and known bugs. If your topic is not documented there, it is yet unknown and not reviewed. Feel free to create an [Issue](https://github.com/WladHD/pyoe2-craftpath/issues) with more information!
+
+My plan is of course to reach version `1.0.0` ... which depends on the traction this project gains, which in turn affects how much free time I'm motivated to dedicate to it, which in turn leads to a more robust and well-rounded project. Until then, this notice lingers... possibly forever. 🧙‍♂️
+
+## Features<a name="features"></a>
 | **Currency**                  | **Options**                                                                     | **Status**                       | **Note**                                                                                                                                                                                                                                |
 | ----------------------------- | ------------------------------------------------------------------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Orb of Transmutation**      | Normal, Greater (55), Perfect (70)                                              | Completed                        |                                                                                                                                                                                                                                         |
@@ -31,46 +39,121 @@ As big noob, I was completly overwhelmed with the information available.
 | **Desecration**               | Abyssal Echoes, Blackhooded, Liege, Sovereign, Sin/Dex Necromancy               | Partially Completed, Not Planned | "Blackhooded, Liege, Sovereign" are forced. Loose propagation of affixes is not planned. **ATTENTION** Desecration weights are unknown and are treated equally by the algorithm; all desecration weights = 1.                           |
 | **Others**                    |                                                                                 | On request                       | If not explicitly listed in this table, other crafting methods have not been reviewed yet or are not planned. [Open an issue](https://github.com/WladHD/pyoe2-craftpath/issues) if I forgot something that you would find nice to have. |
 
-## How To Run
-This guide here shows the quick-n-dirty approach to run this tool via the console. This tool is actually intended to be used as a Python package. Refer to the [extended Python example](https://github.com/WladHD/pyoe2-craftpath/blob/main/python_examples/example_calculator_for_example_items.ipynb) or just skim through the `python_examples` directory.
+## How To Run<a name="how-to"></a>
+This tool is actually intended to be used in Python. Refer to the [extended Python example as Jupyter Notebook](https://github.com/WladHD/pyoe2-craftpath/blob/main/python_examples/example_calculator_for_example_items.ipynb) or just skim through the [`python_examples`](https://github.com/WladHD/pyoe2-craftpath/tree/main/python_examples) directory for commented usage in Python.
 
-The following shows the usage for the console on Windows.
-- First things first. Download the program from the [Releases](https://github.com/WladHD/pyoe2-craftpath/releases).
+The following section shows a guide for the *quick-n-dirty* approach to run the Windows executable via the console, since I wanted to offer a simple(r) solution for those who just want to have a basic overview and are not planning to create further analytical pipelines. 
 
-Since this is a command-line utility, it should be started over the console, with: `pyoe2-craftpath.exe [available, optional arguments]`
+First things first. Download the program from [Releases](https://github.com/WladHD/pyoe2-craftpath/releases).
 
-Available, optional arguments:
-- `--start_item_path <Path to JSON File>` (*if unset:* `pyoe2-craftpath/startitem.json`) - provides the file location of the saved item, to treat as the starting point of the craft. Use the export function of **[CraftOfExile](https://www.craftofexile.com/?game=poe2)'s *Emulator*** and copy-paste content to `poe2-craftpath/startitem.json`.
-- `--target_item_path <Path to JSON File>` (*if unset:* `pyoe2-craftpath/targetitem.json`) - provides the file location of the saved item, to treat as the end point of the craft. Use the export function of **[CraftOfExile](https://www.craftofexile.com/?game=poe2)'s *Emulator*** and copy-paste content to `poe2-craftpath/targetitem.json`.
-- `--cache_path <Path to Temp Folder>` (*if unset:* `pyoe2-craftpath`) - used for caching CraftOfExile's and PoE.Ninjas datasets. Needs to be explicitly created to avoid confusion.  
-- `--poe2_league <League>` (*if unset:* `Rise of the Abyssal`) - fetches PoE.Ninjas economy data for the specified league. 
-- `--amount_routes <Number>` (*if unset:* `5`) - amount of craft paths collected and printed per stats category. (Current stats categories: highest chance, most efficient, cheapest, so `3x5 = 15` shown routes with default settings).
-- `--no_updates` (*if unset: checks for updates*) - if this flag is set, *CraftPath* will not query GitHub and not check for newer versions.
-- `--no_groups` (*if unset: collects all possible paths*) - if this flag is set, *CraftPath* will not collect all possible paths. (Massive reduction in memory usage, but less overall gained information).
-- `--max-ram <<Number> GB,KB,MB>` (*if unset: `1GB`*) - sets the maximum RAM the program is allowed to use during path collection.
+```bash
+pyoe2-craftpath.exe [options]
+```
 
-**``--max-ram`` is spicy, please read**: 
-The algorithm for **group collection** (disabled with `no_groups` flag) currently calculates **all** unique craft paths to create statistical info for *currency sequences* (= "*groups*"). Although *CraftPath* is relying on the `Happy Path` as main efficiency boost, it still is exponentially creating paths. **It currently lacks optimization with craft path depth higher than 5/6, easily using more then *60 GB* (!)** *e. g. (rare item with [1 unwanted affix / 5 open] into rare item with 6 wanted affixes).* To force users to activly acknowledge this (hopefully temporary) constraint, I set the RAM to `1GB`. I feel like this is a natural barrier that most users will be fine with, while still allowing the usual propagation of 1 - 4 steps. And even 5 - 6 steps if desecration is involved. Bruteforce-calculating long paths will trigger the program to abort - forcing you to eventually read this, at least :D 
+Available optional, options:
+<details>
+<summary><code>--start_item_path &lt;Path to JSON File&gt;</code></summary>
 
-*For devs*: the high RAM usage occurs in the collection of *all possible paths* in [calculate_currency_groups](https://github.com/WladHD/pyoe2-craftpath/blob/main/src/calc/statistics/statistic_analyzer_currency_grouped_collector.rs#L22) as references, but allocating new vectors for every path; This is a design decision to firstly filter out circularity and secondly allow grouping of paths by *currency sequence*, providing broader insight into which *currency sequences* are generally the best overall - rather than focusing only on a *single* most likely crafting path, which might not belong to the most likely *currency sequence*. If you have ideas on how to constrain or filter deep craft paths while still keeping the grouped comparison aspect, feel free to open an issue ... or provide an own implementation of [`StatisticAnalyzerCurrencyGroups`](https://github.com/WladHD/pyoe2-craftpath/blob/main/src/calc/statistics/analyzers/currency_group_chance_statistic_analyzer.rs) :)
+**Default:** `pyoe2-craftpath/startitem.json`  
+Provides the file location of the saved item to treat as the starting item of the craft.  
+Use [CraftOfExile](https://www.craftofexile.com/?game=poe2) → Emulator → Export and paste the output into `pyoe2-craftpath/startitem.json`.
+</details>
+
+<details>
+<summary><code>--target_item_path &lt;Path to JSON File&gt;</code></summary>
+
+**Default:** `pyoe2-craftpath/targetitem.json`  
+Provides the file location of the saved item to treat as the end item of the craft.  
+Use [CraftOfExile](https://www.craftofexile.com/?game=poe2) → Emulator → Export and paste the output into `pyoe2-craftpath/targetitem.json`.
+</details>
+
+<details>
+<summary><code>--cache_path &lt;Path to Temp Folder&gt;</code></summary>
+
+**Default:** `pyoe2-craftpath`  
+Used for caching [CraftOfExile's](https://www.craftofexile.com/?game=poe2) and  
+[PoE.Ninja's](https://poe.ninja/poe2/economy/) datasets.  
+**The folder must already exist.**  
+Mostly to express consent for the program to cache things and edit that folder’s contents.
+</details>
+
+<details>
+<summary><code>--poe2_league &lt;League&gt;</code></summary>
+
+**Default:** `Rise of the Abyssal`  
+Fetches [PoE.Ninja's](https://poe.ninja/poe2/economy/) economy data for the specified league.
+</details>
+
+<details>
+<summary><code>--amount_routes &lt;Number&gt;</code></summary>
+
+**Default:** `5`  
+Number of craft paths collected and printed per stats category.  
+(Current categories: highest chance, most efficient, cheapest → `3 × amount_routes` shown.)
+</details>
+
+<details>
+<summary><code>--no_updates</code></summary>
+
+**Default:** checks GitHub for updates  
+If set, CraftPath will **not** query GitHub or check for newer versions.
+</details>
+
+<details>
+<summary><code>--no_groups</code></summary>
+
+**Default:** collects all possible paths  
+If set, CraftPath will **not** collect all possible path groups.  
+This greatly reduces RAM usage but results in less complete output.
+</details>
+
+<details>
+<summary><code>--max-ram &lt;&lt;Number&gt;[GB|KB|MB]&gt;</code></summary>
+
+**Default:** `1GB`  
+Sets the maximum amount of RAM the program may use during path collection.
+</details>
 
 ## Development Strategy and Caveats<a name="strategy-and-development"></a>
-To constraint propagation and massivly reduce complexity, my algorithm tries to stay on the `Happy Path` as much as possible. That means, that affixes that can be rolled, but are not included in the desired *affix state*, will not be considered for additive currencies like `Exalted Orb`. Subtractive currencies like `Orb of Annulment` will only result in *affix states*, that lose unwanted affixes. **Simply put, if this algorithm was a player, it would immediatly stop crafting an item, *that does not gain an affix from the desired affixes (or lose an unwanted affix)***.
+The following section explains the inner workings of my algorithm, if you are interested in contributing or just want to have an idea of how this tool works. If you're only here for the crafting you can skip this. 
+
+The architecture to return the best paths based on custom statistics consists of two important parts. Firstly, the [MatrixPropagator](https://github.com/WladHD/pyoe2-craftpath/blob/main/src/api/matrix_propagator.rs) and secondly the [StatisticAnalyzer(s)](https://github.com/WladHD/pyoe2-craftpath/blob/main/src/api/calculator.rs).
+- A matrix propagator's job is to collect *all sensible* items with *all sensible* possible *next* items, specified currencies and their chances. The definition of *all sensible* is to be defined by the actual algorithm implementing the trait `MatrixBuilder`. This structure is efficiently constructed as a tree. For an actual implementation refer to [HappyPathMatrixBuilderImpl](https://github.com/WladHD/pyoe2-craftpath/blob/main/src/calc/matrix/happy_path_impl/happy_path_matrix_builder_impl.rs).
+- A statistical analyzer now uses the constructed matrix to traverse all possible paths and calculates weights for each unique route. The weights are dependent on the algorithm and can be e. g. the chance, the cost, etc. Each analyzer can specify if lower is better. Currently two predefined general traits exist, firstly the [StatisticAnalyzerPaths](https://github.com/WladHD/pyoe2-craftpath/blob/main/src/api/calculator.rs), which returns the best *unique routes*, and secondly [StatisticAnalyzerCurrencyGroups](https://github.com/WladHD/pyoe2-craftpath/blob/main/src/api/calculator.rs), which returns the best *currency sequences*. Actual implementations are contained [here](https://github.com/WladHD/pyoe2-craftpath/tree/main/src/calc/statistics/analyzers).
+
+### Matrix Builder Implementation
+To constraint propagation and massivly reduce complexity, [my algorithm](https://github.com/WladHD/pyoe2-craftpath/blob/main/src/calc/matrix/happy_path_impl/happy_path_matrix_builder_impl.rs) tries to stay on the `Happy Path` as much as possible. That means, that affixes that can be rolled, but are not included in the desired *affix state*, will not be considered for additive currencies like [`Exalted Orb`](https://github.com/WladHD/poe2-craftpath/blob/main/poe2-craftpath/src/calc/propagators/exalted_orb.rs). Subtractive currencies like [`Orb of Annulment`](https://github.com/WladHD/poe2-craftpath/blob/main/poe2-craftpath/src/calc/propagators/orb_of_annulment.rs) will only result in *affix states*, that lose unwanted affixes. (= Definition of *all sensible*) **Simply put, if my algorithm was a player, it would immediatly stop crafting an item, *that does not gain an affix from the desired affixes (or lose an unwanted affix)***.
 
 While this approach enables more efficient path construction, it may miss routes that can only be reached by temporarily applying an undesired affix. Such an edge case can be found by trying to apply `Perfect Essence`. 
 
-Let's assume we have an item with three desirable prefixes that we want to keep, and we plan to apply a `Perfect Essence` to add a suffix. Naivly applying it results in an item with two prefixes and the new suffix from the `Perfect Essence`. This action is disallowed by *CraftPath*, since it would remove a wanted affix, thus stopping propagation and completing without finding a craft path at all.
 
-To fix this specific edge case, *CraftPath* introduces an additional temporary step, forcing propagation outside of the `Happy Path`: it first applies a suffix from the unwanted affix pool. This ensures that the three desired prefixes remain untouched, while the temporary suffix can be replaced with the `Perfect Essence` and the `Dextral Crystallisation` omen.
+> Let's assume we have an item with three desirable prefixes that we want to keep, and we plan to apply a `Perfect Essence` to add a suffix. Naivly applying it results in an item with two prefixes and the new suffix from the `Perfect Essence`. This action is not done by [HappyPathMatrixBuilderImpl](https://github.com/WladHD/pyoe2-craftpath/blob/main/src/calc/matrix/happy_path_impl/happy_path_matrix_builder_impl.rs), since it would remove a wanted affix. Thus, propagation stops and completes without finding a craft path that leads to the target item at all.
+
+To fix this specific edge case, [PerfectEssencePropagator](https://github.com/WladHD/pyoe2-craftpath/blob/main/src/calc/matrix/happy_path_impl/propagators/perfect_essences.rs) introduces an additional temporary step, forcing propagation outside of the `Happy Path`: expanding on the mentioned example, it first applies a suffix from the unwanted affix pool. This ensures that the three desired prefixes remain untouched, while the temporary suffix can be replaced with the `Perfect Essence` and the `Dextral Crystallisation` omen.
 
 I'm sure many more such edge cases exist, and those need to be specifically implemented. If you can think of any, please tell me :3
 
+### Analysis Implementation
+I haven't implemented anything crazy for this one, so I'll keep it short.
+The most interesting detail is probably the need to filter out theoretical cyclic propagations. I'm not aware of this happening in my algorithm, but it is an edge-case that must be handled to avoid infinite loops. A theoretical possibility would be f. e. `Exalted Orb`, `Orb of Annulment`, `Exalted Orb`, `Orb of Annulment` ... resulting in the *same affix state*. Therefore [`calculate_crafting_paths`](https://github.com/WladHD/pyoe2-craftpath/blob/main/src/calc/statistics/analyzers/collectors/utils/statistic_analyzer_unique_collector.rs) only continues paths, that do not contain the same *affix state* twice[^2]. What would be nice as well, is an improved filtration of *senseless* routes ... but the definition for *senseless* routes is actually the hard task here. Cauz the above example only filters out *the same affixes*. It would still calculate the same currency sequence for different affixes, which is *senseless*, but I do not know how to filter it out *efficiently* yet. Hence, the current version only filters out cycles, and lets the [StatisticalAnalyzers](https://github.com/WladHD/pyoe2-craftpath/blob/main/src/api/calculator.rs) handle the sorting. Since the *senseless* routes will have a much worse weight than the best ones, they will be filtered out naturally; on the expense of checking *senseless* routes, which really is a problem on *deep* paths (6 affixes+), resulting in *millions* of *senseless* checks.
+
+
+## Contribution / Dev Usage
+I've published the project on [`crates.io`](https://crates.io/) (and [`PyPI`](https://pypi.org/)). You can either use the [API](https://github.com/WladHD/pyoe2-craftpath/tree/main/src/api) to build your own extension as own Rust crate depending on `pyoe2-craftpath`.
+
+If you want, you can also create a pull request to have it directly included here. The only requirement is the usage of the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format for your commit messages and preferably a new test for your code.
+
+For both options, the most important things would be the central enums [StatisticAnalyzerCurrencyGroupPreset](https://github.com/WladHD/pyoe2-craftpath/blob/main/src/calc/statistics/presets/statistic_analyzer_currency_group_presets.rs), [StatisticAnalyzerPathPreset](https://github.com/WladHD/pyoe2-craftpath/blob/main/src/calc/statistics/presets/statistic_analyzer_path_presets.rs) and [MatrixBuilderPreset](https://github.com/WladHD/pyoe2-craftpath/blob/main/src/calc/matrix/presets/matrix_builder_presets.rs) which are probably the things that most likely could be offered by an extension. The mentioned enums provide specific, usuable implementations for both Rust and Python and integrate seamlessly into the rest of CraftPath's "ecosystem".
+
+Feel free to open an [Issue](https://github.com/WladHD/pyoe2-craftpath/issues) to ask about technical stuff. 
+
 ## Acknowledgments
-Of course, [Grinding Gear Games](https://www.grindinggear.com/) for provinding Path of Exile 2, that got me hooked to the extent of actually coding this.
+- Of course, [Grinding Gear Games](https://www.grindinggear.com/) for provinding Path of Exile 2, that got me hooked to the extent of actually coding this.
 
-[CraftOfExile](https://www.craftofexile.com/) that permitted me to use its [item data](https://www.craftofexile.com/json/poe2/main/poec_data.json). This project would not be possible without an easily accessible weight, item, affix, etc. mapping. Moreover I integrated its Emulator outputs to parse the starting/target items.
+- [CraftOfExile](https://www.craftofexile.com/) that permitted me to use their [item data](https://www.craftofexile.com/json/poe2/main/poec_data.json). **CraftPath would not be possible without it.** CoE offers an extensive, crunched mapping for weights, items, affixes, etc. Moreover I integrated CoE's Emulator Export outputs to parse the starting/target item, offering an external, easy capture of item information over a GUI. Since I as noob needed something hands-on, easy to use, CraftOfExile was essential for this project.
 
-[poe.ninja](https://poe.ninja/) for providing an open API to fetch up-to-date currency exchange prices. Used for calculating the cost of a crafting path. 
+- [poe.ninja](https://poe.ninja/) for providing a public API to fetch up-to-date currency exchange prices. Used by CraftPath to calculate the cost of a crafting path, and subsequently corresponding cost-based analysis. Cudos for hosting and keeping a free, public API alive for such a long time!
+
 
 ## Disclaimer
 **CraftPath is not affiliated with or endorsed by Grinding Gear Games**
@@ -79,3 +162,5 @@ Of course, [Grinding Gear Games](https://www.grindinggear.com/) for provinding P
 [MIT License](https://github.com/WladHD/pyoe2-craftpath/blob/main/LICENSE)
 
 [^1]: Source: trust me, bro
+
+[^2]: Actually item state ([ItemSnapshot](https://github.com/WladHD/pyoe2-craftpath/blob/main/src/api/item.rs)), but in the given example w/e. The item state contains more information like rarity, base item id, level, etc. 
