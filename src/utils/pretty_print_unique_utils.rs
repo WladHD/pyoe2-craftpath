@@ -15,7 +15,7 @@ use crate::{
             BaseItemId, THashSet,
         },
     },
-    calc::statistics::statistic_analyzer_currency_group_presets::StatisticAnalyzerCurrencyGroupPreset,
+    calc::statistics::presets::statistic_analyzer_currency_group_presets::StatisticAnalyzerCurrencyGroupPreset,
     utils::fraction_utils::Fraction,
 };
 use std::fmt::Write;

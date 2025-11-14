@@ -64,8 +64,11 @@ impl GroupRoute {
         .unwrap();
 
         for (index, currency_list) in self.group.iter().enumerate() {
-            let index_weight = grouped_statistic_analyzer
-                .calculate_chance_for_group_step_index(&self.unique_route_weights, index);
+            let index_weight = grouped_statistic_analyzer.calculate_chance_for_group_step_index(
+                &self.unique_route_weights,
+                self.amount_subpaths.clone(),
+                index,
+            );
 
             writeln!(
                 &mut out,

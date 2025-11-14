@@ -10,8 +10,8 @@ class AffixDefinition:
     @property
     def exlusive_groups(self) -> builtins.set[builtins.str]:
         r"""
-        If exlusive_groups is not empty, other affixes
-        with intersecting exlusive_groups cannot be applied
+        2 Affixes with intersecting exlusive groups
+        cannot be applied on same item
         """
     @property
     def tags(self) -> builtins.set[builtins.int]:
@@ -26,7 +26,10 @@ class AffixDefinition:
         Normal, Desecrated, Essence
         """
     @property
-    def affix_location(self) -> AffixLocationEnum: ...
+    def affix_location(self) -> AffixLocationEnum:
+        r"""
+        Prefix, Suffix, Socket
+        """
     def __str__(self) -> builtins.str: ...
 
 @typing.final
@@ -403,7 +406,7 @@ class DynStatisticAnalyzerCurrencyGroups:
     def get_unit_type(self) -> builtins.str: ...
     def lower_is_better(self) -> builtins.bool: ...
     def get_statistic(self, calculator: Calculator, item_provider: ItemInfoProvider, market_provider: MarketPriceProvider, max_ram_in_bytes: builtins.int) -> builtins.list[GroupRoute]: ...
-    def calculate_weight_for_group_step_index(self, group_routes: typing.Sequence[typing.Sequence[tuple[RouteChance, builtins.int]]], index: builtins.int) -> RouteChance: ...
+    def calculate_weight_for_group_step_index(self, group_routes: typing.Sequence[typing.Sequence[RouteChance]], subpath_amount: SubpathAmount, index: builtins.int) -> RouteChance: ...
     def format_display_more_info(self, group_route: GroupRoute, item_provider: ItemInfoProvider, market_provider: MarketPriceProvider) -> typing.Optional[builtins.str]: ...
     def calculate_cost_per_craft(self, currency: typing.Sequence[CraftCurrencyList], item_info: ItemInfoProvider, market_provider: MarketPriceProvider) -> PriceInDivines: ...
     def calculate_tries_needed_for_60_percent(self, group_route: GroupRoute) -> builtins.int: ...
@@ -476,9 +479,11 @@ class GroupRoute:
     @property
     def weight(self) -> RouteCustomWeight: ...
     @property
-    def unique_route_weights(self) -> builtins.list[builtins.list[tuple[RouteChance, builtins.int]]]: ...
+    def unique_route_weights(self) -> builtins.list[builtins.list[RouteChance]]: ...
     @property
     def chance(self) -> RouteChance: ...
+    @property
+    def amount_subpaths(self) -> SubpathAmount: ...
     def __str__(self) -> builtins.str: ...
     def to_pretty_string(self, item_provider: ItemInfoProvider, market_provider: MarketPriceProvider, statistic_analyzer: DynStatisticAnalyzerCurrencyGroups) -> builtins.str: ...
 
@@ -690,6 +695,15 @@ class StatisticResult:
     def __str__(self) -> builtins.str: ...
 
 @typing.final
+class SubpathAmount:
+    @property
+    def raw_value(self) -> builtins.int: ...
+    def __eq__(self, other: builtins.object) -> builtins.bool: ...
+    def __hash__(self) -> builtins.int: ...
+    def __str__(self) -> builtins.str: ...
+    def __new__(cls, value: builtins.int) -> SubpathAmount: ...
+
+@typing.final
 class Weight:
     @property
     def raw_value(self) -> builtins.int: ...
@@ -724,7 +738,14 @@ class ItemRarityEnum(enum.Enum):
 
 @typing.final
 class MatrixBuilderPreset(enum.Enum):
+    r"""
+    Collection of presets provided from CraftPath by default
+    """
     HappyPathMatrixBuilder = ...
+    r"""
+    Builds a tree-like structure for item propagation,
+    while trying to stay on the 'Happy Path'
+    """
 
     def get_instance(self) -> DynMatrixBuilder: ...
 
@@ -736,16 +757,48 @@ class PriceKind(enum.Enum):
 
 @typing.final
 class StatisticAnalyzerCurrencyGroupPreset(enum.Enum):
+    r"""
+    Collection of presets provided from CraftPath by default
+    """
     CurrencyGroupChance = ...
+    r"""
+    Collect ALL currency sequences that lead to the target item, sorted by chance
+    Additionally, SUMS of all unique subpaths and returns ONE averaged out subpath
+    """
+    CurrencyGroupChanceMemoryHeavy = ...
+    r"""
+    Collect ALL currency sequences that lead to the target item, sorted by chance
+    Additionally, collects and returns ALL unique subpaths
+    """
 
     def get_instance(self) -> DynStatisticAnalyzerCurrencyGroups: ...
 
 @typing.final
 class StatisticAnalyzerPathPreset(enum.Enum):
+    r"""
+    Collection of presets provided from CraftPath by default
+    """
     UniquePathChance = ...
+    r"""
+    Returns N (= amount_routes) paths sorted by chance,
+    applying statistics DURING collection
+    """
     UniquePathEfficiency = ...
+    r"""
+    Returns N (= amount_routes) paths sorted by cost * tries needed for 60 percent,
+    applying statistics DURING collection
+    """
     UniquePathCost = ...
-    AllUniquePathChance = ...
+    r"""
+    Returns N (= amount_routes) paths sorted by cost,
+    applying statistics DURING collection
+    """
+    UniquePathChanceMemoryHeavy = ...
+    r"""
+    Collects and returns ALL unique subpaths,
+    applying statistics AFTER collection
+    (amount_routes is ignored)
+    """
 
     def get_instance(self) -> DynStatisticAnalyzerPaths: ...
 

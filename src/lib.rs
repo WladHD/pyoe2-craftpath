@@ -30,10 +30,10 @@ pub mod py {
         BaseGroupId, BaseItemId, EssenceDefinition, EssenceId, EssenceTierLevelMeta, ItemId,
         ItemRarityEnum, THashMap, Weight,
     };
-    use crate::calc::matrix::matrix_builder_presets::MatrixBuilderPreset;
+    use crate::calc::matrix::presets::matrix_builder_presets::MatrixBuilderPreset;
     use crate::calc::statistics::helpers::{RouteChance, RouteCustomWeight};
-    use crate::calc::statistics::statistic_analyzer_currency_group_presets::StatisticAnalyzerCurrencyGroupPreset;
-    use crate::calc::statistics::statistic_analyzer_path_presets::StatisticAnalyzerPathPreset;
+    use crate::calc::statistics::presets::statistic_analyzer_currency_group_presets::StatisticAnalyzerCurrencyGroupPreset;
+    use crate::calc::statistics::presets::statistic_analyzer_path_presets::StatisticAnalyzerPathPreset;
     use crate::external_api::coe::craftofexile_data_provider_adapter::CraftOfExileItemInfoProvider;
     use crate::external_api::coe_emulator::coe_emulator_item_snapshot_provider::CraftOfExileEmulatorItemImport;
     use crate::external_api::pn::poe_ninja_data_provider_adapter::PoeNinjaMarketPriceProvider;

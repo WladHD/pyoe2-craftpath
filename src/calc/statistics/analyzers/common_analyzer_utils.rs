@@ -13,11 +13,79 @@ use crate::{
         types::THashMap,
     },
     calc::statistics::{
-        helpers::{RouteChance, StatisticAnalyzerCurrencyGroupCollectorTrait},
-        statistic_analyzer_currency_grouped_collector::calculate_currency_groups,
+        analyzers::collectors::{
+            currency_groups::group_chance_memory_efficient_collector::CurrencyGroupChanceMemoryEfficientCollector,
+            utils::{
+                statistic_analyzer_currency_grouped_collector::calculate_currency_groups,
+                statistic_analyzer_currency_grouped_memory_efficient_collector::calculate_currency_groups_memory_efficient,
+            },
+        },
+        helpers::{
+            RouteChance, RouteCustomWeight, StatisticAnalyzerCurrencyGroupCollectorTrait,
+            SubpathAmount,
+        },
     },
     utils::float_compare,
 };
+
+#[instrument(skip_all)]
+pub fn get_grouped_statistic_memory_efficient<T: StatisticAnalyzerCurrencyGroupCollectorTrait>(
+    lower_is_better: bool,
+    calculator: &Calculator,
+    item_provider: &ItemInfoProvider,
+    market_provider: &MarketPriceProvider,
+    max_ram_in_bytes: u64,
+) -> Result<Vec<GroupRoute>> {
+    let res: THashMap<
+        Vec<&CraftCurrencyList>,
+        (
+            RouteChance,
+            RouteCustomWeight,
+            SubpathAmount,
+            Vec<RouteChance>,
+        ),
+    > = calculate_currency_groups_memory_efficient::<CurrencyGroupChanceMemoryEfficientCollector>(
+        calculator,
+        item_provider,
+        market_provider,
+        max_ram_in_bytes,
+    )?;
+
+    let mut data: Vec<GroupRoute> = res
+        .into_par_iter()
+        .map(|(k, v)| {
+            let key_owned: Vec<CraftCurrencyList> = k.into_iter().cloned().collect();
+            let chance: RouteChance = v.0;
+            let weight: RouteCustomWeight = v.1;
+            let subpaths_amount: SubpathAmount = v.2;
+            let subpaths: Vec<RouteChance> = v.3;
+
+            GroupRoute {
+                group: key_owned,
+                weight: weight,
+                amount_subpaths: subpaths_amount,
+                unique_route_weights: vec![subpaths],
+                chance,
+            }
+        })
+        .collect();
+
+    if lower_is_better {
+        data.par_sort_unstable_by(|a, b| {
+            float_compare::cmp_f64(*a.weight.get_raw_value(), *b.weight.get_raw_value()).then(
+                float_compare::cmp_f64(*a.chance.get_raw_value(), *b.chance.get_raw_value()),
+            )
+        });
+    } else {
+        data.par_sort_unstable_by(|a, b| {
+            float_compare::cmp_f64(*b.weight.get_raw_value(), *a.weight.get_raw_value()).then(
+                float_compare::cmp_f64(*a.chance.get_raw_value(), *b.chance.get_raw_value()),
+            )
+        });
+    }
+
+    Ok(data)
+}
 
 #[instrument(skip_all)]
 pub fn get_grouped_statistic<T: StatisticAnalyzerCurrencyGroupCollectorTrait>(
@@ -27,7 +95,7 @@ pub fn get_grouped_statistic<T: StatisticAnalyzerCurrencyGroupCollectorTrait>(
     market_provider: &MarketPriceProvider,
     max_ram_in_bytes: u64,
 ) -> Result<Vec<GroupRoute>> {
-    let res: THashMap<Vec<&CraftCurrencyList>, Vec<Vec<(RouteChance, u64)>>> =
+    let res: THashMap<Vec<&CraftCurrencyList>, Vec<Vec<RouteChance>>> =
         calculate_currency_groups::<T>(
             calculator,
             item_provider,
@@ -38,13 +106,13 @@ pub fn get_grouped_statistic<T: StatisticAnalyzerCurrencyGroupCollectorTrait>(
     let mut data: Vec<GroupRoute> = res
         .into_par_iter()
         .map(|(k, v)| {
-            let key_owned: Vec<CraftCurrencyList> = k.into_iter().cloned().collect();
             let chance = T::calculate_group_chance(&v);
-            let weight = T::calculate_group_weight(&key_owned, &v);
+            let weight = T::calculate_group_weight(&k, &v);
 
             GroupRoute {
-                group: key_owned,
+                group: k.into_iter().cloned().collect(),
                 weight,
+                amount_subpaths: SubpathAmount::from(v.len() as u32),
                 unique_route_weights: v,
                 chance,
             }
@@ -73,25 +141,25 @@ macro_rules! impl_common_group_analyzer_methods {
     () => {
         fn calculate_chance_for_group_step_index(
             &self,
-            group_routes: &Vec<Vec<(crate::calc::statistics::helpers::RouteChance, u64)>>,
+            group_routes: &Vec<Vec<crate::calc::statistics::helpers::RouteChance>>,
+            subpath_amount: crate::calc::statistics::helpers::SubpathAmount,
             index: usize,
         ) -> crate::calc::statistics::helpers::RouteChance {
-            let mut hm: crate::api::types::THashMap<
-                u64,
-                Vec<crate::calc::statistics::helpers::RouteChance>,
-            > = crate::api::types::THashMap::default();
+            use crate::calc::statistics::helpers::RouteChance;
 
-            for gr in group_routes.iter() {
-                let curr = gr.get(index).unwrap();
-                hm.entry(curr.1).or_default().push(curr.0.clone());
-            }
+            // Sum all values found at this index across group routes
+            let total: f64 = group_routes
+                .iter()
+                .filter_map(|gr| gr.get(index))
+                .map(|rc| rc.get_raw_value())
+                .sum();
 
-            let sum_max: f64 = hm.values().fold(0.0_f64, |acc, v| {
-                acc + (v.iter().map(|chance| *chance.get_raw_value()).sum::<f64>()
-                    / (v.len() as f64))
-            });
+            // Convert subpath_amount to f64
+            let denom = (*subpath_amount.get_raw_value()) as f64;
 
-            crate::calc::statistics::helpers::RouteChance::new(sum_max.clamp(0.0_f64, 1.0_f64))
+            let value = if denom > 0.0 { total / denom } else { 0.0 };
+
+            RouteChance::new(value.clamp(0.0, 1.0))
         }
 
         fn calculate_cost_per_craft(

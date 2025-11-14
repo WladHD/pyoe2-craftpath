@@ -62,6 +62,7 @@ pub trait StatisticAnalyzerCollectorTrait {
 }
 
 explicit_type!(RouteCustomWeight, f64);
+explicit_type!(SubpathAmount, u32);
 explicit_type!(RouteChance, f64);
 
 pub trait StatisticAnalyzerCurrencyGroupCollectorTrait {
@@ -70,14 +71,14 @@ pub trait StatisticAnalyzerCurrencyGroupCollectorTrait {
         matrix: &ItemMatrix,
         item_provider: &ItemInfoProvider,
         market_provider: &MarketPriceProvider,
-    ) -> Vec<(RouteChance, u64)>;
+    ) -> Vec<RouteChance>;
 
     fn calculate_group_weight(
-        currency: &Vec<CraftCurrencyList>,
-        paths: &Vec<Vec<(RouteChance, u64)>>,
+        currency: &Vec<&CraftCurrencyList>,
+        paths: &Vec<Vec<RouteChance>>,
     ) -> RouteCustomWeight;
 
-    fn calculate_group_chance(paths: &Vec<Vec<(RouteChance, u64)>>) -> RouteChance;
+    fn calculate_group_chance(paths: &Vec<Vec<RouteChance>>) -> RouteChance;
 }
 
 #[instrument(skip_all)]

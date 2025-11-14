@@ -11,8 +11,8 @@ mod tests {
     use pyoe2_craftpath::{
         api::{calculator::Calculator, types::THashMap},
         calc::{
-            matrix::matrix_builder_presets::MatrixBuilderPreset,
-            statistics::{
+            matrix::presets::matrix_builder_presets::MatrixBuilderPreset,
+            statistics::presets::{
                 statistic_analyzer_currency_group_presets::StatisticAnalyzerCurrencyGroupPreset,
                 statistic_analyzer_path_presets::StatisticAnalyzerPathPreset,
             },
@@ -99,7 +99,7 @@ mod tests {
             &item_provider,
             &market_info,
             5,
-            1000000000,
+            100_000_000, // 100 MB
             chance_inst.0.as_ref(),
         )?;
 
@@ -109,7 +109,7 @@ mod tests {
             &item_provider,
             &market_info,
             5,
-            1000000000,
+            100_000_000, // 100 MB
             cost_inst.0.as_ref(),
         )?;
 
@@ -119,7 +119,7 @@ mod tests {
             &item_provider,
             &market_info,
             5,
-            1000000000,
+            100_000_000, // 100 MB
             efficient_cost_inst.0.as_ref(),
         )?;
 
@@ -130,7 +130,7 @@ mod tests {
             calculator.calculate_statistics_currency_group(
                 &item_provider,
                 &market_info,
-                5000000000,
+                100_000_000, // 100 MB
                 StatisticAnalyzerCurrencyGroupPreset::CurrencyGroupChance
                     .get_instance()
                     .0
@@ -156,7 +156,7 @@ mod tests {
                 let out = br.to_pretty_string(
                     &item_provider,
                     &market_info,
-                    cost_inst.0.as_ref(),
+                    analyzer.0.as_ref(),
                     &calculator,
                     Some(&groups),
                 );

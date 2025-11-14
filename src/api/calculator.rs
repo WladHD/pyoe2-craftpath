@@ -4,7 +4,7 @@ use crate::api::calculator_utils::calculate_target_proximity::calculate_target_p
 use crate::api::errors::CraftPathError;
 use crate::api::item::ItemTechnicalMeta;
 use crate::api::provider::market_prices::PriceInDivines;
-use crate::calc::statistics::helpers::{RouteChance, RouteCustomWeight};
+use crate::calc::statistics::helpers::{RouteChance, RouteCustomWeight, SubpathAmount};
 use crate::{
     api::{
         currency::CraftCurrencyList,
@@ -89,8 +89,9 @@ pub struct ItemRoute {
 pub struct GroupRoute {
     pub group: Vec<CraftCurrencyList>,
     pub weight: RouteCustomWeight,
-    pub unique_route_weights: Vec<Vec<(RouteChance, u64)>>,
+    pub unique_route_weights: Vec<Vec<RouteChance>>,
     pub chance: RouteChance,
+    pub amount_subpaths: SubpathAmount,
 }
 
 impl PartialEq for ItemRoute {
@@ -182,7 +183,8 @@ pub trait StatisticAnalyzerCurrencyGroups {
 
     fn calculate_chance_for_group_step_index(
         &self,
-        group_routes: &Vec<Vec<(RouteChance, u64)>>,
+        group_routes: &Vec<Vec<RouteChance>>,
+        amount_subpaths: SubpathAmount,
         index: usize,
     ) -> RouteChance;
 
@@ -325,11 +327,12 @@ impl DynStatisticAnalyzerCurrencyGroups {
 
     fn calculate_weight_for_group_step_index(
         &self,
-        group_routes: Vec<Vec<(RouteChance, u64)>>,
+        group_routes: Vec<Vec<RouteChance>>,
+        subpath_amount: SubpathAmount,
         index: usize,
     ) -> RouteChance {
         self.0
-            .calculate_chance_for_group_step_index(&group_routes, index)
+            .calculate_chance_for_group_step_index(&group_routes, subpath_amount, index)
     }
 
     fn format_display_more_info(

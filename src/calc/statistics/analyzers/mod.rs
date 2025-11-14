@@ -1,6 +1,4 @@
-pub mod all_path_chance_statistic_analyzer;
+pub mod collectors;
 pub mod common_analyzer_utils;
-pub mod currency_group_chance_statistic_analyzer;
-pub mod unique_path_chance_statistic_analyzer;
-pub mod unique_path_cost_statistic_analyzer;
-pub mod unique_path_efficient_cost_statistic_analyzer;
+pub mod currency_groups;
+pub mod unique_paths;
