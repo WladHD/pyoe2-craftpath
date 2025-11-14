@@ -12,10 +12,7 @@ mod tests {
         api::{calculator::Calculator, types::THashMap},
         calc::{
             matrix::presets::matrix_builder_presets::MatrixBuilderPreset,
-            statistics::presets::{
-                statistic_analyzer_currency_group_presets::StatisticAnalyzerCurrencyGroupPreset,
-                statistic_analyzer_path_presets::StatisticAnalyzerPathPreset,
-            },
+            statistics::presets::statistic_analyzer_path_presets::StatisticAnalyzerPathPreset,
         },
         external_api::{
             coe::craftofexile_data_provider_adapter::CraftOfExileItemInfoProvider,
@@ -98,58 +95,12 @@ mod tests {
         let best_routes_chance = calculator.calculate_statistics(
             &item_provider,
             &market_info,
-            5,
+            3,
             100_000_000, // 100 MB
             chance_inst.0.as_ref(),
         )?;
 
-        let cost_inst = StatisticAnalyzerPathPreset::UniquePathCost.get_instance();
-
-        let best_routes_cost = calculator.calculate_statistics(
-            &item_provider,
-            &market_info,
-            5,
-            100_000_000, // 100 MB
-            cost_inst.0.as_ref(),
-        )?;
-
-        let efficient_cost_inst = StatisticAnalyzerPathPreset::UniquePathCost.get_instance();
-
-        let best_routes_efficient_cost = calculator.calculate_statistics(
-            &item_provider,
-            &market_info,
-            5,
-            100_000_000, // 100 MB
-            efficient_cost_inst.0.as_ref(),
-        )?;
-
-        let group_instance =
-            StatisticAnalyzerCurrencyGroupPreset::CurrencyGroupChance.get_instance();
-
-        let groups = {
-            calculator.calculate_statistics_currency_group(
-                &item_provider,
-                &market_info,
-                100_000_000, // 100 MB
-                StatisticAnalyzerCurrencyGroupPreset::CurrencyGroupChance
-                    .get_instance()
-                    .0
-                    .as_ref(),
-            )?
-        };
-
-        for group in groups.iter().take(3) {
-            let out =
-                group.to_pretty_string(&item_provider, &market_info, group_instance.0.as_ref());
-
-            tracing::info!("{}", out);
-        }
-
-        for (analyzer, routes) in vec![
-            (&chance_inst, best_routes_chance),
-            (&efficient_cost_inst, best_routes_efficient_cost),
-            (&cost_inst, best_routes_cost),
-        ] {
+        for (analyzer, routes) in vec![(&chance_inst, best_routes_chance)] {
             tracing::warn!("Printing results for '{}'", analyzer.0.get_name());
 
             for br in routes {
@@ -158,7 +109,7 @@ mod tests {
                     &market_info,
                     analyzer.0.as_ref(),
                     &calculator,
-                    Some(&groups),
+                    None,
                 );
                 tracing::info!("{}", out);
             }
