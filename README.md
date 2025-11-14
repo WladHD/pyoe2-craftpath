@@ -6,6 +6,8 @@ A tool for Path of Exile 2 to find the best craftpaths based on the categories: 
 
 Available as Python package [`pyoe2-craftpath`](https://pypi.org/project/pyoe2-craftpath/) or as "bro just gimme something that goes brrr"-executable command-line utility for Windows under [Releases](https://github.com/WladHD/pyoe2-craftpath/releases). Bindings for Python are generated with [PyO3](https://github.com/PyO3/pyo3), to let you build your own data analysis pipeline upon the calculated items and craftpaths. Made possible by the power of [*🦀 Rust*](https://www.reddit.com/r/linuxmemes/comments/1b7y5vv/rust/).
 
+Build and tested for Path of Exile 2 on version `0.3.1` and Python `3.12.12`.
+
 ## About
 To keep it short, I was introduced to Path of Exile 2 and enjoyed it quite a bit.
 After reaching higher levels and starting to get the hang of things, I became interested in crafting.
