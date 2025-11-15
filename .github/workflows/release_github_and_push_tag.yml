@@ -58,10 +58,10 @@ jobs:
           LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           if [ -z "$LATEST_TAG" ]; then
             # No previous tag: include all commits
-            COMMITS=$(git log --pretty=format:"- %h %s" | grep -E "^- [0-9a-f]+ (feat|fix)")
+            COMMITS=$(git log --pretty=format:"- %h %s" | grep -E "^- [0-9a-f]+ (feat|fix)" || true)
           else
             # Commits since last tag
-            COMMITS=$(git log ${LATEST_TAG}..HEAD --pretty=format:"- %h %s" | grep -E "^- [0-9a-f]+ (feat|fix)")
+            COMMITS=$(git log ${LATEST_TAG}..HEAD --pretty=format:"- %h %s" | grep -E "^- [0-9a-f]+ (feat|fix)" || true)
           fi
 
           # Fallback if no commits match (avoid empty release notes)
