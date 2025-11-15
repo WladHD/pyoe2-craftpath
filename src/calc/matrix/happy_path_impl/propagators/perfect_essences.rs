@@ -70,6 +70,22 @@ impl PerfectEssencePropagator {
             .lookup_affix_definition(&affix_target.affix)
             .unwrap();
 
+        if item_instance
+            .snapshot
+            .affixes
+            .iter()
+            .any(|item_affixes| &item_affixes.affix == &affix_target.affix)
+        {
+            return Ok(None);
+        }
+
+        let blocked_mod_groups_affix = &affix_target_def.exlusive_groups;
+
+        if !blocked_mod_groups_affix.is_disjoint(&item_instance.helper.blocked_modgroups) {
+            // should this be handled differently?
+            return Ok(None);
+        }
+
         let mut next_items: Vec<PropagationTarget> = Vec::new();
 
         let mut delete_item_affix_pool: THashSet<AffixSpecifier> =
