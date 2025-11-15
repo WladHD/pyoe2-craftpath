@@ -1,6 +1,7 @@
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/WladHD/pyoe2-craftpath/release_python.yml?branch=main)](https://github.com/WladHD/pyoe2-craftpath/actions/workflows/release_python.yml)
-[![PyPI - Version](https://img.shields.io/pypi/v/pyoe2-craftpath)](https://pypi.org/project/pyoe2-craftpath/)
-[![Crates.io Version](https://img.shields.io/crates/v/pyoe2-craftpath)](https://crates.io/crates/pyoe2-craftpath)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-pyoe2--craftpath-blue?logo=github)](https://github.com/WladHD/pyoe2-craftpath)
+[![PyPI - Version](https://img.shields.io/pypi/v/pyoe2-craftpath?logo=pypi)](https://pypi.org/project/pyoe2-craftpath/)
+[![Crates.io Version](https://img.shields.io/crates/v/pyoe2-craftpath?logo=rust)](https://crates.io/crates/pyoe2-craftpath)
 [![GitHub License](https://img.shields.io/github/license/WladHD/pyoe2-craftpath)](https://github.com/WladHD/pyoe2-craftpath/blob/main/LICENSE)
 
 # *Py*oE 2 - CraftPath
