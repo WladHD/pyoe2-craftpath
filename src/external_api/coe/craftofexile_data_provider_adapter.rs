@@ -63,15 +63,8 @@ impl CraftOfExileItemInfoProvider {
             );
         }
 
-        for instantiated_item in parsed.bitems.seq.iter() {
-            let base_item_id = BaseItemId::from(instantiated_item.id_base);
-
-            if transformed_cache
-                .base_item_affix_weight_table
-                .contains_key(&base_item_id)
-            {
-                continue;
-            }
+        for raw_base in parsed.bases.seq.iter() {
+            let base_item_id = BaseItemId::from(raw_base.id_base);
 
             let mut item_affix_map: AffixWeightTable = THashMap::default();
 
@@ -90,6 +83,7 @@ impl CraftOfExileItemInfoProvider {
             };
 
             // iterate over possible mods for an item and parse weights
+            // nvm: BaseMod and possible tiers are not interchangable, just find out current bid
             for raw_base_mod in raw_affixes_for_a_base_item {
                 let affix_id = AffixId::from(raw_base_mod.clone());
 
