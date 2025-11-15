@@ -47,7 +47,6 @@ jobs:
         with:
           target: ${{ matrix.platform.target }}
           args: --release -i python${{ matrix.python-version }} --out dist
-          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
           manylinux: auto
           before-script-linux: |
             set -e
@@ -106,7 +105,6 @@ jobs:
         with:
           target: ${{ matrix.platform.target }}
           args: --release -i python${{ matrix.python-version }} --out dist
-          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
           manylinux: musllinux_1_2
           before-script-linux: |
             set -e
@@ -137,10 +135,10 @@ jobs:
     strategy:
       matrix:
         platform:
-          - runner: macos-15-intel
-            target: x86_64
-          - runner: macos-latest
-            target: aarch64
+          - runner: windows-latest
+            target: x64
+          - runner: windows-latest
+            target: x86
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v4
@@ -157,7 +155,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-windows-${{ matrix.platform.target }}
+          name: wheels-windows-${{ matrix.platform.target }}-py${{ matrix.python-version }}
           path: dist
 
   macos:
@@ -166,9 +164,9 @@ jobs:
     strategy:
       matrix:
         platform:
-          - runner: macos-15-intel
+          - runner: macos-13
             target: x86_64
-          - runner: macos-latest
+          - runner: macos-14
             target: aarch64
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
@@ -185,7 +183,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-macos-${{ matrix.platform.target }}
+          name: wheels-macos-${{ matrix.platform.target }}-py${{ matrix.python-version }}
           path: dist
 
   sdist:
@@ -206,7 +204,6 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    if: ${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
     needs: [linux, musllinux, windows, macos, sdist]
     permissions:
       # Use to sign the release artifacts
@@ -222,7 +219,6 @@ jobs:
         with:
           subject-path: "wheels-*/*"
       - name: Publish to PyPI
-        if: ${{ startsWith(github.ref, 'refs/tags/') }}
         uses: PyO3/maturin-action@v1
         env:
           MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
