@@ -1,6 +1,6 @@
 [package]
 name = "pyoe2-craftpath"
-version = "0.2.1"
+version = "0.2.2"
 description = "A tool for Path of Exile 2 to find the best craftpaths based on the categories: *most likely, most efficient and cheapest*, between a starting item and a target item."
 repository = "https://github.com/WladHD/pyoe2-craftpath"
 authors = ["Wladislaw Jerokin <wladhd@gmail.com>"]
