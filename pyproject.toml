@@ -8,15 +8,7 @@ description = "A tool for Path of Exile 2 to find the best craftpaths based on t
 readme = "README.md"
 license = "MIT"
 authors = [{ name = "Wladislaw Jerokin", email = "wladhd@gmail.com" }]
-keywords = [
-    "cli",
-    "path-of-exile-2",
-    "poe2",
-    "crafting",
-    "game",
-    "calculator",
-    "simulator",
-]
+keywords = ["path-of-exile-2", "poe2", "crafting", "calculator", "simulator"]
 requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Rust",
