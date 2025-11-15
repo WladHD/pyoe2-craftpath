@@ -1,0 +1,2587 @@
+{
+    "settings": {
+        "bgroup": 7,
+        "base": 20,
+        "bitem": 232,
+        "ilvl": 100,
+        "rarity": "rare",
+        "influences": null,
+        "sockets": 0,
+        "socketed": [],
+        "quality": 20,
+        "exmods": null
+    },
+    "params": {
+        "mode": "forced",
+        "currency": null,
+        "action": "mp",
+        "subaction": 5119,
+        "ssaction": 0,
+        "disabled": "|catalyst|poe2_desecrationancient_ribs|poe2_desecrationgnawed_ribs|poe2_desecrationpreserved_ribs|poe2_desecrationancient_collarbone|poe2_desecrationgnawed_collarbone|poe2_desecrationpreserved_collarbone|poe2_desecrationpreserved_cranium|poe2_desecrationpreserved_spine|poe2_desecrationgnawed_collarbone|poe2_desecrationgnawed_ribs|poe2_desecrationgnawed_jawbone|fossil18|eldritch|vendor|",
+        "cursor": "url('images/ui/poe2/Essences/perfect_electricity.png') 39 39, default"
+    },
+    "data": {
+        "implicits": null,
+        "iaffixes": [
+            {
+                "id": "5117",
+                "mgrp": "1",
+                "tindex": 0,
+                "atype": "prefix",
+                "modgroups": [
+                    "LightningDamage"
+                ],
+                "weight": 1200,
+                "nvalues": "[1,[4,6]]",
+                "amgs": null,
+                "tags": "|33|20|8|3|",
+                "rolls": [
+                    1,
+                    6
+                ],
+                "bench": 0,
+                "frac": 0,
+                "maven": 0,
+                "chance": 0.0953719723183391
+            },
+            {
+                "atype": "prefix",
+                "id": 5704,
+                "mgrp": "13",
+                "modgroups": [
+                    "MartialWeaponGainedDamage"
+                ],
+                "tindex": 0,
+                "bench": 0,
+                "frac": 0,
+                "maven": 0,
+                "nvalues": "[[15,20]]",
+                "rolls": [
+                    15
+                ],
+                "weight": "0"
+            },
+            {
+                "atype": "prefix",
+                "id": 5703,
+                "mgrp": "13",
+                "modgroups": [
+                    "MartialWeaponGainedDamage"
+                ],
+                "tindex": 0,
+                "bench": 0,
+                "frac": 0,
+                "maven": 0,
+                "nvalues": "[[15,20]]",
+                "rolls": [
+                    20
+                ],
+                "weight": "0"
+            }
+        ],
+        "iaffbt": {
+            "prefix": 2,
+            "suffix": 1
+        },
+        "imprint": null,
+        "eldritch": null,
+        "meta_flags": {}
+    },
+    "log": [
+        {
+            "mode": "forced",
+            "currency": null,
+            "action": "mp",
+            "ssaction": 0,
+            "subaction": 5092,
+            "forced": "add",
+            "add": [
+                {
+                    "atype": "suffix",
+                    "id": 5092,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[5,7]]",
+                    "rolls": [
+                        6
+                    ],
+                    "weight": "1000"
+                }
+            ],
+            "omens": null,
+            "rem": null,
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 232,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "normal",
+            "affixes": [],
+            "implicits": null,
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 0,
+                "suffix": 0
+            },
+            "catalyst": null,
+            "sockets": 0,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        },
+        {
+            "mode": "forced",
+            "currency": null,
+            "action": "mp",
+            "ssaction": 0,
+            "subaction": 5119,
+            "forced": "add",
+            "add": [
+                {
+                    "atype": "prefix",
+                    "id": 5119,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedWeaponElementalDamagePercent"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[19,35]]",
+                    "rolls": [
+                        28
+                    ],
+                    "weight": "500",
+                    "chance": 0.3333333333333333
+                }
+            ],
+            "omens": null,
+            "rem": null,
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 232,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "magic",
+            "affixes": [
+                {
+                    "atype": "suffix",
+                    "id": 5092,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[5,7]]",
+                    "rolls": [
+                        6
+                    ],
+                    "weight": "1000"
+                }
+            ],
+            "implicits": null,
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 0,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 0,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        },
+        {
+            "mode": "currency",
+            "currency": "regal",
+            "action": null,
+            "ssaction": null,
+            "subaction": "normal",
+            "forced": null,
+            "add": [
+                {
+                    "id": "5117",
+                    "mgrp": "1",
+                    "tindex": 0,
+                    "atype": "prefix",
+                    "modgroups": [
+                        "LightningDamage"
+                    ],
+                    "weight": 1200,
+                    "nvalues": "[1,[4,6]]",
+                    "amgs": null,
+                    "tags": "|33|20|8|3|",
+                    "rolls": [
+                        1,
+                        6
+                    ],
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "chance": 0.0953719723183391
+                }
+            ],
+            "omens": null,
+            "rem": null,
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 232,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "magic",
+            "affixes": [
+                {
+                    "atype": "suffix",
+                    "id": 5092,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[5,7]]",
+                    "rolls": [
+                        6
+                    ],
+                    "weight": "1000"
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5119,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedWeaponElementalDamagePercent"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[19,35]]",
+                    "rolls": [
+                        28
+                    ],
+                    "weight": "500"
+                }
+            ],
+            "implicits": null,
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 1,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 0,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        },
+        {
+            "mode": "forced",
+            "currency": null,
+            "action": "mp",
+            "ssaction": 0,
+            "subaction": 5703,
+            "forced": "add",
+            "add": [
+                {
+                    "atype": "prefix",
+                    "id": 5703,
+                    "mgrp": "13",
+                    "modgroups": [
+                        "MartialWeaponGainedDamage"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[15,20]]",
+                    "rolls": [
+                        19
+                    ],
+                    "weight": "0"
+                }
+            ],
+            "omens": null,
+            "rem": null,
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 232,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "rare",
+            "affixes": [
+                {
+                    "atype": "suffix",
+                    "id": 5092,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[5,7]]",
+                    "rolls": [
+                        6
+                    ],
+                    "weight": "1000"
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5119,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedWeaponElementalDamagePercent"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[19,35]]",
+                    "rolls": [
+                        28
+                    ],
+                    "weight": "500"
+                },
+                {
+                    "id": "5117",
+                    "mgrp": "1",
+                    "tindex": 0,
+                    "atype": "prefix",
+                    "modgroups": [
+                        "LightningDamage"
+                    ],
+                    "weight": 1200,
+                    "nvalues": "[1,[4,6]]",
+                    "amgs": null,
+                    "tags": "|33|20|8|3|",
+                    "rolls": [
+                        1,
+                        6
+                    ],
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "chance": 0.0953719723183391
+                }
+            ],
+            "implicits": null,
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 2,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 0,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        },
+        {
+            "mode": "forced",
+            "currency": null,
+            "action": "mp",
+            "ssaction": 0,
+            "subaction": 5703,
+            "forced": "rem",
+            "add": null,
+            "omens": null,
+            "rem": {
+                "atype": "prefix",
+                "id": 5703,
+                "mgrp": "13",
+                "modgroups": [
+                    "MartialWeaponGainedDamage"
+                ],
+                "tindex": 0,
+                "bench": 0,
+                "frac": 0,
+                "maven": 0,
+                "nvalues": "[[15,20]]",
+                "rolls": [
+                    19
+                ],
+                "weight": "0"
+            },
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 232,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "rare",
+            "affixes": [
+                {
+                    "atype": "suffix",
+                    "id": 5092,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[5,7]]",
+                    "rolls": [
+                        6
+                    ],
+                    "weight": "1000"
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5119,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedWeaponElementalDamagePercent"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[19,35]]",
+                    "rolls": [
+                        28
+                    ],
+                    "weight": "500"
+                },
+                {
+                    "id": "5117",
+                    "mgrp": "1",
+                    "tindex": 0,
+                    "atype": "prefix",
+                    "modgroups": [
+                        "LightningDamage"
+                    ],
+                    "weight": 1200,
+                    "nvalues": "[1,[4,6]]",
+                    "amgs": null,
+                    "tags": "|33|20|8|3|",
+                    "rolls": [
+                        1,
+                        6
+                    ],
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "chance": 0.0953719723183391
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5703,
+                    "mgrp": "13",
+                    "modgroups": [
+                        "MartialWeaponGainedDamage"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[15,20]]",
+                    "rolls": [
+                        19
+                    ],
+                    "weight": "0"
+                }
+            ],
+            "implicits": null,
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 3,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 0,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        },
+        {
+            "mode": "forced",
+            "currency": null,
+            "action": "mp",
+            "ssaction": 0,
+            "subaction": 5702,
+            "forced": "add",
+            "add": [
+                {
+                    "atype": "prefix",
+                    "id": 5702,
+                    "mgrp": "13",
+                    "modgroups": [
+                        "MartialWeaponGainedDamage"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[15,20]]",
+                    "rolls": [
+                        17
+                    ],
+                    "weight": "0"
+                }
+            ],
+            "omens": null,
+            "rem": null,
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 232,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "rare",
+            "affixes": [
+                {
+                    "atype": "suffix",
+                    "id": 5092,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[5,7]]",
+                    "rolls": [
+                        6
+                    ],
+                    "weight": "1000"
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5119,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedWeaponElementalDamagePercent"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[19,35]]",
+                    "rolls": [
+                        28
+                    ],
+                    "weight": "500"
+                },
+                {
+                    "id": "5117",
+                    "mgrp": "1",
+                    "tindex": 0,
+                    "atype": "prefix",
+                    "modgroups": [
+                        "LightningDamage"
+                    ],
+                    "weight": 1200,
+                    "nvalues": "[1,[4,6]]",
+                    "amgs": null,
+                    "tags": "|33|20|8|3|",
+                    "rolls": [
+                        1,
+                        6
+                    ],
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "chance": 0.0953719723183391
+                }
+            ],
+            "implicits": null,
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 2,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 0,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        },
+        {
+            "mode": "forced",
+            "currency": null,
+            "action": "mp",
+            "ssaction": 0,
+            "subaction": 5702,
+            "forced": "rem",
+            "add": null,
+            "omens": null,
+            "rem": {
+                "atype": "prefix",
+                "id": 5702,
+                "mgrp": "13",
+                "modgroups": [
+                    "MartialWeaponGainedDamage"
+                ],
+                "tindex": 0,
+                "bench": 0,
+                "frac": 0,
+                "maven": 0,
+                "nvalues": "[[15,20]]",
+                "rolls": [
+                    17
+                ],
+                "weight": "0"
+            },
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 232,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "rare",
+            "affixes": [
+                {
+                    "atype": "suffix",
+                    "id": 5092,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[5,7]]",
+                    "rolls": [
+                        6
+                    ],
+                    "weight": "1000"
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5119,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedWeaponElementalDamagePercent"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[19,35]]",
+                    "rolls": [
+                        28
+                    ],
+                    "weight": "500"
+                },
+                {
+                    "id": "5117",
+                    "mgrp": "1",
+                    "tindex": 0,
+                    "atype": "prefix",
+                    "modgroups": [
+                        "LightningDamage"
+                    ],
+                    "weight": 1200,
+                    "nvalues": "[1,[4,6]]",
+                    "amgs": null,
+                    "tags": "|33|20|8|3|",
+                    "rolls": [
+                        1,
+                        6
+                    ],
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "chance": 0.0953719723183391
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5702,
+                    "mgrp": "13",
+                    "modgroups": [
+                        "MartialWeaponGainedDamage"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[15,20]]",
+                    "rolls": [
+                        17
+                    ],
+                    "weight": "0"
+                }
+            ],
+            "implicits": null,
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 3,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 0,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        },
+        {
+            "mode": "forced",
+            "currency": null,
+            "action": "mp",
+            "ssaction": 0,
+            "subaction": 5702,
+            "forced": "add",
+            "add": [
+                {
+                    "atype": "prefix",
+                    "id": 5702,
+                    "mgrp": "13",
+                    "modgroups": [
+                        "MartialWeaponGainedDamage"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[15,20]]",
+                    "rolls": [
+                        20
+                    ],
+                    "weight": "0"
+                }
+            ],
+            "omens": null,
+            "rem": null,
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 232,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "rare",
+            "affixes": [
+                {
+                    "atype": "suffix",
+                    "id": 5092,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[5,7]]",
+                    "rolls": [
+                        6
+                    ],
+                    "weight": "1000"
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5119,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedWeaponElementalDamagePercent"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[19,35]]",
+                    "rolls": [
+                        28
+                    ],
+                    "weight": "500"
+                },
+                {
+                    "id": "5117",
+                    "mgrp": "1",
+                    "tindex": 0,
+                    "atype": "prefix",
+                    "modgroups": [
+                        "LightningDamage"
+                    ],
+                    "weight": 1200,
+                    "nvalues": "[1,[4,6]]",
+                    "amgs": null,
+                    "tags": "|33|20|8|3|",
+                    "rolls": [
+                        1,
+                        6
+                    ],
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "chance": 0.0953719723183391
+                }
+            ],
+            "implicits": null,
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 2,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 0,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        },
+        {
+            "mode": "forced",
+            "currency": null,
+            "action": "mp",
+            "ssaction": 0,
+            "subaction": 5702,
+            "forced": "rem",
+            "add": null,
+            "omens": null,
+            "rem": {
+                "atype": "prefix",
+                "id": 5702,
+                "mgrp": "13",
+                "modgroups": [
+                    "MartialWeaponGainedDamage"
+                ],
+                "tindex": 0,
+                "bench": 0,
+                "frac": 0,
+                "maven": 0,
+                "nvalues": "[[15,20]]",
+                "rolls": [
+                    20
+                ],
+                "weight": "0"
+            },
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 232,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "rare",
+            "affixes": [
+                {
+                    "atype": "suffix",
+                    "id": 5092,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[5,7]]",
+                    "rolls": [
+                        6
+                    ],
+                    "weight": "1000"
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5119,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedWeaponElementalDamagePercent"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[19,35]]",
+                    "rolls": [
+                        28
+                    ],
+                    "weight": "500"
+                },
+                {
+                    "id": "5117",
+                    "mgrp": "1",
+                    "tindex": 0,
+                    "atype": "prefix",
+                    "modgroups": [
+                        "LightningDamage"
+                    ],
+                    "weight": 1200,
+                    "nvalues": "[1,[4,6]]",
+                    "amgs": null,
+                    "tags": "|33|20|8|3|",
+                    "rolls": [
+                        1,
+                        6
+                    ],
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "chance": 0.0953719723183391
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5702,
+                    "mgrp": "13",
+                    "modgroups": [
+                        "MartialWeaponGainedDamage"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[15,20]]",
+                    "rolls": [
+                        20
+                    ],
+                    "weight": "0"
+                }
+            ],
+            "implicits": null,
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 3,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 0,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        },
+        {
+            "mode": "forced",
+            "currency": null,
+            "action": "mp",
+            "ssaction": 0,
+            "subaction": 5702,
+            "forced": "add",
+            "add": [
+                {
+                    "atype": "prefix",
+                    "id": 5702,
+                    "mgrp": "13",
+                    "modgroups": [
+                        "MartialWeaponGainedDamage"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[15,20]]",
+                    "rolls": [
+                        17
+                    ],
+                    "weight": "0"
+                }
+            ],
+            "omens": null,
+            "rem": null,
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 232,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "rare",
+            "affixes": [
+                {
+                    "atype": "suffix",
+                    "id": 5092,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[5,7]]",
+                    "rolls": [
+                        6
+                    ],
+                    "weight": "1000"
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5119,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedWeaponElementalDamagePercent"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[19,35]]",
+                    "rolls": [
+                        28
+                    ],
+                    "weight": "500"
+                },
+                {
+                    "id": "5117",
+                    "mgrp": "1",
+                    "tindex": 0,
+                    "atype": "prefix",
+                    "modgroups": [
+                        "LightningDamage"
+                    ],
+                    "weight": 1200,
+                    "nvalues": "[1,[4,6]]",
+                    "amgs": null,
+                    "tags": "|33|20|8|3|",
+                    "rolls": [
+                        1,
+                        6
+                    ],
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "chance": 0.0953719723183391
+                }
+            ],
+            "implicits": null,
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 2,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 0,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        },
+        {
+            "mode": "forced",
+            "currency": null,
+            "action": "mp",
+            "ssaction": 0,
+            "subaction": 5702,
+            "forced": "rem",
+            "add": null,
+            "omens": null,
+            "rem": {
+                "atype": "prefix",
+                "id": 5702,
+                "mgrp": "13",
+                "modgroups": [
+                    "MartialWeaponGainedDamage"
+                ],
+                "tindex": 0,
+                "bench": 0,
+                "frac": 0,
+                "maven": 0,
+                "nvalues": "[[15,20]]",
+                "rolls": [
+                    17
+                ],
+                "weight": "0"
+            },
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 232,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "rare",
+            "affixes": [
+                {
+                    "atype": "suffix",
+                    "id": 5092,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[5,7]]",
+                    "rolls": [
+                        6
+                    ],
+                    "weight": "1000"
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5119,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedWeaponElementalDamagePercent"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[19,35]]",
+                    "rolls": [
+                        28
+                    ],
+                    "weight": "500"
+                },
+                {
+                    "id": "5117",
+                    "mgrp": "1",
+                    "tindex": 0,
+                    "atype": "prefix",
+                    "modgroups": [
+                        "LightningDamage"
+                    ],
+                    "weight": 1200,
+                    "nvalues": "[1,[4,6]]",
+                    "amgs": null,
+                    "tags": "|33|20|8|3|",
+                    "rolls": [
+                        1,
+                        6
+                    ],
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "chance": 0.0953719723183391
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5702,
+                    "mgrp": "13",
+                    "modgroups": [
+                        "MartialWeaponGainedDamage"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[15,20]]",
+                    "rolls": [
+                        17
+                    ],
+                    "weight": "0"
+                }
+            ],
+            "implicits": null,
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 3,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 0,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        },
+        {
+            "mode": "forced",
+            "currency": null,
+            "action": "mp",
+            "ssaction": 0,
+            "subaction": 5702,
+            "forced": "add",
+            "add": [
+                {
+                    "atype": "prefix",
+                    "id": 5702,
+                    "mgrp": "13",
+                    "modgroups": [
+                        "MartialWeaponGainedDamage"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[15,20]]",
+                    "rolls": [
+                        20
+                    ],
+                    "weight": "0"
+                }
+            ],
+            "omens": null,
+            "rem": null,
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 232,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "rare",
+            "affixes": [
+                {
+                    "atype": "suffix",
+                    "id": 5092,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[5,7]]",
+                    "rolls": [
+                        6
+                    ],
+                    "weight": "1000"
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5119,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedWeaponElementalDamagePercent"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[19,35]]",
+                    "rolls": [
+                        28
+                    ],
+                    "weight": "500"
+                },
+                {
+                    "id": "5117",
+                    "mgrp": "1",
+                    "tindex": 0,
+                    "atype": "prefix",
+                    "modgroups": [
+                        "LightningDamage"
+                    ],
+                    "weight": 1200,
+                    "nvalues": "[1,[4,6]]",
+                    "amgs": null,
+                    "tags": "|33|20|8|3|",
+                    "rolls": [
+                        1,
+                        6
+                    ],
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "chance": 0.0953719723183391
+                }
+            ],
+            "implicits": null,
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 2,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 0,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        },
+        {
+            "mode": "forced",
+            "currency": null,
+            "action": "mp",
+            "ssaction": 0,
+            "subaction": 5702,
+            "forced": "rem",
+            "add": null,
+            "omens": null,
+            "rem": {
+                "atype": "prefix",
+                "id": 5702,
+                "mgrp": "13",
+                "modgroups": [
+                    "MartialWeaponGainedDamage"
+                ],
+                "tindex": 0,
+                "bench": 0,
+                "frac": 0,
+                "maven": 0,
+                "nvalues": "[[15,20]]",
+                "rolls": [
+                    20
+                ],
+                "weight": "0"
+            },
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 232,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "rare",
+            "affixes": [
+                {
+                    "atype": "suffix",
+                    "id": 5092,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[5,7]]",
+                    "rolls": [
+                        6
+                    ],
+                    "weight": "1000"
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5119,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedWeaponElementalDamagePercent"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[19,35]]",
+                    "rolls": [
+                        28
+                    ],
+                    "weight": "500"
+                },
+                {
+                    "id": "5117",
+                    "mgrp": "1",
+                    "tindex": 0,
+                    "atype": "prefix",
+                    "modgroups": [
+                        "LightningDamage"
+                    ],
+                    "weight": 1200,
+                    "nvalues": "[1,[4,6]]",
+                    "amgs": null,
+                    "tags": "|33|20|8|3|",
+                    "rolls": [
+                        1,
+                        6
+                    ],
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "chance": 0.0953719723183391
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5702,
+                    "mgrp": "13",
+                    "modgroups": [
+                        "MartialWeaponGainedDamage"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[15,20]]",
+                    "rolls": [
+                        20
+                    ],
+                    "weight": "0"
+                }
+            ],
+            "implicits": null,
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 3,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 0,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        },
+        {
+            "mode": "forced",
+            "currency": null,
+            "action": "mp",
+            "ssaction": 0,
+            "subaction": 5702,
+            "forced": "add",
+            "add": [
+                {
+                    "atype": "prefix",
+                    "id": 5702,
+                    "mgrp": "13",
+                    "modgroups": [
+                        "MartialWeaponGainedDamage"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[15,20]]",
+                    "rolls": [
+                        19
+                    ],
+                    "weight": "0"
+                }
+            ],
+            "omens": null,
+            "rem": null,
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 232,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "rare",
+            "affixes": [
+                {
+                    "atype": "suffix",
+                    "id": 5092,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[5,7]]",
+                    "rolls": [
+                        6
+                    ],
+                    "weight": "1000"
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5119,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedWeaponElementalDamagePercent"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[19,35]]",
+                    "rolls": [
+                        28
+                    ],
+                    "weight": "500"
+                },
+                {
+                    "id": "5117",
+                    "mgrp": "1",
+                    "tindex": 0,
+                    "atype": "prefix",
+                    "modgroups": [
+                        "LightningDamage"
+                    ],
+                    "weight": 1200,
+                    "nvalues": "[1,[4,6]]",
+                    "amgs": null,
+                    "tags": "|33|20|8|3|",
+                    "rolls": [
+                        1,
+                        6
+                    ],
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "chance": 0.0953719723183391
+                }
+            ],
+            "implicits": null,
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 2,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 0,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        },
+        {
+            "mode": "forced",
+            "currency": null,
+            "action": "mp",
+            "ssaction": 0,
+            "subaction": 5702,
+            "forced": "rem",
+            "add": null,
+            "omens": null,
+            "rem": {
+                "atype": "prefix",
+                "id": 5702,
+                "mgrp": "13",
+                "modgroups": [
+                    "MartialWeaponGainedDamage"
+                ],
+                "tindex": 0,
+                "bench": 0,
+                "frac": 0,
+                "maven": 0,
+                "nvalues": "[[15,20]]",
+                "rolls": [
+                    19
+                ],
+                "weight": "0"
+            },
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 232,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "rare",
+            "affixes": [
+                {
+                    "atype": "suffix",
+                    "id": 5092,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[5,7]]",
+                    "rolls": [
+                        6
+                    ],
+                    "weight": "1000"
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5119,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedWeaponElementalDamagePercent"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[19,35]]",
+                    "rolls": [
+                        28
+                    ],
+                    "weight": "500"
+                },
+                {
+                    "id": "5117",
+                    "mgrp": "1",
+                    "tindex": 0,
+                    "atype": "prefix",
+                    "modgroups": [
+                        "LightningDamage"
+                    ],
+                    "weight": 1200,
+                    "nvalues": "[1,[4,6]]",
+                    "amgs": null,
+                    "tags": "|33|20|8|3|",
+                    "rolls": [
+                        1,
+                        6
+                    ],
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "chance": 0.0953719723183391
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5702,
+                    "mgrp": "13",
+                    "modgroups": [
+                        "MartialWeaponGainedDamage"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[15,20]]",
+                    "rolls": [
+                        19
+                    ],
+                    "weight": "0"
+                }
+            ],
+            "implicits": null,
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 3,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 0,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        },
+        {
+            "mode": "forced",
+            "currency": null,
+            "action": "mp",
+            "ssaction": 0,
+            "subaction": 5119,
+            "forced": "rem",
+            "add": null,
+            "omens": null,
+            "rem": {
+                "atype": "prefix",
+                "id": 5119,
+                "mgrp": "1",
+                "modgroups": [
+                    "IncreasedWeaponElementalDamagePercent"
+                ],
+                "tindex": 0,
+                "bench": 0,
+                "frac": 0,
+                "maven": 0,
+                "nvalues": "[[19,35]]",
+                "rolls": [
+                    28
+                ],
+                "weight": "500"
+            },
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 232,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "rare",
+            "affixes": [
+                {
+                    "atype": "suffix",
+                    "id": 5092,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[5,7]]",
+                    "rolls": [
+                        6
+                    ],
+                    "weight": "1000"
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5119,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedWeaponElementalDamagePercent"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[19,35]]",
+                    "rolls": [
+                        28
+                    ],
+                    "weight": "500"
+                },
+                {
+                    "id": "5117",
+                    "mgrp": "1",
+                    "tindex": 0,
+                    "atype": "prefix",
+                    "modgroups": [
+                        "LightningDamage"
+                    ],
+                    "weight": 1200,
+                    "nvalues": "[1,[4,6]]",
+                    "amgs": null,
+                    "tags": "|33|20|8|3|",
+                    "rolls": [
+                        1,
+                        6
+                    ],
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "chance": 0.0953719723183391
+                }
+            ],
+            "implicits": null,
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 2,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 0,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        },
+        {
+            "mode": "forced",
+            "currency": null,
+            "action": "mp",
+            "ssaction": 0,
+            "subaction": 5703,
+            "forced": "add",
+            "add": [
+                {
+                    "atype": "prefix",
+                    "id": 5703,
+                    "mgrp": "13",
+                    "modgroups": [
+                        "MartialWeaponGainedDamage"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[15,20]]",
+                    "rolls": [
+                        20
+                    ],
+                    "weight": "0"
+                }
+            ],
+            "omens": null,
+            "rem": null,
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 232,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "rare",
+            "affixes": [
+                {
+                    "atype": "suffix",
+                    "id": 5092,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[5,7]]",
+                    "rolls": [
+                        6
+                    ],
+                    "weight": "1000"
+                },
+                {
+                    "id": "5117",
+                    "mgrp": "1",
+                    "tindex": 0,
+                    "atype": "prefix",
+                    "modgroups": [
+                        "LightningDamage"
+                    ],
+                    "weight": 1200,
+                    "nvalues": "[1,[4,6]]",
+                    "amgs": null,
+                    "tags": "|33|20|8|3|",
+                    "rolls": [
+                        1,
+                        6
+                    ],
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "chance": 0.0953719723183391
+                }
+            ],
+            "implicits": null,
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 1,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 0,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        },
+        {
+            "mode": "forced",
+            "currency": null,
+            "action": "mp",
+            "ssaction": 0,
+            "subaction": 5703,
+            "forced": "rem",
+            "add": null,
+            "omens": null,
+            "rem": {
+                "atype": "prefix",
+                "id": 5703,
+                "mgrp": "13",
+                "modgroups": [
+                    "MartialWeaponGainedDamage"
+                ],
+                "tindex": 0,
+                "bench": 0,
+                "frac": 0,
+                "maven": 0,
+                "nvalues": "[[15,20]]",
+                "rolls": [
+                    20
+                ],
+                "weight": "0"
+            },
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 232,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "rare",
+            "affixes": [
+                {
+                    "atype": "suffix",
+                    "id": 5092,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[5,7]]",
+                    "rolls": [
+                        6
+                    ],
+                    "weight": "1000"
+                },
+                {
+                    "id": "5117",
+                    "mgrp": "1",
+                    "tindex": 0,
+                    "atype": "prefix",
+                    "modgroups": [
+                        "LightningDamage"
+                    ],
+                    "weight": 1200,
+                    "nvalues": "[1,[4,6]]",
+                    "amgs": null,
+                    "tags": "|33|20|8|3|",
+                    "rolls": [
+                        1,
+                        6
+                    ],
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "chance": 0.0953719723183391
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5703,
+                    "mgrp": "13",
+                    "modgroups": [
+                        "MartialWeaponGainedDamage"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[15,20]]",
+                    "rolls": [
+                        20
+                    ],
+                    "weight": "0"
+                }
+            ],
+            "implicits": null,
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 2,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 0,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        },
+        {
+            "mode": "forced",
+            "currency": null,
+            "action": "mp",
+            "ssaction": 0,
+            "subaction": 5703,
+            "forced": "add",
+            "add": [
+                {
+                    "atype": "prefix",
+                    "id": 5703,
+                    "mgrp": "13",
+                    "modgroups": [
+                        "MartialWeaponGainedDamage"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[15,20]]",
+                    "rolls": [
+                        17
+                    ],
+                    "weight": "0"
+                }
+            ],
+            "omens": null,
+            "rem": null,
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 232,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "rare",
+            "affixes": [
+                {
+                    "atype": "suffix",
+                    "id": 5092,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[5,7]]",
+                    "rolls": [
+                        6
+                    ],
+                    "weight": "1000"
+                },
+                {
+                    "id": "5117",
+                    "mgrp": "1",
+                    "tindex": 0,
+                    "atype": "prefix",
+                    "modgroups": [
+                        "LightningDamage"
+                    ],
+                    "weight": 1200,
+                    "nvalues": "[1,[4,6]]",
+                    "amgs": null,
+                    "tags": "|33|20|8|3|",
+                    "rolls": [
+                        1,
+                        6
+                    ],
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "chance": 0.0953719723183391
+                }
+            ],
+            "implicits": null,
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 1,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 0,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        },
+        {
+            "mode": "forced",
+            "currency": null,
+            "action": "mp",
+            "ssaction": 0,
+            "subaction": 5703,
+            "forced": "rem",
+            "add": null,
+            "omens": null,
+            "rem": {
+                "atype": "prefix",
+                "id": 5703,
+                "mgrp": "13",
+                "modgroups": [
+                    "MartialWeaponGainedDamage"
+                ],
+                "tindex": 0,
+                "bench": 0,
+                "frac": 0,
+                "maven": 0,
+                "nvalues": "[[15,20]]",
+                "rolls": [
+                    17
+                ],
+                "weight": "0"
+            },
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 232,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "rare",
+            "affixes": [
+                {
+                    "atype": "suffix",
+                    "id": 5092,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[5,7]]",
+                    "rolls": [
+                        6
+                    ],
+                    "weight": "1000"
+                },
+                {
+                    "id": "5117",
+                    "mgrp": "1",
+                    "tindex": 0,
+                    "atype": "prefix",
+                    "modgroups": [
+                        "LightningDamage"
+                    ],
+                    "weight": 1200,
+                    "nvalues": "[1,[4,6]]",
+                    "amgs": null,
+                    "tags": "|33|20|8|3|",
+                    "rolls": [
+                        1,
+                        6
+                    ],
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "chance": 0.0953719723183391
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5703,
+                    "mgrp": "13",
+                    "modgroups": [
+                        "MartialWeaponGainedDamage"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[15,20]]",
+                    "rolls": [
+                        17
+                    ],
+                    "weight": "0"
+                }
+            ],
+            "implicits": null,
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 2,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 0,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        },
+        {
+            "mode": "forced",
+            "currency": null,
+            "action": "mp",
+            "ssaction": 0,
+            "subaction": 5704,
+            "forced": "add",
+            "add": [
+                {
+                    "atype": "prefix",
+                    "id": 5704,
+                    "mgrp": "13",
+                    "modgroups": [
+                        "MartialWeaponGainedDamage"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[15,20]]",
+                    "rolls": [
+                        15
+                    ],
+                    "weight": "0"
+                }
+            ],
+            "omens": null,
+            "rem": null,
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 232,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "rare",
+            "affixes": [
+                {
+                    "atype": "suffix",
+                    "id": 5092,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[5,7]]",
+                    "rolls": [
+                        6
+                    ],
+                    "weight": "1000"
+                },
+                {
+                    "id": "5117",
+                    "mgrp": "1",
+                    "tindex": 0,
+                    "atype": "prefix",
+                    "modgroups": [
+                        "LightningDamage"
+                    ],
+                    "weight": 1200,
+                    "nvalues": "[1,[4,6]]",
+                    "amgs": null,
+                    "tags": "|33|20|8|3|",
+                    "rolls": [
+                        1,
+                        6
+                    ],
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "chance": 0.0953719723183391
+                }
+            ],
+            "implicits": null,
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 1,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 0,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        }
+    ],
+    "spending": {
+        "currency": {
+            "transmute": 0,
+            "augmentation": 0,
+            "regal": 1,
+            "poe2_alchemy": 0,
+            "chaos": 0,
+            "exalted": 0,
+            "annul": 0,
+            "divine": 0,
+            "artificer": 0,
+            "fracturing": 0,
+            "vaal": 0
+        },
+        "actions": {
+            "transmute": {
+                "normal": 0,
+                "greater": 0,
+                "perfect": 0
+            },
+            "augmentation": {
+                "normal": 0,
+                "greater": 0,
+                "perfect": 0
+            },
+            "regal": {
+                "normal": 0,
+                "greater": 0,
+                "perfect": 0
+            },
+            "chaos": {
+                "normal": 0,
+                "greater": 0,
+                "perfect": 0
+            },
+            "exalted": {
+                "normal": 0,
+                "greater": 0,
+                "perfect": 0
+            },
+            "poe2_lesser_essence": {
+                "3122": 0,
+                "3123": 0,
+                "3124": 0,
+                "3125": 0,
+                "3126": 0,
+                "3127": 0,
+                "3128": 0,
+                "3129": 0,
+                "3130": 0,
+                "3131": 0,
+                "3132": 0,
+                "3133": 0,
+                "3174": 0,
+                "3178": 0,
+                "3182": 0,
+                "3186": 0,
+                "3190": 0,
+                "3194": 0,
+                "3198": 0
+            },
+            "poe2_essence": {
+                "3134": 0,
+                "3135": 0,
+                "3136": 0,
+                "3137": 0,
+                "3138": 0,
+                "3139": 0,
+                "3140": 0,
+                "3141": 0,
+                "3142": 0,
+                "3143": 0,
+                "3144": 0,
+                "3145": 0,
+                "3175": 0,
+                "3179": 0,
+                "3183": 0,
+                "3187": 0,
+                "3191": 0,
+                "3195": 0,
+                "3199": 0
+            },
+            "poe2_greater_essence": {
+                "3146": 0,
+                "3147": 0,
+                "3148": 0,
+                "3149": 0,
+                "3150": 0,
+                "3151": 0,
+                "3152": 0,
+                "3153": 0,
+                "3154": 0,
+                "3155": 0,
+                "3156": 0,
+                "3157": 0,
+                "3176": 0,
+                "3180": 0,
+                "3184": 0,
+                "3188": 0,
+                "3192": 0,
+                "3196": 0,
+                "3200": 0
+            },
+            "poe2_perfect_essence": {
+                "3158": 0,
+                "3159": 0,
+                "3160": 0,
+                "3161": 0,
+                "3162": 0,
+                "3163": 0,
+                "3164": 0,
+                "3165": 0,
+                "3166": 0,
+                "3167": 0,
+                "3168": 0,
+                "3169": 0,
+                "3170": 0,
+                "3171": 0,
+                "3172": 0,
+                "3173": 0,
+                "3177": 0,
+                "3181": 0,
+                "3185": 0,
+                "3189": 0,
+                "3193": 0,
+                "3197": 0,
+                "3201": 0
+            },
+            "poe2_desecration": {
+                "ancient_collarbone": 0,
+                "ancient_jawbone": 0,
+                "ancient_ribs": 0,
+                "gnawed_collarbone": 0,
+                "gnawed_jawbone": 0,
+                "gnawed_ribs": 0,
+                "preserved_collarbone": 0,
+                "preserved_cranium": 0,
+                "preserved_jawbone": 0,
+                "preserved_ribs": 0,
+                "preserved_spine": 0
+            },
+            "poe2_omens": {
+                "abyssal_echoes": 0,
+                "blackblooded": 0,
+                "blessed": 0,
+                "dextral_annulment": 0,
+                "dextral_crystallisation": 0,
+                "dextral_erasure": 0,
+                "dextral_exaltation": 0,
+                "dextral_necromancy": 0,
+                "greater_exaltation": 0,
+                "homogenising_exaltation": 0,
+                "homogenising_coronation": 0,
+                "liege": 0,
+                "light": 0,
+                "sinistral_annulment": 0,
+                "sinistral_crystallisation": 0,
+                "sinistral_erasure": 0,
+                "sinistral_exaltation": 0,
+                "sinistral_necromancy": 0,
+                "sovereign": 0,
+                "whittling": 0
+            },
+            "poe2_runes": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0,
+                "6": 0,
+                "7": 0,
+                "8": 0,
+                "9": 0,
+                "10": 0,
+                "11": 0,
+                "12": 0,
+                "13": 0,
+                "14": 0,
+                "15": 0,
+                "16": 0,
+                "17": 0,
+                "18": 0,
+                "19": 0,
+                "20": 0,
+                "21": 0,
+                "22": 0,
+                "23": 0,
+                "24": 0,
+                "25": 0,
+                "26": 0,
+                "27": 0,
+                "28": 0,
+                "29": 0,
+                "30": 0,
+                "46": 0,
+                "47": 0,
+                "48": 0,
+                "49": 0,
+                "50": 0,
+                "51": 0,
+                "52": 0,
+                "53": 0,
+                "54": 0,
+                "55": 0,
+                "56": 0,
+                "57": 0,
+                "58": 0,
+                "59": 0,
+                "60": 0,
+                "61": 0,
+                "73": 0,
+                "74": 0,
+                "75": 0,
+                "76": 0,
+                "77": 0,
+                "78": 0,
+                "79": 0,
+                "80": 0,
+                "81": 0,
+                "82": 0,
+                "83": 0,
+                "84": 0,
+                "85": 0,
+                "86": 0,
+                "87": 0,
+                "88": 0,
+                "89": 0,
+                "90": 0,
+                "91": 0,
+                "92": 0,
+                "93": 0,
+                "lesser": 0,
+                "normal": 0,
+                "greater": 0,
+                "special": 0
+            },
+            "poe2_cores": {
+                "31": 0,
+                "32": 0,
+                "33": 0,
+                "34": 0,
+                "35": 0,
+                "36": 0,
+                "37": 0,
+                "38": 0,
+                "39": 0,
+                "40": 0,
+                "41": 0,
+                "42": 0,
+                "43": 0,
+                "44": 0,
+                "45": 0,
+                "101": 0,
+                "102": 0,
+                "103": 0,
+                "104": 0,
+                "105": 0,
+                "106": 0,
+                "107": 0,
+                "108": 0,
+                "109": 0,
+                "110": 0,
+                "111": 0,
+                "112": 0,
+                "113": 0,
+                "114": 0,
+                "115": 0,
+                "116": 0,
+                "117": 0,
+                "118": 0,
+                "119": 0
+            },
+            "poe2_talismans": {
+                "62": 0,
+                "63": 0,
+                "64": 0,
+                "65": 0,
+                "66": 0,
+                "67": 0,
+                "68": 0,
+                "69": 0,
+                "70": 0,
+                "71": 0,
+                "72": 0,
+                "94": 0,
+                "95": 0,
+                "96": 0,
+                "97": 0,
+                "98": 0,
+                "99": 0,
+                "100": 0
+            },
+            "catalyst": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0,
+                "6": 0,
+                "7": 0,
+                "8": 0,
+                "9": 0,
+                "10": 0,
+                "11": 0,
+                "12": 0
+            }
+        }
+    },
+    "opened": {
+        "mp": {
+            "prefix": "5704",
+            "suffix": "5125"
+        },
+        "cb": {
+            "prefix": null,
+            "suffix": null
+        },
+        "im": {
+            "eldritch_red": null,
+            "eldritch_blue": null,
+            "corrupted": null,
+            "socket": null
+        }
+    },
+    "catalyst": null
+}
