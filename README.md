@@ -1,12 +1,14 @@
-<!---
-GitHub Actions Workflow Status, Version, Version Crates, Version PyPi, License
--->
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/WladHD/pyoe2-craftpath/release_python.yml?branch=main)](https://github.com/WladHD/pyoe2-craftpath/actions/workflows/release_python.yml)
+[![PyPI - Version](https://img.shields.io/pypi/v/pyoe2-craftpath)](https://pypi.org/project/pyoe2-craftpath/)
+[![Crates.io Version](https://img.shields.io/crates/v/pyoe2-craftpath)](https://crates.io/crates/pyoe2-craftpath)
+[![GitHub License](https://img.shields.io/github/license/WladHD/pyoe2-craftpath)](https://github.com/WladHD/pyoe2-craftpath/blob/main/LICENSE)
+
 # *Py*oE 2 - CraftPath
 A tool for Path of Exile 2 to find the best craftpaths based on the categories: *most likely, most efficient and cheapest*, between a starting item and a target item.
 
 Available as Python package [`pyoe2-craftpath`](https://pypi.org/project/pyoe2-craftpath/) or as "bro just gimme something that goes brrr"-executable command-line utility for Windows under [Releases](https://github.com/WladHD/pyoe2-craftpath/releases). Bindings for Python are generated with [PyO3](https://github.com/PyO3/pyo3), to let you build your own data analysis pipeline upon the calculated items and craftpaths. Made possible by the power of [*🦀 Rust*](https://www.reddit.com/r/linuxmemes/comments/1b7y5vv/rust/).
 
-Build and tested for Path of Exile 2 on version `0.3.1` and Python `3.12.12`.
+Built and tested for Path of Exile 2 on version `0.3.1`. For supported Python versions refer to the [newest, automated test](https://github.com/WladHD/pyoe2-craftpath/actions/workflows/release_python.yml) (supports mosts platforms with Python version `>=3.10`).
 
 ## About
 To keep it short, I was introduced to Path of Exile 2 and enjoyed it quite a bit.
@@ -141,7 +143,7 @@ The most interesting detail is probably the need to filter out theoretical cycli
 
 
 ## Contribution / Dev Usage
-I've published the project on [`crates.io`](https://crates.io/) (and [`PyPI`](https://pypi.org/)). You can either use the [API](https://github.com/WladHD/pyoe2-craftpath/tree/main/src/api) to build your own extension as own Rust crate depending on `pyoe2-craftpath`.
+I've published the project on [`crates.io`](https://crates.io/crates/pyoe2-craftpath) (and [`PyPI`](https://pypi.org/project/pyoe2-craftpath/)). You can either use the [API](https://github.com/WladHD/pyoe2-craftpath/tree/main/src/api) to build your own extension as own Rust crate depending on `pyoe2-craftpath`.
 
 If you want, you can also create a pull request to have it directly included here. The only requirement is the usage of the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format for your commit messages and preferably a new test for your code.
 
