@@ -51,6 +51,13 @@ The following section shows a guide for the *quick-n-dirty* approach to run the 
 
 First things first. Download the program from [Releases](https://github.com/WladHD/pyoe2-craftpath/releases).
 
+To make the CLI more approachable, I've uploaded a video demonstrating the workflow, from configuring the executable to supplying items for calculation. You can watch it on YouTube by clicking the thumbnail, or [here](https://www.youtube.com/watch?v=27J1Kjs8q5E):
+<a href="https://www.youtube.com/watch?v=27J1Kjs8q5E" target="_blank">
+  <img src="https://img.youtube.com/vi/27J1Kjs8q5E/maxresdefault.jpg" 
+       alt="Watch the video" 
+       style="border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.3); width:480px;">
+</a>
+
 ```bash
 pyoe2-craftpath.exe [options]
 ```
