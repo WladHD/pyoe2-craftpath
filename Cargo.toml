@@ -9,11 +9,9 @@ license = "MIT"
 edition = "2024"
 exclude = ["setup.sh"]
 keywords = [
-    "cli",
     "path-of-exile-2",
     "poe2",
     "crafting",
-    "game",
     "calculator",
     "simulator",
 ]
