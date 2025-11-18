@@ -27,8 +27,8 @@ pub mod py {
     use crate::api::types::{
         AffixClassEnum, AffixDefinition, AffixId, AffixLocationEnum, AffixSpecifier,
         AffixTierConstraints, AffixTierLevel, AffixTierLevelBoundsEnum, AffixTierLevelMeta,
-        BaseGroupId, BaseItemId, EssenceDefinition, EssenceId, EssenceTierLevelMeta, ItemId,
-        ItemRarityEnum, THashMap, Weight,
+        BaseGroupDefinition, BaseGroupId, BaseItemId, EssenceDefinition, EssenceId,
+        EssenceTierLevelMeta, ItemId, ItemRarityEnum, THashMap, Weight,
     };
     use crate::calc::matrix::presets::matrix_builder_presets::MatrixBuilderPreset;
     use crate::calc::statistics::helpers::{RouteChance, RouteCustomWeight};
@@ -84,6 +84,7 @@ pub mod py {
         // Item classes
         m.add_class::<BaseItemId>()?;
         m.add_class::<BaseGroupId>()?;
+        m.add_class::<BaseGroupDefinition>()?;
         m.add_class::<ItemName>()?;
         m.add_class::<ItemId>()?;
         m.add_class::<Item>()?;

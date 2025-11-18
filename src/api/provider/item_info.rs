@@ -1,7 +1,7 @@
 use anyhow::{Result, anyhow};
 use serde::{Deserialize, Serialize};
 
-use crate::api::types::{BaseGroupId, ItemLevel, THashSet};
+use crate::api::types::{BaseGroupDefinition, BaseGroupId, ItemLevel, THashSet};
 use crate::api::{
     errors::CraftPathError,
     types::{
@@ -25,6 +25,7 @@ pub struct ItemInfoProvider {
     pub cache_affix_essence_table: THashMap<(AffixId, BaseItemId), THashSet<EssenceId>>,
     pub cache_essence_def: THashMap<EssenceId, EssenceDefinition>,
     pub cache_base_group_table: THashMap<BaseItemId, BaseGroupId>,
+    pub base_group_definition: THashMap<BaseGroupId, BaseGroupDefinition>,
 }
 
 impl ItemInfoProvider {
@@ -51,6 +52,15 @@ impl ItemInfoProvider {
             .get(&base_item_id)
             .cloned()
             .ok_or_else(|| CraftPathError::BaseItemWithoutBaseGroup(base_item_id.clone()).into())
+    }
+
+    pub fn lookup_base_group_definition(
+        &self,
+        base_group_id: &BaseGroupId,
+    ) -> Result<&BaseGroupDefinition> {
+        self.base_group_definition
+            .get(&base_group_id)
+            .ok_or_else(|| CraftPathError::BaseGroupWithoutDefinition(base_group_id.clone()).into())
     }
 
     pub fn lookup_affix_essences(
@@ -134,6 +144,16 @@ impl ItemInfoProvider {
         essence_id: &EssenceId,
     ) -> pyo3::PyResult<EssenceDefinition> {
         self.lookup_essence_definition(essence_id)
+            .cloned()
+            .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
+    }
+
+    #[pyo3(name = "lookup_base_group_definition")]
+    pub fn lookup_base_group_definition_py(
+        &self,
+        base_group_id: &BaseGroupId,
+    ) -> pyo3::PyResult<BaseGroupDefinition> {
+        self.lookup_base_group_definition(base_group_id)
             .cloned()
             .map_err(|err| pyo3::exceptions::PyRuntimeError::new_err(err.to_string()))
     }
