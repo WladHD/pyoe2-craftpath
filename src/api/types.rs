@@ -139,6 +139,17 @@ pub struct EssenceDefinition {
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[cfg_attr(feature = "python", pyo3(eq, weakref, from_py_object, get_all, str))]
+pub struct BaseGroupDefinition {
+    pub name_base_group: String,
+    pub max_affix: u8,
+    pub max_sockets: u8,
+    pub is_rare: bool,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
+#[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
+#[cfg_attr(feature = "python", pyo3(eq, weakref, from_py_object, get_all, str))]
 pub struct EssenceTierLevelMeta {
     // mod name
     // pub affix_id: AffixId,
@@ -160,5 +171,6 @@ crate::derive_DebugDisplay!(
     AffixLocationEnum,
     AffixTierConstraints,
     AffixSpecifier,
-    AffixTierLevelMeta
+    AffixTierLevelMeta,
+    BaseGroupDefinition
 );

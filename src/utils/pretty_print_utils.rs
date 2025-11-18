@@ -36,7 +36,7 @@ impl GroupRoute {
             &mut out,
             "Group Chance: {:.5}% | Unique Routes: {} | Tries needed for 60%: {} | Cost per Craft: {} | Cost for 60%: {}{}",
             self.chance.get_raw_value() * 100_f64,
-            self.unique_route_weights.len().to_formatted_string(&Locale::en),
+            self.amount_subpaths.get_raw_value().to_formatted_string(&Locale::en),
             tries_for_60.to_formatted_string(&Locale::en),
             format!(
                 "{} EX",

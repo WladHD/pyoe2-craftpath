@@ -71,12 +71,7 @@ impl ItemRoute {
 
         let start_item = &calculator.starting_item;
 
-        writeln!(
-            &mut out,
-            "Start Item: {:?} (Rarity: {:?})",
-            start_item.base_id, start_item.rarity
-        )
-        .unwrap();
+        write!(&mut out, "{}", start_item.to_pretty_string(&item_provider)).unwrap();
 
         let cost_per_1 = unique_path_statistic_analyzer.calculate_cost_per_craft(
             &self

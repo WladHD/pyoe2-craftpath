@@ -4,9 +4,9 @@ use crate::{
     api::{
         provider::item_info::{AffixWeightTable, ItemInfoProvider},
         types::{
-            AffixDefinition, AffixId, AffixTierLevel, AffixTierLevelMeta, BaseGroupId, BaseItemId,
-            EssenceDefinition, EssenceId, EssenceTierLevelMeta, ItemLevel, THashMap, THashSet,
-            Weight,
+            AffixDefinition, AffixId, AffixTierLevel, AffixTierLevelMeta, BaseGroupDefinition,
+            BaseGroupId, BaseItemId, EssenceDefinition, EssenceId, EssenceTierLevelMeta, ItemLevel,
+            THashMap, THashSet, Weight,
         },
     },
     external_api::coe::craftofexile_json_definition::CoEGameData,
@@ -19,6 +19,7 @@ struct ItemDataProviderCache {
     pub affix_essence_table: THashMap<(AffixId, BaseItemId), THashSet<EssenceId>>,
     pub essence_definition_table: THashMap<EssenceId, EssenceDefinition>,
     pub base_group_mappings: THashMap<BaseItemId, BaseGroupId>,
+    pub base_group_definition: THashMap<BaseGroupId, BaseGroupDefinition>,
 }
 
 #[derive(Debug)]
@@ -54,6 +55,7 @@ impl CraftOfExileItemInfoProvider {
             affix_essence_table: THashMap::default(),
             essence_definition_table: THashMap::default(),
             base_group_mappings: THashMap::default(),
+            base_group_definition: THashMap::default(),
         };
 
         for base in parsed.bases.seq.iter() {
@@ -61,6 +63,19 @@ impl CraftOfExileItemInfoProvider {
                 BaseItemId::from(base.id_base),
                 BaseGroupId::from(base.id_bgroup),
             );
+        }
+
+        for raw_base_group in parsed.bgroups.seq.iter() {
+            let base_definition = BaseGroupDefinition {
+                max_affix: raw_base_group.max_affix,
+                max_sockets: raw_base_group.max_sockets,
+                name_base_group: raw_base_group.name_bgroup.clone(),
+                is_rare: raw_base_group.is_rare,
+            };
+
+            transformed_cache
+                .base_group_definition
+                .insert(BaseGroupId::from(raw_base_group.id_bgroup), base_definition);
         }
 
         for raw_base in parsed.bases.seq.iter() {
@@ -235,6 +250,7 @@ impl CraftOfExileItemInfoProvider {
             cache_affix_essence_table: transformed_cache.affix_essence_table,
             cache_essence_def: transformed_cache.essence_definition_table,
             cache_base_group_table: transformed_cache.base_group_mappings,
+            base_group_definition: transformed_cache.base_group_definition,
         })
     }
 }

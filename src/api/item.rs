@@ -37,9 +37,28 @@ impl ItemSnapshot {
     pub fn to_pretty_string(&self, item_provider: &ItemInfoProvider) -> String {
         let mut out = String::new();
 
+        let base_group_id = item_provider.lookup_base_group(&self.base_id).unwrap();
+        let base_group_def = item_provider
+            .lookup_base_group_definition(&base_group_id)
+            .unwrap();
+
         writeln!(
             &mut out,
-            "BaseId: {}, Rarity: {:?}, ItemLevel: {}",
+            "Base Group: {} (#{}), Max Rarity: {}, Max Affixes: {} ({} per side)",
+            base_group_def.name_base_group,
+            base_group_id.get_raw_value(),
+            match base_group_def.is_rare {
+                true => "Rare",
+                false => "Magic",
+            },
+            base_group_def.max_affix,
+            base_group_def.max_affix / 2
+        )
+        .unwrap();
+
+        writeln!(
+            &mut out,
+            "BaseId: #{}, Rarity: {:?}, ItemLevel: {}",
             self.base_id.get_raw_value(),
             self.rarity,
             self.item_level.get_raw_value(),

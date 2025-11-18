@@ -356,16 +356,26 @@ pub struct RawBGroup {
     #[serde(deserialize_with = "deserialize_from_string_or_number")]
     pub id_bgroup: u16,
     pub name_bgroup: String,
-    pub max_affix: String,
-    pub is_rare: String,
-    pub is_influenced: String,
-    pub is_fossil: String,
-    pub is_ess: String,
-    pub is_craftable: String,
-    pub is_notable: String,
-    pub is_catalyst: String,
-    pub has_items: String,
-    pub max_sockets: String,
+    #[serde(deserialize_with = "deserialize_from_string_or_number")]
+    pub max_affix: u8,
+    #[serde(deserialize_with = "deserialize_bool_from_01")]
+    pub is_rare: bool,
+    #[serde(deserialize_with = "deserialize_bool_from_01")]
+    pub is_influenced: bool,
+    #[serde(deserialize_with = "deserialize_bool_from_01")]
+    pub is_fossil: bool,
+    #[serde(deserialize_with = "deserialize_bool_from_01")]
+    pub is_ess: bool,
+    #[serde(deserialize_with = "deserialize_bool_from_01")]
+    pub is_craftable: bool,
+    #[serde(deserialize_with = "deserialize_bool_from_01")]
+    pub is_notable: bool,
+    #[serde(deserialize_with = "deserialize_bool_from_01")]
+    pub is_catalyst: bool,
+    #[serde(deserialize_with = "deserialize_bool_from_01")]
+    pub has_items: bool,
+    #[serde(deserialize_with = "deserialize_from_string_or_number")]
+    pub max_sockets: u8,
 }
 
 /// "modifiers" entries — affixes.

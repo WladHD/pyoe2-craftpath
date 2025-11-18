@@ -2,7 +2,9 @@ use thiserror::Error;
 
 use crate::api::{
     item::Item,
-    types::{AffixId, AffixLocationEnum, AffixSpecifier, BaseItemId, EssenceId, ItemLevel},
+    types::{
+        AffixId, AffixLocationEnum, AffixSpecifier, BaseGroupId, BaseItemId, EssenceId, ItemLevel,
+    },
 };
 
 #[derive(Debug, Error)]
@@ -15,6 +17,8 @@ pub enum CraftPathError {
     AffixWithoutDefinition(AffixId),
     #[error("Could not find affix essence for '{0:?}'.")]
     AffixWithoutEssence(AffixId),
+    #[error("Could not find definition for '{0:?}'.")]
+    BaseGroupWithoutDefinition(BaseGroupId),
     #[error("Could not find essence definition for '{0:?}'.")]
     EssenceWithoutDefinition(EssenceId),
     #[error("Base item '{0:?}' without base group.")]
