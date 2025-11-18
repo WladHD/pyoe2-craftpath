@@ -49,6 +49,10 @@ impl DesecrationPropagator {
             .lookup_base_item_mods(&item_instance.snapshot.base_id)?
             .clone();
 
+        let base_group_id = provider.lookup_base_group(&item_instance.snapshot.base_id)?;
+        let base_group_def = provider.lookup_base_group_definition(&base_group_id)?;
+        let max_affixes_per_side = base_group_def.max_affix / 2;
+
         // since we start with normal item, not all checks are needed (cauz no blocking groups etc.)
         pool.retain(|affix_id, tier_level_holder| {
             let Ok(affix_def) = provider.lookup_affix_definition(&affix_id) else {
@@ -122,14 +126,14 @@ impl DesecrationPropagator {
             // filter out next affixes based on max. suffix / prefix (magic item = max 1. each)
             match affix_def.affix_location {
                 AffixLocationEnum::Prefix => {
-                    if item_instance.helper.prefix_count > 2
+                    if item_instance.helper.prefix_count >= max_affixes_per_side
                         && !will_be_replaced_anyway(AffixLocationEnum::Prefix)
                     {
                         return false;
                     }
                 }
                 AffixLocationEnum::Suffix => {
-                    if item_instance.helper.suffix_count > 2
+                    if item_instance.helper.suffix_count >= max_affixes_per_side
                         && !will_be_replaced_anyway(AffixLocationEnum::Suffix)
                     {
                         return false;
@@ -302,14 +306,22 @@ impl MatrixPropagator for DesecrationPropagator {
         Ok(propagation_result)
     }
 
-    fn is_applicable(&self, item: &Item, _provider: &ItemInfoProvider) -> bool {
+    fn is_applicable(&self, item: &Item, provider: &ItemInfoProvider) -> bool {
+        let Ok(base_group_id) = provider.lookup_base_group(&item.snapshot.base_id) else {
+            return false;
+        };
+
+        let Ok(base_group_def) = provider.lookup_base_group_definition(&base_group_id) else {
+            return false;
+        };
+
         match item.snapshot.rarity {
             ItemRarityEnum::Rare => {
                 // TODO disallow random removal when affixes are full
                 // implement annuli like special case on 6
                 item.helper.has_desecrated_target.is_some()
                     && !item.helper.is_desecrated
-                    && item.snapshot.affixes.len() < 6
+                    && (item.snapshot.affixes.len() as u8) < base_group_def.max_affix
             }
             _ => false,
         }

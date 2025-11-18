@@ -153,7 +153,19 @@ impl MatrixPropagator for NormalEssencePropagator {
         Ok(propagation_result)
     }
 
-    fn is_applicable(&self, item: &Item, _provider: &ItemInfoProvider) -> bool {
+    fn is_applicable(&self, item: &Item, provider: &ItemInfoProvider) -> bool {
+        let Ok(base_group_id) = provider.lookup_base_group(&item.snapshot.base_id) else {
+            return false;
+        };
+
+        let Ok(base_group_def) = provider.lookup_base_group_definition(&base_group_id) else {
+            return false;
+        };
+
+        if !base_group_def.is_rare {
+            return false;
+        }
+
         match item.snapshot.rarity {
             ItemRarityEnum::Magic => true,
             _ => false,
