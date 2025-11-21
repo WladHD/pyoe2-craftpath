@@ -190,6 +190,19 @@ impl ItemRoute {
                 );
             }
 
+            if start_item.allowed_sockets != item.item.snapshot.allowed_sockets {
+                print_socket_change(
+                    &mut out,
+                    i + 1,
+                    start_item
+                        .allowed_sockets
+                        .abs_diff(item.item.snapshot.allowed_sockets),
+                    Some(path.chance),
+                    item_provider,
+                    &calculator.starting_item.base_id,
+                );
+            }
+
             if new_rarity != &prev_rarity {
                 writeln!(
                     &mut out,
@@ -207,6 +220,32 @@ impl ItemRoute {
 
         out
     }
+}
+
+pub fn print_socket_change(
+    out: &mut String,
+    index: usize,
+    current_sockets: u8,
+    chance: Option<Fraction>,
+    item_provider: &ItemInfoProvider,
+    base_id: &BaseItemId,
+) {
+    let bg = item_provider.lookup_base_group(base_id).unwrap();
+    let bg = item_provider.lookup_base_group_definition(&bg).unwrap();
+
+    writeln!(
+        out,
+        "{}.\t{}{} Socket ({}/{})",
+        index,
+        if index == 0 { "" } else { "+ " },
+        match chance {
+            Some(c) => format!("[{} (~{:.3}%)]", c, c.to_f64() * 100_f64).to_string(),
+            None => "".to_string(),
+        },
+        current_sockets,
+        bg.max_sockets
+    )
+    .unwrap();
 }
 
 pub fn print_affix(
