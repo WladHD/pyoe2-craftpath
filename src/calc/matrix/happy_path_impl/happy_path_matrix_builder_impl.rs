@@ -12,9 +12,9 @@ use crate::{
         types::{THashMap, THashSet},
     },
     calc::matrix::happy_path_impl::propagators::{
-        chaos_orb::ChaosOrbPropagator, desecration::DesecrationPropagator,
-        exalted_orb::ExaltedOrbPropagator, normal_essences::NormalEssencePropagator,
-        orb_of_annulment::OrbOfAnnulmentPropagator,
+        artificers_orb::ArtificersOrbPropagator, chaos_orb::ChaosOrbPropagator,
+        desecration::DesecrationPropagator, exalted_orb::ExaltedOrbPropagator,
+        normal_essences::NormalEssencePropagator, orb_of_annulment::OrbOfAnnulmentPropagator,
         orb_of_augmentation::OrbOfAugmentationPropagator,
         orb_of_transmutation::OrbOfTransmutationPropagator,
         perfect_essences::PerfectEssencePropagator, regal_orb::RegalOrbPropagator,
@@ -68,6 +68,8 @@ fn generate_item_matrix(
         Box::new(PerfectEssencePropagator),
         Box::new(DesecrationPropagator),
         Box::new(NormalEssencePropagator),
+        // finishers
+        Box::new(ArtificersOrbPropagator),
     ];
 
     let essence_only: Vec<Box<dyn MatrixPropagator>> = vec![Box::new(PerfectEssencePropagator)];
@@ -93,6 +95,7 @@ fn generate_item_matrix(
                 } else {
                     &propagators
                 };
+
                 if item.helper.target_proximity != 0 {
                     // propagate all items starting from item_snapshot
                     // should also check for same chance, but higher cost -> remove

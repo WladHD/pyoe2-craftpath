@@ -1,3 +1,4 @@
+pub mod artificers_orb;
 pub mod chaos_orb;
 pub mod desecration;
 pub mod exalted_orb;

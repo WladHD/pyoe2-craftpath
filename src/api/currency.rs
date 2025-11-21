@@ -38,6 +38,7 @@ pub enum CraftCurrencyEnum {
     ChaosOrbNormal(),
     ChaosOrbGreater(),
     ChaosOrbPerfect(),
+    ArtificersOrb(),
 
     // DESECRATION
     Desecrator(BaseItemId, BaseGroupId),
@@ -93,6 +94,7 @@ impl CraftCurrencyEnum {
 impl CraftCurrencyEnum {
     pub fn get_item_name<'a>(&self, item_info: &'a ItemInfoProvider) -> &'a str {
         match self {
+            CraftCurrencyEnum::ArtificersOrb() => "Artificer's Orb",
             CraftCurrencyEnum::AbyssalEchoes() => "Omen of Abyssal Echoes",
             CraftCurrencyEnum::ChaosOrbGreater() => "Greater Chaos Orb",
             CraftCurrencyEnum::ChaosOrbNormal() => "Chaos Orb",
