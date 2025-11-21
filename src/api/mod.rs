@@ -1,5 +1,5 @@
 pub mod calculator;
-mod calculator_utils;
+pub mod calculator_utils;
 pub mod currency;
 pub mod errors;
 pub mod item;

@@ -160,7 +160,19 @@ impl ItemRoute {
                 path.currency_list
                     .list
                     .iter()
-                    .map(|e| format!("{}", e.get_item_name(&item_provider)))
+                    .map(|e| {
+                        let currency_value = market_provider
+                            .try_lookup_currency_in_divines_default_if_fail(&e, &item_provider);
+                        let currency_value_ex = market_provider
+                            .currency_convert(&currency_value, &PriceKind::Exalted)
+                            .ceil() as u32;
+
+                        format!(
+                            "{} ({})",
+                            e.get_item_name(&item_provider),
+                            currency_value_ex.to_formatted_string(&Locale::en)
+                        )
+                    })
                     .collect::<Vec<String>>()
                     .join(" + ")
             )
@@ -190,6 +202,19 @@ impl ItemRoute {
                 );
             }
 
+            if start_item.allowed_sockets != item.item.snapshot.allowed_sockets {
+                print_socket_change(
+                    &mut out,
+                    i + 1,
+                    start_item
+                        .allowed_sockets
+                        .abs_diff(item.item.snapshot.allowed_sockets),
+                    Some(path.chance),
+                    item_provider,
+                    &calculator.starting_item.base_id,
+                );
+            }
+
             if new_rarity != &prev_rarity {
                 writeln!(
                     &mut out,
@@ -201,12 +226,47 @@ impl ItemRoute {
                 .unwrap();
             }
 
+            if item.item.snapshot.corrupted {
+                writeln!(
+                    &mut out,
+                    "{}. \t! Corrupted - ensure maximum quality and wanted affixes prior to applying a Vaal Orb, since corrupted items CAN NOT be modified further.",
+                    i + 1
+                )
+                .unwrap();
+            }
+
             prev_affixes = new_affixes.clone();
             prev_rarity = new_rarity.clone();
         }
 
         out
     }
+}
+
+pub fn print_socket_change(
+    out: &mut String,
+    index: usize,
+    current_sockets: u8,
+    chance: Option<Fraction>,
+    item_provider: &ItemInfoProvider,
+    base_id: &BaseItemId,
+) {
+    let bg = item_provider.lookup_base_group(base_id).unwrap();
+    let bg = item_provider.lookup_base_group_definition(&bg).unwrap();
+
+    writeln!(
+        out,
+        "{}.\t{}{} Socket ({}/{})",
+        index,
+        if index == 0 { "" } else { "+ " },
+        match chance {
+            Some(c) => format!("[{} (~{:.3}%)]", c, c.to_f64() * 100_f64).to_string(),
+            None => "".to_string(),
+        },
+        current_sockets,
+        bg.max_sockets
+    )
+    .unwrap();
 }
 
 pub fn print_affix(

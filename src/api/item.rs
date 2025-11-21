@@ -44,7 +44,7 @@ impl ItemSnapshot {
 
         writeln!(
             &mut out,
-            "Base Group: {} (#{}), Max Rarity: {}, Max Affixes: {} ({} per side)",
+            "Base Group: {} (#{}), Max Rarity: {}, Max Affixes: {} ({} per side), Max. Sockets: {} ({} corrupt)",
             base_group_def.name_base_group,
             base_group_id.get_raw_value(),
             match base_group_def.is_rare {
@@ -52,16 +52,19 @@ impl ItemSnapshot {
                 false => "Magic",
             },
             base_group_def.max_affix,
-            base_group_def.max_affix / 2
+            base_group_def.max_affix / 2,
+            base_group_def.max_sockets,
+            base_group_def.max_sockets + 1,
         )
         .unwrap();
 
         writeln!(
             &mut out,
-            "BaseId: #{}, Rarity: {:?}, ItemLevel: {}",
+            "BaseId: #{}, Rarity: {:?}, ItemLevel: {}, Sockets: {}",
             self.base_id.get_raw_value(),
             self.rarity,
             self.item_level.get_raw_value(),
+            self.allowed_sockets
         )
         .unwrap();
 

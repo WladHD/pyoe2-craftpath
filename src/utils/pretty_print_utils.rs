@@ -77,7 +77,19 @@ impl GroupRoute {
                 currency_list
                     .list
                     .iter()
-                    .map(|e| format!("{}", e.get_item_name(&item_provider)))
+                    .map(|e| {
+                        let currency_value = market_provider
+                            .try_lookup_currency_in_divines_default_if_fail(&e, &item_provider);
+                        let currency_value_ex = market_provider
+                            .currency_convert(&currency_value, &PriceKind::Exalted)
+                            .ceil() as u32;
+
+                        format!(
+                            "{} ({})",
+                            e.get_item_name(&item_provider),
+                            currency_value_ex.to_formatted_string(&Locale::en)
+                        )
+                    })
                     .collect::<Vec<String>>()
                     .join(" + "),
                 index_weight.get_raw_value() * 100_f64
