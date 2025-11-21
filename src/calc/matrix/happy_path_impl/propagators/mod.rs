@@ -8,3 +8,4 @@ pub mod orb_of_augmentation;
 pub mod orb_of_transmutation;
 pub mod perfect_essences;
 pub mod regal_orb;
+pub mod vaal_orb_socket;

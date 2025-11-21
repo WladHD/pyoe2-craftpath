@@ -18,6 +18,7 @@ use crate::{
         orb_of_augmentation::OrbOfAugmentationPropagator,
         orb_of_transmutation::OrbOfTransmutationPropagator,
         perfect_essences::PerfectEssencePropagator, regal_orb::RegalOrbPropagator,
+        vaal_orb_socket::VaalOrbSocketPropagator,
     },
     utils::{fraction_utils::Fraction, hash_utils::hash_value},
 };
@@ -70,6 +71,7 @@ fn generate_item_matrix(
         Box::new(NormalEssencePropagator),
         // finishers
         Box::new(ArtificersOrbPropagator),
+        Box::new(VaalOrbSocketPropagator),
     ];
 
     let essence_only: Vec<Box<dyn MatrixPropagator>> = vec![Box::new(PerfectEssencePropagator)];
@@ -96,7 +98,7 @@ fn generate_item_matrix(
                     &propagators
                 };
 
-                if item.helper.target_proximity != 0 {
+                if item.helper.target_proximity != 0 && !item.snapshot.corrupted {
                     // propagate all items starting from item_snapshot
                     // should also check for same chance, but higher cost -> remove
                     for some_propagator in propagators.iter() {
