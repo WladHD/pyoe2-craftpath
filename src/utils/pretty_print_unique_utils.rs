@@ -229,7 +229,7 @@ impl ItemRoute {
             if item.item.snapshot.corrupted {
                 writeln!(
                     &mut out,
-                    "{}. \t! Corrupted - no further modification is possible. Ensure maximum quality and wanted affixes, since corrupted items can't be further modified.",
+                    "{}. \t! Corrupted - ensure maximum quality and wanted affixes prior to applying a Vaal Orb, since corrupted items CAN NOT be modified further.",
                     i + 1
                 )
                 .unwrap();
