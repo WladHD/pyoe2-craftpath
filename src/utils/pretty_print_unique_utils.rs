@@ -214,6 +214,15 @@ impl ItemRoute {
                 .unwrap();
             }
 
+            if item.item.snapshot.corrupted {
+                writeln!(
+                    &mut out,
+                    "{}. \t! Corrupted - no further modification is possible. Ensure maximum quality and wanted affixes, since corrupting an item will prevent further modification.",
+                    i + 1
+                )
+                .unwrap();
+            }
+
             prev_affixes = new_affixes.clone();
             prev_rarity = new_rarity.clone();
         }
