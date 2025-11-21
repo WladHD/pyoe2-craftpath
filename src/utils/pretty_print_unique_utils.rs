@@ -160,7 +160,19 @@ impl ItemRoute {
                 path.currency_list
                     .list
                     .iter()
-                    .map(|e| format!("{}", e.get_item_name(&item_provider)))
+                    .map(|e| {
+                        let currency_value = market_provider
+                            .try_lookup_currency_in_divines_default_if_fail(&e, &item_provider);
+                        let currency_value_ex = market_provider
+                            .currency_convert(&currency_value, &PriceKind::Exalted)
+                            .ceil() as u32;
+
+                        format!(
+                            "{} ({})",
+                            e.get_item_name(&item_provider),
+                            currency_value_ex.to_formatted_string(&Locale::en)
+                        )
+                    })
                     .collect::<Vec<String>>()
                     .join(" + ")
             )
@@ -217,7 +229,7 @@ impl ItemRoute {
             if item.item.snapshot.corrupted {
                 writeln!(
                     &mut out,
-                    "{}. \t! Corrupted - no further modification is possible. Ensure maximum quality and wanted affixes, since corrupting an item will prevent further modification.",
+                    "{}. \t! Corrupted - no further modification is possible. Ensure maximum quality and wanted affixes, since corrupted items can't be further modified.",
                     i + 1
                 )
                 .unwrap();
