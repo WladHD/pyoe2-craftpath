@@ -168,7 +168,7 @@ impl ItemRoute {
                             .ceil() as u32;
 
                         format!(
-                            "{} ({})",
+                            "{} ({} EX)",
                             e.get_item_name(&item_provider),
                             currency_value_ex.to_formatted_string(&Locale::en)
                         )
