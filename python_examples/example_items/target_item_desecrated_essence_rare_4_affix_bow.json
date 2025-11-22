@@ -6,19 +6,20 @@
         "ilvl": 100,
         "rarity": "rare",
         "influences": null,
-        "sockets": 0,
+        "sockets": 3,
         "socketed": [],
         "quality": 20,
-        "exmods": null
+        "exmods": null,
+        "corrupted": 1
     },
     "params": {
-        "mode": "forced",
+        "mode": null,
         "currency": null,
         "action": "mp",
         "subaction": 5056,
         "ssaction": 4,
         "disabled": "|catalyst|poe2_desecrationancient_ribs|poe2_desecrationgnawed_ribs|poe2_desecrationpreserved_ribs|poe2_desecrationancient_collarbone|poe2_desecrationgnawed_collarbone|poe2_desecrationpreserved_collarbone|poe2_desecrationpreserved_cranium|poe2_desecrationpreserved_spine|poe2_desecrationgnawed_collarbone|poe2_desecrationgnawed_ribs|poe2_desecrationgnawed_jawbone|fossil18|eldritch|vendor|",
-        "cursor": ""
+        "cursor": "url('images/ui_poe2/method_vaal.png') 39 39, default"
     },
     "data": {
         "implicits": [
@@ -476,6 +477,354 @@
             "socketed": [],
             "quality": 20,
             "nums": 1
+        },
+        {
+            "mode": "currency",
+            "currency": "artificer",
+            "action": "mp",
+            "ssaction": 4,
+            "subaction": 5056,
+            "forced": null,
+            "add": null,
+            "omens": null,
+            "rem": null,
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 252,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "rare",
+            "affixes": [
+                {
+                    "atype": "prefix",
+                    "id": 5056,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAccuracy"
+                    ],
+                    "tindex": 8,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[451,550]]",
+                    "rolls": [
+                        480
+                    ],
+                    "weight": "200"
+                },
+                {
+                    "atype": "suffix",
+                    "id": 5697,
+                    "mgrp": "13",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[23,25]]",
+                    "rolls": [
+                        23
+                    ],
+                    "weight": "0"
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5893,
+                    "mgrp": "10",
+                    "modgroups": [
+                        "LightningResistancePenetration"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[15,25]]",
+                    "rolls": [
+                        17
+                    ],
+                    "weight": "1"
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5117,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "LightningDamage"
+                    ],
+                    "tindex": 8,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[1,10],[157,196]]",
+                    "rolls": [
+                        6,
+                        169
+                    ],
+                    "weight": "300"
+                }
+            ],
+            "implicits": [
+                {
+                    "name": "#% chance to Chain an additional time",
+                    "nvalues": [
+                        [
+                            20,
+                            30
+                        ]
+                    ],
+                    "rolls": [
+                        28
+                    ]
+                }
+            ],
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 3,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 0,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        },
+        {
+            "mode": "currency",
+            "currency": "artificer",
+            "action": "mp",
+            "ssaction": 4,
+            "subaction": 5056,
+            "forced": null,
+            "add": null,
+            "omens": null,
+            "rem": null,
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 252,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "rare",
+            "affixes": [
+                {
+                    "atype": "prefix",
+                    "id": 5056,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAccuracy"
+                    ],
+                    "tindex": 8,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[451,550]]",
+                    "rolls": [
+                        480
+                    ],
+                    "weight": "200"
+                },
+                {
+                    "atype": "suffix",
+                    "id": 5697,
+                    "mgrp": "13",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[23,25]]",
+                    "rolls": [
+                        23
+                    ],
+                    "weight": "0"
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5893,
+                    "mgrp": "10",
+                    "modgroups": [
+                        "LightningResistancePenetration"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[15,25]]",
+                    "rolls": [
+                        17
+                    ],
+                    "weight": "1"
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5117,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "LightningDamage"
+                    ],
+                    "tindex": 8,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[1,10],[157,196]]",
+                    "rolls": [
+                        6,
+                        169
+                    ],
+                    "weight": "300"
+                }
+            ],
+            "implicits": [
+                {
+                    "name": "#% chance to Chain an additional time",
+                    "nvalues": [
+                        [
+                            20,
+                            30
+                        ]
+                    ],
+                    "rolls": [
+                        28
+                    ]
+                }
+            ],
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 3,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 1,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
+        },
+        {
+            "mode": "currency",
+            "currency": "vaal",
+            "action": "mp",
+            "ssaction": 4,
+            "subaction": 5056,
+            "forced": null,
+            "add": null,
+            "omens": null,
+            "rem": null,
+            "upg": null,
+            "sts": null,
+            "det": null,
+            "ilvl": 100,
+            "bitem": 252,
+            "base": 20,
+            "bgroup": 7,
+            "rarity": "rare",
+            "affixes": [
+                {
+                    "atype": "prefix",
+                    "id": 5056,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "IncreasedAccuracy"
+                    ],
+                    "tindex": 8,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[451,550]]",
+                    "rolls": [
+                        480
+                    ],
+                    "weight": "200"
+                },
+                {
+                    "atype": "suffix",
+                    "id": 5697,
+                    "mgrp": "13",
+                    "modgroups": [
+                        "IncreasedAttackSpeed"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[23,25]]",
+                    "rolls": [
+                        23
+                    ],
+                    "weight": "0"
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5893,
+                    "mgrp": "10",
+                    "modgroups": [
+                        "LightningResistancePenetration"
+                    ],
+                    "tindex": 0,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[15,25]]",
+                    "rolls": [
+                        17
+                    ],
+                    "weight": "1"
+                },
+                {
+                    "atype": "prefix",
+                    "id": 5117,
+                    "mgrp": "1",
+                    "modgroups": [
+                        "LightningDamage"
+                    ],
+                    "tindex": 8,
+                    "bench": 0,
+                    "frac": 0,
+                    "maven": 0,
+                    "nvalues": "[[1,10],[157,196]]",
+                    "rolls": [
+                        6,
+                        169
+                    ],
+                    "weight": "300"
+                }
+            ],
+            "implicits": [
+                {
+                    "name": "#% chance to Chain an additional time",
+                    "nvalues": [
+                        [
+                            20,
+                            30
+                        ]
+                    ],
+                    "rolls": [
+                        28
+                    ]
+                }
+            ],
+            "eldritch": null,
+            "influences": null,
+            "imprint": null,
+            "psn": {
+                "prefix": 3,
+                "suffix": 1
+            },
+            "catalyst": null,
+            "sockets": 2,
+            "socketed": [],
+            "quality": 20,
+            "nums": 1
         }
     ],
     "spending": {
@@ -490,7 +839,9 @@
             "divine": 0,
             "artificer": 0,
             "fracturing": 0,
-            "vaal": 0
+            "vaal": 0,
+            "5056_artificer": 2,
+            "5056_vaal": 1
         },
         "actions": {
             "transmute": {
@@ -788,8 +1139,8 @@
     },
     "opened": {
         "mp": {
-            "prefix": "5117",
-            "suffix": "5697"
+            "prefix": "5116",
+            "suffix": null
         },
         "cb": {
             "prefix": null,

@@ -46,8 +46,8 @@ def main():
         end_raw_string, coe_data)
 
     # prettyprint out item
-    print(start_item.to_pretty_string(coe_data))
-    print(end_item.to_pretty_string(coe_data))
+    print(start_item.to_pretty_string(coe_data, True))
+    print(end_item.to_pretty_string(coe_data, True))
 
     # select instance responsible for creating the item matrix
     # currently only HappyPathMatrixBuilder available
