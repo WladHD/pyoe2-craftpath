@@ -71,7 +71,12 @@ impl ItemRoute {
 
         let start_item = &calculator.starting_item;
 
-        write!(&mut out, "{}", start_item.to_pretty_string(&item_provider)).unwrap();
+        write!(
+            &mut out,
+            "{}",
+            start_item.to_pretty_string(&item_provider, false)
+        )
+        .unwrap();
 
         let cost_per_1 = unique_path_statistic_analyzer.calculate_cost_per_craft(
             &self
@@ -132,7 +137,7 @@ impl ItemRoute {
         for affix in &start_item.affixes {
             print_affix(
                 &mut out,
-                0,
+                Some(0),
                 affix,
                 None,
                 item_provider,
@@ -181,7 +186,7 @@ impl ItemRoute {
             for affix in removed.iter() {
                 print_affix(
                     &mut out,
-                    i + 1,
+                    Some(i + 1),
                     affix,
                     Some(path.chance),
                     item_provider,
@@ -193,7 +198,7 @@ impl ItemRoute {
             for affix in added.iter() {
                 print_affix(
                     &mut out,
-                    i + 1,
+                    Some(i + 1),
                     affix,
                     Some(path.chance),
                     item_provider,
@@ -271,7 +276,7 @@ pub fn print_socket_change(
 
 pub fn print_affix(
     out: &mut String,
-    index: usize,
+    index: Option<usize>,
     affix: &AffixSpecifier,
     chance: Option<Fraction>,
     item_provider: &ItemInfoProvider,
@@ -335,14 +340,15 @@ pub fn print_affix(
 
     writeln!(
         out,
-        "{}.\t{}[{}{}] '{}'",
-        index,
-        if index == 0 {
-            ""
-        } else if is_added {
-            "+ "
-        } else {
-            "- "
+        "{}{}[{}{}] '{}'",
+        match index {
+            Some(i) => format!("{}.\t", i),
+            None => "".to_string(),
+        },
+        match index {
+            Some(i) if i != 0 && is_added => "+ ",
+            Some(i) if i != 0 && !is_added => "- ",
+            _ => "",
         },
         match chance {
             Some(c) => format!("{} (~{:.3}%), ", c, c.to_f64() * 100_f64).to_string(),

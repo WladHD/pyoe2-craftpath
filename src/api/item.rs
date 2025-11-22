@@ -34,7 +34,11 @@ pub struct ItemSnapshot {
 }
 
 impl ItemSnapshot {
-    pub fn to_pretty_string(&self, item_provider: &ItemInfoProvider) -> String {
+    pub fn to_pretty_string(
+        &self,
+        item_provider: &ItemInfoProvider,
+        print_affixes: bool,
+    ) -> String {
         let mut out = String::new();
 
         let base_group_id = item_provider.lookup_base_group(&self.base_id).unwrap();
@@ -68,16 +72,18 @@ impl ItemSnapshot {
         )
         .unwrap();
 
-        for affix in &self.affixes {
-            print_affix(
-                &mut out,
-                0,
-                affix,
-                None,
-                &item_provider,
-                false,
-                &self.base_id,
-            );
+        if print_affixes {
+            for affix in &self.affixes {
+                print_affix(
+                    &mut out,
+                    None,
+                    affix,
+                    None,
+                    &item_provider,
+                    false,
+                    &self.base_id,
+                );
+            }
         }
 
         return out;
@@ -89,8 +95,12 @@ impl ItemSnapshot {
 #[cfg_attr(feature = "python", pyo3::prelude::pymethods)]
 impl ItemSnapshot {
     #[pyo3(name = "to_pretty_string")]
-    pub fn to_pretty_string_py(&self, item_provider: &ItemInfoProvider) -> String {
-        self.to_pretty_string(item_provider)
+    pub fn to_pretty_string_py(
+        &self,
+        item_provider: &ItemInfoProvider,
+        print_affixes: bool,
+    ) -> String {
+        self.to_pretty_string(item_provider, print_affixes)
     }
 }
 
