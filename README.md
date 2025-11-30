@@ -11,6 +11,8 @@ Available as Python package [`pyoe2-craftpath`](https://pypi.org/project/pyoe2-c
 
 Built and tested for Path of Exile 2 on version `0.3.1`. Supported Python versions and platforms are determined by the [automated pipeline, here](https://github.com/WladHD/pyoe2-craftpath/actions/workflows/release_python.yml) (should support all widely used platforms and versions `>=3.10`).
 
+The primary goal is to provide a framework for calculating craft paths and to enable its integration into native applications (over FFI), including overlays or mobile apps ... or just run easily as a [Windows executable](https://github.com/WladHD/pyoe2-craftpath/releases) or [Python library](https://pypi.org/project/pyoe2-craftpath/).
+
 ## About
 To keep it short, I was introduced to Path of Exile 2 and enjoyed it quite a bit.
 After reaching higher levels and starting to get the hang of things, I became interested in crafting.
@@ -47,7 +49,9 @@ My plan is of course to reach version `1.0.0` ... which depends on the traction 
 All affix weights are fetched from [`craftofexile.com`](https://www.craftofexile.com/weightings); refer to the given link for infos about how the weights are collected.
 
 ## How To Run<a name="how-to"></a>
-This tool is actually intended to be used in Python. Refer to the [extended Python example as Jupyter Notebook](https://github.com/WladHD/pyoe2-craftpath/blob/main/python_examples/example_calculator_for_example_items.ipynb) or just skim through the [`python_examples`](https://github.com/WladHD/pyoe2-craftpath/tree/main/python_examples) directory for commented usage in Python.
+This tool is primarily intended to be used as a framework for native applications, such as overlays or mobile apps (via FFI). If you need help creating an FFI from this tool to your programming language, feel free to create an [Issue](https://github.com/WladHD/pyoe2-craftpath/issues) with your target.
+
+Another way to easily run the tool is as a Python library, which also demonstrates one way to use FFI. Check out the [extended Python example as a Jupyter Notebook](https://github.com/WladHD/pyoe2-craftpath/blob/main/python_examples/example_calculator_for_example_items.ipynb) or browse the [`python_examples`](https://github.com/WladHD/pyoe2-craftpath/tree/main/python_examples) directory for commented usage examples in Python.
 
 The following section shows a guide for the *quick-n-dirty* approach to run the Windows executable via the console, since I wanted to offer a simple(r) solution for those who just want to have a basic overview and are not planning to create further analytical pipelines. 
 
@@ -153,16 +157,14 @@ The most interesting detail is probably the need to filter out theoretical cycli
 
 
 ## Contribution / Dev Usage
-I've published the project on [`crates.io`](https://crates.io/crates/pyoe2-craftpath) (and [`PyPI`](https://pypi.org/project/pyoe2-craftpath/)). You can either use the [API](https://github.com/WladHD/pyoe2-craftpath/tree/main/src/api) to build your own extension as own Rust crate depending on `pyoe2-craftpath`.
+I've published the project on [`crates.io`](https://crates.io/crates/pyoe2-craftpath) (and [`PyPI`](https://pypi.org/project/pyoe2-craftpath/)). You can either use the [API](https://github.com/WladHD/pyoe2-craftpath/tree/main/src/api) to build your own extension as own Rust crate depending on `pyoe2-craftpath`. If you're planning to offer FFI for your language, free to open an [Issue](https://github.com/WladHD/pyoe2-craftpath/issues) to ask about technical stuff. 
 
 If you want, you can also create a pull request to have it directly included here. The only requirement is the usage of the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format for your commit messages and preferably a new test for your code.
 
 I recommend looking at the central types [StatisticAnalyzerCurrencyGroupPreset](https://github.com/WladHD/pyoe2-craftpath/blob/main/src/calc/statistics/presets/statistic_analyzer_currency_group_presets.rs), [StatisticAnalyzerPathPreset](https://github.com/WladHD/pyoe2-craftpath/blob/main/src/calc/statistics/presets/statistic_analyzer_path_presets.rs) and [MatrixBuilderPreset](https://github.com/WladHD/pyoe2-craftpath/blob/main/src/calc/matrix/presets/matrix_builder_presets.rs) which are most likely the things that an extension wants to offer. The mentioned enums provide specific, usuable implementations for both Rust and Python and integrate seamlessly into the rest of CraftPath's "ecosystem". E. g. a [DynMatrixBuilder](https://github.com/WladHD/pyoe2-craftpath/blob/e88bad7dd7fa5e44be0367e2fe5fc1cb959d738e/src/api/calculator.rs#L126) could be passed over arguments in [Section 5 of the Jupyter Notebook example](https://github.com/WladHD/pyoe2-craftpath/blob/main/python_examples/example_calculator_for_example_items.ipynb). This is possible for statistic analyzers as well (refer to [Section 6](https://github.com/WladHD/pyoe2-craftpath/blob/main/python_examples/example_calculator_for_example_items.ipynb)).
 
-Feel free to open an [Issue](https://github.com/WladHD/pyoe2-craftpath/issues) to ask about technical stuff. 
-
 ## Acknowledgments
-- Of course, [Grinding Gear Games](https://www.grindinggear.com/) for provinding Path of Exile 2, that got me hooked to the extent of actually coding this.
+- Of course, [Grinding Gear Games](https://www.grindinggear.com/) for providing Path of Exile 2, that got me hooked to the extent of actually coding this.
 
 - [CraftOfExile](https://www.craftofexile.com/) that permitted me to use their [item data](https://www.craftofexile.com/json/poe2/main/poec_data.json). **CraftPath would not be possible without it.** CoE offers an extensive, crunched mapping for weights, items, affixes, etc. Moreover I integrated CoE's Emulator Export outputs to parse the starting/target item, offering an external, easy capture of item information over a GUI. Since I as noob needed something hands-on, easy to use, CraftOfExile was essential for this project.
 
