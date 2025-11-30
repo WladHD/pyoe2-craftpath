@@ -305,7 +305,7 @@ impl MatrixPropagator for PerfectEssencePropagator {
 
         let mut request_temp_step = THashSet::default();
 
-        for (spec, _, ess_def) in open_essence_mods {
+        'outer: for (spec, _, ess_def) in open_essence_mods {
             for dex_sin in DEX_SIN_OMEN_GROUP {
                 for ess_def in ess_def {
                     let curr = CraftCurrencyEnum::Essence(ess_def.clone());
@@ -335,10 +335,13 @@ impl MatrixPropagator for PerfectEssencePropagator {
                         }
 
                         Err(e) => {
+                            propagation_result.clear();
+
                             if let Some(CraftPathError::EssenceIntermediaryStepRequired(location)) =
                                 e.downcast_ref::<CraftPathError>()
                             {
                                 request_temp_step.insert((location.clone(), spec, ess_def));
+                                break 'outer;
                             } else {
                                 return Err(e);
                             }
