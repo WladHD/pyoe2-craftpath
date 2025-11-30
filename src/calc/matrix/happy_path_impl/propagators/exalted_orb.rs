@@ -179,7 +179,7 @@ impl ExaltedOrbPropagator {
                 .fold(0u32, |a, b| a + b.1.weight.get_raw_value().clone())
         });
 
-        let next_affix_pool: Vec<AffixSpecifier> = match force_unwanted_location {
+        let mut next_affix_pool: Vec<AffixSpecifier> = match force_unwanted_location {
             None => target_affixes
                 .iter()
                 // TEST IF NEXT AFFIX CAN BE REACHED, SHOULD BE IN POOL OF AVAILABLE MODS
@@ -208,6 +208,46 @@ impl ExaltedOrbPropagator {
                 .collect(),
         };
 
+        // this is used for perfect essence intermediary step
+        let actual_affix_pool: u32 =
+            next_affix_pool
+                .iter()
+                .fold(0_u32, |a, next_affix_of_interest| {
+                    let chance_weight = pool.get(&next_affix_of_interest.affix).unwrap();
+
+                    let affix_chance: u32 = match next_affix_of_interest.tier.bounds {
+                        AffixTierLevelBoundsEnum::Minimum => chance_weight
+                            .iter()
+                            .filter(|(test_tier_level, _provider)| {
+                                **test_tier_level <= next_affix_of_interest.tier.tier
+                            })
+                            .fold(0u32, |a, b| a + b.1.weight.get_raw_value().clone()),
+                        AffixTierLevelBoundsEnum::Exact => {
+                            let cw = chance_weight
+                                .get(&next_affix_of_interest.tier.tier)
+                                .unwrap();
+                            cw.weight.get_raw_value().clone()
+                        }
+                    };
+
+                    a + affix_chance
+                });
+
+        if force_unwanted_location.is_some() {
+            // TODO: instead of pinning the combined chance against an existing affix,
+            // create a new type TempSuffix / TempPrefix to signal, that the actual info
+            // about the affix is not needed
+            let min = next_affix_pool
+                .iter()
+                .min_by(|a, b| a.affix.cmp(&b.affix))
+                .cloned();
+
+            next_affix_pool.retain(|test| match &min {
+                Some(e) => &e.affix == &test.affix,
+                None => false,
+            });
+        }
+
         for next_affix_of_interest in next_affix_pool.iter() {
             let mut affixes: THashSet<AffixSpecifier> = item_instance.snapshot.affixes.clone();
             affixes.insert(next_affix_of_interest.clone());
@@ -226,7 +266,7 @@ impl ExaltedOrbPropagator {
                 continue;
             };
 
-            let affix_chance: u32 = match next_affix_of_interest.tier.bounds {
+            let mut affix_chance: u32 = match next_affix_of_interest.tier.bounds {
                 AffixTierLevelBoundsEnum::Minimum => chance_weight
                     .iter()
                     .filter(|(test_tier_level, _provider)| {
@@ -246,6 +286,10 @@ impl ExaltedOrbPropagator {
             if affix_chance == 0 {
                 tracing::trace!("it happened");
                 continue;
+            }
+
+            if force_unwanted_location.is_some() {
+                affix_chance = actual_affix_pool;
             }
 
             let hit_chance_fraction = Fraction::new(affix_chance, max_weight);
@@ -274,7 +318,7 @@ impl ExaltedOrbPropagator {
         };
 
         for dex_sin in dex_sin.iter() {
-            let next_items = ExaltedOrbPropagator::propagate_step_explicit(
+            let mut next_items = ExaltedOrbPropagator::propagate_step_explicit(
                 &CraftCurrencyEnum::ExaltedOrbNormal(),
                 dex_sin.as_ref(),
                 None,
@@ -293,6 +337,16 @@ impl ExaltedOrbPropagator {
 
             if let Some(dex_sin) = dex_sin {
                 unique_currency_list.list.insert(dex_sin.clone());
+            }
+
+            let merged = next_items.drain(..).reduce(|mut acc, b| {
+                acc.chance = acc.chance + b.chance;
+                acc
+            });
+
+            next_items.clear();
+            if let Some(m) = merged {
+                next_items.push(m);
             }
 
             propagation_result.insert(unique_currency_list, next_items);

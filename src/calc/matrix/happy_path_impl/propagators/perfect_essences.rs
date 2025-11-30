@@ -358,21 +358,24 @@ impl MatrixPropagator for PerfectEssencePropagator {
                 THashMap::default();
 
             for loc in locs {
-                let mut results = ExaltedOrbPropagator::propagate_step_unwanted_location_bound(
+                let results = ExaltedOrbPropagator::propagate_step_unwanted_location_bound(
                     item_instance,
                     target_item,
                     &loc,
                     &provider,
                 )?;
 
-                results
-                    .drain()
-                    .for_each(|craft| match actual_props_with_temp.get_mut(&craft.0) {
-                        Some(e) => e.extend(craft.1),
-                        None => {
-                            actual_props_with_temp.insert(craft.0, craft.1);
-                        }
-                    });
+                for (key, mut vals) in results {
+                    actual_props_with_temp
+                        .entry(key)
+                        .and_modify(|existing| {
+                            existing.extend(vals.drain(..));
+                            // deduplicate just in case
+                            let mut seen = THashSet::default();
+                            existing.retain(|x| seen.insert(x.clone()));
+                        })
+                        .or_insert(vals);
+                }
             }
 
             for (_, results) in actual_props_with_temp.iter_mut() {
