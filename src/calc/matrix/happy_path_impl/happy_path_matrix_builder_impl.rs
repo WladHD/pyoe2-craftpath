@@ -6,7 +6,7 @@ use crate::{
     api::{
         calculator::{ItemMatrix, ItemMatrixNode, MatrixBuilder, PropagationTarget},
         currency::CraftCurrencyList,
-        item::{Item, ItemSnapshot},
+        item::{Item, ItemSnapshot, ItemTechnicalMeta},
         matrix_propagator::MatrixPropagator,
         provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
         types::{THashMap, THashSet},
@@ -54,9 +54,13 @@ fn generate_item_matrix(
     market_info: &MarketPriceProvider,
 ) -> Result<ItemMatrix> {
     let mut matrix = ItemMatrix::default();
-    let mut todo_items: THashSet<ItemSnapshot> = THashSet::default();
+    let mut todo_items: THashSet<PropagationTarget> = THashSet::default();
 
-    todo_items.insert(starting_item);
+    todo_items.insert(PropagationTarget {
+        next: starting_item,
+        chance: Fraction::one(),
+        meta: ItemTechnicalMeta::default(),
+    });
 
     // setup propagators
     let propagators: Vec<Box<dyn MatrixPropagator>> = vec![
@@ -83,11 +87,13 @@ fn generate_item_matrix(
     while !todo_items.is_empty() {
         let items = todo_items
             .iter()
-            .filter_map(|item_snapshot| {
-                let Ok(item) = Item::build_with(item_snapshot.clone(), &target_item, &item_info)
+            .filter_map(|propagation_target| {
+                let Ok(mut item) = Item::build_with(propagation_target.next.clone(), &target_item, &item_info)
                 else {
                     return None;
                 };
+
+                item.meta = propagation_target.meta.clone();
 
                 let mut hm: THashMap<CraftCurrencyList, Vec<PropagationTarget>> =
                     THashMap::default();
@@ -183,7 +189,7 @@ fn generate_item_matrix(
         for (snapshot, node) in items {
             node.propagate.values().for_each(|targets| {
                 targets.iter().for_each(|target| {
-                    todo_items.insert(target.next.clone());
+                    todo_items.insert(target.clone());
                 })
             });
 
@@ -197,13 +203,19 @@ fn generate_item_matrix(
                             .entry(k.clone())
                             .and_modify(|existing_vec| existing_vec.extend(v.clone()))
                             .or_insert(v.clone());
+
+                        // dedup just in case
+                        if let Some(e) = existing_node.propagate.get_mut(k) {
+                            let mut set = THashSet::default();
+                            e.retain(|x| set.insert(x.clone()));
+                        }
                     }
                 })
                 .or_insert(node);
         }
 
         // remove already calculated items from todo
-        todo_items.retain(|test| !matrix.contains_key(&hash_value(&test)));
+        todo_items.retain(|test| !matrix.contains_key(&hash_value(&test.next)));
     }
 
     let fetched = count_removed.load(Ordering::Relaxed);
