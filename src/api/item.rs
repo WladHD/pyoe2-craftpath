@@ -82,6 +82,7 @@ impl ItemSnapshot {
                     &item_provider,
                     false,
                     &self.base_id,
+                    false,
                 );
             }
         }

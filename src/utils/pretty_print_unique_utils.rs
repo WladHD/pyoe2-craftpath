@@ -143,11 +143,13 @@ impl ItemRoute {
                 item_provider,
                 true,
                 &calculator.starting_item.base_id,
+                false,
             );
         }
 
         let mut prev_affixes = start_item.affixes.clone();
         let mut prev_rarity = start_item.rarity.clone();
+        let mut temporary_affixes: THashSet<AffixSpecifier> = THashSet::default();
 
         for (i, path) in self.route.iter().enumerate() {
             let item: &calculator::ItemMatrixNode =
@@ -157,10 +159,11 @@ impl ItemRoute {
 
             let added: THashSet<_> = new_affixes.difference(&prev_affixes).collect();
             let removed: THashSet<_> = prev_affixes.difference(&new_affixes).collect();
+            let temporary = item.item.meta.mark_for_essence_only;
 
             writeln!(
                 out,
-                "{}. Apply {}",
+                "{}. Apply {}{}",
                 i + 1,
                 path.currency_list
                     .list
@@ -179,7 +182,11 @@ impl ItemRoute {
                         )
                     })
                     .collect::<Vec<String>>()
-                    .join(" + ")
+                    .join(" + "),
+                match temporary {
+                    true => " [TEMP]",
+                    false => "",
+                }
             )
             .unwrap();
 
@@ -192,10 +199,17 @@ impl ItemRoute {
                     item_provider,
                     false,
                     &calculator.starting_item.base_id,
+                    temporary_affixes.contains(&affix),
                 );
+
+                temporary_affixes.remove(affix);
             }
 
             for affix in added.iter() {
+                if temporary {
+                    temporary_affixes.insert((*affix).clone());
+                }
+
                 print_affix(
                     &mut out,
                     Some(i + 1),
@@ -204,6 +218,7 @@ impl ItemRoute {
                     item_provider,
                     true,
                     &calculator.starting_item.base_id,
+                    temporary,
                 );
             }
 
@@ -282,6 +297,7 @@ pub fn print_affix(
     item_provider: &ItemInfoProvider,
     is_added: bool,
     base_id: &BaseItemId,
+    is_temporary: bool,
 ) {
     let affix_def = item_provider.lookup_affix_definition(&affix.affix).unwrap();
 
@@ -305,18 +321,24 @@ pub fn print_affix(
     };
 
     let more_meta: Vec<Option<String>> = vec![
-        Some(
-            format!(
-                "Tier {}{}",
-                affix.tier.tier.get_raw_value(),
-                match affix.tier.bounds {
-                    AffixTierLevelBoundsEnum::Exact => "=",
-                    AffixTierLevelBoundsEnum::Minimum => "+",
-                }
-            )
-            .to_string(),
-        ),
-        Some(min_ivl),
+        match is_temporary {
+            true => None,
+            false => Some(
+                format!(
+                    "Tier {}{}",
+                    affix.tier.tier.get_raw_value(),
+                    match affix.tier.bounds {
+                        AffixTierLevelBoundsEnum::Exact => "=",
+                        AffixTierLevelBoundsEnum::Minimum => "+",
+                    }
+                )
+                .to_string(),
+            ),
+        },
+        match is_temporary {
+            true => None,
+            false => Some(min_ivl),
+        },
         match affix_def.affix_location {
             AffixLocationEnum::Prefix => Some("Prefix".to_string()),
             AffixLocationEnum::Suffix => Some("Suffix".to_string()),
@@ -358,7 +380,18 @@ pub fn print_affix(
             true => "".to_string(),
             false => format!("{}", more_meta.join(", ")).as_str().to_string(),
         },
-        name
+        match is_temporary {
+            true => format!(
+                "any {} (temporary)",
+                match affix_def.affix_location {
+                    AffixLocationEnum::Prefix => "prefix",
+                    AffixLocationEnum::Suffix => "suffix",
+                    _ => "???",
+                }
+            )
+            .to_string(),
+            false => name.to_string(),
+        }
     )
     .unwrap();
 }
