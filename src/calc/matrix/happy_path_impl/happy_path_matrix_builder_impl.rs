@@ -14,7 +14,8 @@ use crate::{
     calc::matrix::happy_path_impl::propagators::{
         artificers_orb::ArtificersOrbPropagator, chaos_orb::ChaosOrbPropagator,
         desecration::DesecrationPropagator, exalted_orb::ExaltedOrbPropagator,
-        normal_essences::NormalEssencePropagator, orb_of_annulment::OrbOfAnnulmentPropagator,
+        fracturing_orb::FracturingOrbPropagator, normal_essences::NormalEssencePropagator,
+        orb_of_annulment::OrbOfAnnulmentPropagator,
         orb_of_augmentation::OrbOfAugmentationPropagator,
         orb_of_transmutation::OrbOfTransmutationPropagator,
         perfect_essences::PerfectEssencePropagator, regal_orb::RegalOrbPropagator,
@@ -64,6 +65,7 @@ fn generate_item_matrix(
 
     // setup propagators
     let propagators: Vec<Box<dyn MatrixPropagator>> = vec![
+        Box::new(FracturingOrbPropagator),
         Box::new(OrbOfTransmutationPropagator),
         Box::new(OrbOfAugmentationPropagator),
         Box::new(RegalOrbPropagator),

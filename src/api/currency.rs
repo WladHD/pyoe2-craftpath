@@ -42,6 +42,8 @@ pub enum CraftCurrencyEnum {
     VaalOrb(),
     OmenOfCorruption(),
 
+    FracturingOrb(),
+
     // DESECRATION
     Desecrator(BaseItemId, BaseGroupId),
     // CAN REROLL ONCE
@@ -96,6 +98,7 @@ impl CraftCurrencyEnum {
 impl CraftCurrencyEnum {
     pub fn get_item_name<'a>(&self, item_info: &'a ItemInfoProvider) -> &'a str {
         match self {
+            CraftCurrencyEnum::FracturingOrb() => "Fracturing Orb",
             CraftCurrencyEnum::ArtificersOrb() => "Artificer's Orb",
             CraftCurrencyEnum::VaalOrb() => "Vaal Orb",
             CraftCurrencyEnum::OmenOfCorruption() => "Omen of Corruption",
