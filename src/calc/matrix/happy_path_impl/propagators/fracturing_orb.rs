@@ -1,5 +1,4 @@
 use anyhow::Result;
-use tracing::info;
 
 use crate::{
     api::{
@@ -34,7 +33,6 @@ impl MatrixPropagator for FracturingOrbPropagator {
         let mut next_items: Vec<PropagationTarget> = Vec::new();
 
         for to_be_fractured in wanted_item_affixes {
-            info!("{:?}", to_be_fractured);
             let hit_chance_fraction = Fraction::new(1, item_instance.snapshot.affixes.len() as u32);
 
             let mut cloned_affixed = item_instance.snapshot.affixes.clone();
