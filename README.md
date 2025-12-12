@@ -100,7 +100,7 @@ Mostly to express consent for the program to cache things and edit that folderâ€
 <details>
 <summary><code>--poe2_league &lt;League&gt;</code></summary>
 
-**Default:** `Rise of the Abyssal`  
+**Default:** `Fate of the Vaal`  
 Fetches [PoE.Ninja's](https://poe.ninja/poe2/economy/) economy data for the specified league.
 </details>
 

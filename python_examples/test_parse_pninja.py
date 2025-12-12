@@ -4,10 +4,11 @@ import pyoe2_craftpath as pc
 # Example of that below
 # For info of what is available visit https://poe.ninja/poe2/economy/
 MARKET_MAP = {
-    "./cache/pn_abyss.json": "https://poe.ninja/poe2/api/economy/exchange/current/overview?league=Rise of the Abyssal&type=Abyss",
-    "./cache/pn_currency.json": "https://poe.ninja/poe2/api/economy/exchange/current/overview?league=Rise of the Abyssal&type=Currency",
-    "./cache/pn_essences.json": "https://poe.ninja/poe2/api/economy/exchange/current/overview?league=Rise of the Abyssal&type=Essences",
-    "./cache/pn_ritual.json": "https://poe.ninja/poe2/api/economy/exchange/current/overview?league=Rise of the Abyssal&type=Ritual"
+    "./cache/pn_abyss.json": "https://poe.ninja/poe2/api/economy/exchange/current/overview?league=Fate of the Vaal&type=Abyss",
+    "./cache/pn_currency.json": "https://poe.ninja/poe2/api/economy/exchange/current/overview?league=
+    &type=Currency",
+    "./cache/pn_essences.json": "https://poe.ninja/poe2/api/economy/exchange/current/overview?league=Fate of the Vaal&type=Essences",
+    "./cache/pn_ritual.json": "https://poe.ninja/poe2/api/economy/exchange/current/overview?league=Fate of the Vaal&type=Ritual"
 }
 
 CACHE_TTL_IN_SECONDS = 60 * 60  # 1 hour in seconds

@@ -112,7 +112,8 @@ pub mod cli {
             short,
             long,
             env = "POE2_LEAGUE",
-            default_value = "Rise of the Abyssal"
+            default_value = "
+            "
         )]
         poe2_league: String,
 
