@@ -22,7 +22,8 @@ static REGAL_ORBS: &[CraftCurrencyEnum] = &[
 ];
 
 static HOMOGEN_OMEN_GROUP: &[Option<CraftCurrencyEnum>] =
-    &[Some(CraftCurrencyEnum::HomogenisingCoronation()), None];
+    // &[Some(CraftCurrencyEnum::HomogenisingCoronation()), None];
+    &[None];
 
 pub struct RegalOrbPropagator;
 

@@ -29,7 +29,8 @@ static DEX_SIN_OMEN_GROUP: &[Option<CraftCurrencyEnum>] = &[
 ];
 
 static HOMOGEN_OMEN_GROUP: &[Option<CraftCurrencyEnum>] =
-    &[Some(CraftCurrencyEnum::HomogenisingExaltation()), None];
+    // &[Some(CraftCurrencyEnum::HomogenisingExaltation()), None];
+    &[None];
 
 pub struct ExaltedOrbPropagator;
 
