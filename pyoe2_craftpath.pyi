@@ -271,6 +271,13 @@ class CraftCurrencyEnum:
         def __getitem__(self, key: builtins.int) -> typing.Any: ...
     
     @typing.final
+    class FracturingOrb(CraftCurrencyEnum):
+        __match_args__ = ()
+        def __new__(cls) -> CraftCurrencyEnum.FracturingOrb: ...
+        def __len__(self) -> builtins.int: ...
+        def __getitem__(self, key: builtins.int) -> typing.Any: ...
+    
+    @typing.final
     class Desecrator(CraftCurrencyEnum):
         __match_args__ = ("_0", "_1",)
         @property

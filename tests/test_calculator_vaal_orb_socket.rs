@@ -36,19 +36,19 @@ mod tests {
         let economy_provider_hm = THashMap::from_iter(vec![
             (
                 "./cache/pn_abyss.json".to_string(),
-                "https://poe.ninja/poe2/api/economy/exchange/current/overview?league=Fate of the Vaal&type=Abyss".to_string(),
+                "https://poe.ninja/poe2/api/economy/exchange/current/overview?league=Standard&type=Abyss".to_string(),
             ),
             (
                 "./cache/pn_currency.json".to_string(),
-                "https://poe.ninja/poe2/api/economy/exchange/current/overview?league=Fate of the Vaal&type=Currency".to_string(),
+                "https://poe.ninja/poe2/api/economy/exchange/current/overview?league=Standard&type=Currency".to_string(),
             ),
             (
                 "./cache/pn_essences.json".to_string(),
-                "https://poe.ninja/poe2/api/economy/exchange/current/overview?league=Fate of the Vaal&type=Essences".to_string(),
+                "https://poe.ninja/poe2/api/economy/exchange/current/overview?league=Standard&type=Essences".to_string(),
             ),
             (
                 "./cache/pn_ritual.json".to_string(),
-                "https://poe.ninja/poe2/api/economy/exchange/current/overview?league=Fate of the Vaal&type=Ritual".to_string(),
+                "https://poe.ninja/poe2/api/economy/exchange/current/overview?league=Standard&type=Ritual".to_string(),
             ),
         ]);
 
