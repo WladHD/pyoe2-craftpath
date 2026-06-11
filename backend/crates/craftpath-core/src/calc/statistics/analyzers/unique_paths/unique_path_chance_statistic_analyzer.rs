@@ -11,7 +11,11 @@ use crate::{
     calc::statistics::{
         analyzers::collectors::{
             unique_paths::chance_collector::UniquePathChanceCollector,
-            utils::statistic_analyzer_unique_collector::calculate_crafting_paths,
+        },
+        engine::{
+            graph::CraftGraph,
+            metrics::ChanceMetric,
+            yen::k_best_paths,
         },
         helpers::{ItemRouteRef, finalize_routes},
     },
@@ -66,13 +70,14 @@ impl StatisticAnalyzerPaths for UniquePathChanceStatisticAnalyzer {
         max_ram_in_bytes: u64,
         sink: &dyn ProgressSink,
     ) -> Result<Vec<ItemRoute>> {
-        let res: Vec<ItemRouteRef<'_>> = calculate_crafting_paths::<UniquePathChanceCollector>(
+        let graph = CraftGraph::build(calculator, item_provider, market_provider)?;
+        let res: Vec<ItemRouteRef<'_>> = k_best_paths::<ChanceMetric, UniquePathChanceCollector>(
+            &graph,
             calculator,
             item_provider,
             market_provider,
-            max_routes,
+            max_routes as usize,
             max_ram_in_bytes,
-            self.lower_is_better(),
             sink,
         )?;
 

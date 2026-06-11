@@ -9,10 +9,8 @@ use crate::{
         provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
     },
     calc::statistics::{
-        analyzers::collectors::{
-            unique_paths::efficient_cost_collector::UniquePathEfficientCostCollector,
-            utils::statistic_analyzer_unique_collector::calculate_crafting_paths,
-        },
+        analyzers::collectors::unique_paths::efficient_cost_collector::UniquePathEfficientCostCollector,
+        engine::{graph::CraftGraph, yen::k_best_efficiency_paths},
         helpers::{ItemRouteRef, finalize_routes},
     },
     impl_common_unique_path_analyzer_methods,
@@ -66,16 +64,20 @@ impl StatisticAnalyzerPaths for UniquePathEfficientCostStatisticAnalyzer {
         max_ram_in_bytes: u64,
         sink: &dyn ProgressSink,
     ) -> Result<Vec<ItemRoute>> {
-        let res: Vec<ItemRouteRef<'_>> =
-            calculate_crafting_paths::<UniquePathEfficientCostCollector>(
-                calculator,
-                item_provider,
-                market_provider,
-                max_routes,
-                max_ram_in_bytes,
-                self.lower_is_better(),
-                sink,
-            )?;
+        // per-node Pareto frontier cap; exact whenever frontiers fit
+        let frontier_cap = (8 * max_routes as usize).max(256);
+
+        let graph = CraftGraph::build(calculator, item_provider, market_provider)?;
+        let res: Vec<ItemRouteRef<'_>> = k_best_efficiency_paths::<UniquePathEfficientCostCollector>(
+            &graph,
+            calculator,
+            item_provider,
+            market_provider,
+            max_routes as usize,
+            frontier_cap,
+            max_ram_in_bytes,
+            sink,
+        )?;
 
         Ok(finalize_routes(res))
     }
