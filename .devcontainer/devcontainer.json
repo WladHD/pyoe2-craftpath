@@ -1,51 +1,61 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/rust
 {
-	"name": "Rust",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"build": {
-		"dockerfile": "Dockerfile"
-	},
+	"name": "Devcontainer Flutter + Rust",
+	"dockerComposeFile": "docker-compose.yaml",
+	"service": "devcontainer",
+	"workspaceFolder": "/workspace",
+	"shutdownAction": "stopCompose",
+	"remoteUser": "root",
 	"features": {
-		"ghcr.io/devcontainers/features/python:1": {
-			"version": "3.12"
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		"ghcr.io/devcontainers/features/rust:1": {
+			"version": "stable",
+			"profile": "default"
+		},
+		"ghcr.io/devcontainers/features/node:1": {
+			"version": "20"
+		},
+		"ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+			"version": "latest",
+			"helm": "latest",
+			"minikube": "none"
 		}
 	},
+	"mounts": [
+		// Windows host: %USERPROFILE%\.ssh  (preferred). Falls back to an empty
+		// placeholder dir on non-Windows hosts where USERPROFILE is unset.
+		"source=${localEnv:USERPROFILE:/tmp/__no_userprofile__}/.ssh,target=/root/.ssh-host-win,type=bind,readonly",
+		// macOS / Linux host: $HOME/.ssh. Falls back to an empty placeholder dir
+		// on Windows hosts where HOME is unset.
+		"source=${localEnv:HOME:/tmp/__no_home__}/.ssh,target=/root/.ssh-host-mac,type=bind,readonly"
+	],
+	"containerEnv": {
+		"CLAUDE_CONFIG_DIR": "${containerWorkspaceFolder}/.claude-config"
+	},
+	"postCreateCommand": "bash \"${containerWorkspaceFolder}/.devcontainer/setup-ssh.sh\"; bash \"${containerWorkspaceFolder}/.devcontainer/setup-memory-stack.sh\"",
 	"customizations": {
 		"vscode": {
 			"extensions": [
+				"anthropic.claude-code",
+				"rust-lang.rust-analyzer",
+				"fill-labs.dependi",
+				"tamasfe.even-better-toml",
+				"Dart-Code.dart-code",
+				"Dart-Code.flutter",
+				"ms-azuretools.vscode-docker",
 				"github.vscode-github-actions",
 				"shd101wyy.markdown-preview-enhanced",
+				"redhat.vscode-yaml",
+				"adam-bender.commit-message-editor",
+				"vivaxy.vscode-conventional-commits",
+				"ecmel.vscode-html-css",
+				"bradlc.vscode-tailwindcss",
+				"yzhang.markdown-all-in-one",
+				"esbenp.prettier-vscode",
 				"kangping.protobuf",
 				"panicbit.cargo",
 				"kalifun.vscode-proto3-tools",
-				"redhat.vscode-yaml",
-				"ms-azuretools.vscode-docker",
-				"ms-vscode.cpptools-extension-pack",
-				"adam-bender.commit-message-editor",
-				"vivaxy.vscode-conventional-commits",
-				"mtxr.sqltools",
-				"yzhang.markdown-all-in-one"
+				"mtxr.sqltools"
 			]
 		}
-	},
-	"postCreateCommand": "./setup.sh",
-	// Use 'mounts' to make the cargo cache persistent in a Docker Volume.
-	// "mounts": [
-	// 	{
-	// 		"source": "devcontainer-cargo-cache-${devcontainerId}",
-	// 		"target": "/usr/local/cargo",
-	// 		"type": "volume"
-	// 	}
-	// ]
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "rustc --version",
-	// Configure tool-specific properties.
-	// "customizations": {},
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	"remoteUser": "root"
+	}
 }
