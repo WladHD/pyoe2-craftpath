@@ -113,6 +113,25 @@ impl Fraction {
     }
 }
 
+impl Fraction {
+    /// Build a Fraction from u128 intermediates, degrading precision only if
+    /// the gcd-reduced fraction does not fit u32. Used for compound chance
+    /// formulas (e.g. two-affix exalts) whose denominators exceed u32.
+    pub fn from_u128_approx(num: u128, den: u128) -> Self {
+        assert!(den != 0, "denominator must not be zero");
+
+        let g = num_integer::gcd(num, den);
+        let (mut num, mut den) = (num / g, den / g);
+
+        while num > u32::MAX as u128 || den > u32::MAX as u128 {
+            num >>= 1;
+            den >>= 1;
+        }
+
+        Fraction::new(num as u32, den.max(1) as u32)
+    }
+}
+
 impl fmt::Display for Fraction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if self.den == 1 {

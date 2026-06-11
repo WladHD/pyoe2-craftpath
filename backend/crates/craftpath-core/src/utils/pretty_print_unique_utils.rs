@@ -342,6 +342,7 @@ pub fn print_affix(
         match affix_def.affix_location {
             AffixLocationEnum::Prefix => Some("Prefix".to_string()),
             AffixLocationEnum::Suffix => Some("Suffix".to_string()),
+            AffixLocationEnum::Corrupted => Some("Corrupted Implicit".to_string()),
             _ => None,
         },
         match affix.fractured {
@@ -386,6 +387,7 @@ pub fn print_affix(
                 match affix_def.affix_location {
                     AffixLocationEnum::Prefix => "prefix",
                     AffixLocationEnum::Suffix => "suffix",
+                    AffixLocationEnum::Corrupted => "corrupted implicit",
                     _ => "???",
                 }
             )

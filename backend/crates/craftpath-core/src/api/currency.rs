@@ -48,6 +48,8 @@ pub enum CraftCurrencyEnum {
     Desecrator(BaseItemId, BaseGroupId),
     // CAN REROLL ONCE
     AbyssalEchoes(),
+    // EXTRA REROLL OF THE DESECRATION CHOICE (game patch 0.5.0)
+    OmenOfLight(),
     // KURGAL MOD
     TheBlackblooded(),
     // ULAMAN MOD
@@ -67,6 +69,8 @@ pub enum CraftCurrencyEnum {
     DextralExaltation(),
     // EX ORB ONLY PREFIX
     SinistralExaltation(),
+    // EX ORB ADDS TWO AFFIXES AT ONCE (game patch 0.5.0)
+    OmenOfGreaterExaltation(),
 
     // Annuli ONLY SUFFIX
     DextralAnnulment(),
@@ -103,6 +107,8 @@ impl CraftCurrencyEnum {
             CraftCurrencyEnum::VaalOrb() => "Vaal Orb",
             CraftCurrencyEnum::OmenOfCorruption() => "Omen of Corruption",
             CraftCurrencyEnum::AbyssalEchoes() => "Omen of Abyssal Echoes",
+            CraftCurrencyEnum::OmenOfLight() => "Omen of Light",
+            CraftCurrencyEnum::OmenOfGreaterExaltation() => "Omen of Greater Exaltation",
             CraftCurrencyEnum::ChaosOrbGreater() => "Greater Chaos Orb",
             CraftCurrencyEnum::ChaosOrbNormal() => "Chaos Orb",
             CraftCurrencyEnum::ChaosOrbPerfect() => "Perfect Chaos Orb",
@@ -155,7 +161,16 @@ impl CraftCurrencyEnum {
                         1 => "Preserved Collarbone",
                         9 => "Preserved Cranium",
                         11 => "Preserved Spine",
-                        _ => todo!("Unhandled bone type"),
+                        // safe fallback instead of a panic — new 0.5.0 base
+                        // groups would otherwise crash route rendering; the
+                        // price lookup degrades to the 1-Exalted placeholder
+                        _ => {
+                            tracing::warn!(
+                                "Unhandled bone type for base group {:?} — using generic name.",
+                                base_group_id
+                            );
+                            "Preserved Bone"
+                        }
                     },
                 }
             }

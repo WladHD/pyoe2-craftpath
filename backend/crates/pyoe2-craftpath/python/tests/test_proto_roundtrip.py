@@ -57,7 +57,7 @@ def test_all_enum_values_parse():
         assert presets_pb2.StatisticAnalyzerPathPreset.Name(value)
     for value in currency_pb2.CraftCurrencyKind.values():
         assert currency_pb2.CraftCurrencyKind.Name(value)
-    assert len(currency_pb2.CraftCurrencyKind.values()) == 40  # 39 + UNSPECIFIED
+    assert len(currency_pb2.CraftCurrencyKind.values()) == 42  # 41 + UNSPECIFIED
     assert item_pb2.ItemRarity.Value("ITEM_RARITY_UNIQUE") == 4
 
 

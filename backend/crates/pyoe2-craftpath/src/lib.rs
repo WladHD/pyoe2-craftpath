@@ -20,7 +20,7 @@ pub mod py {
         AffixClassEnum, AffixDefinition, AffixId, AffixLocationEnum, AffixSpecifier,
         AffixTierConstraints, AffixTierLevel, AffixTierLevelBoundsEnum, AffixTierLevelMeta,
         BaseGroupDefinition, BaseGroupId, BaseItemId, EssenceDefinition, EssenceId,
-        EssenceTierLevelMeta, ItemId, ItemRarityEnum, THashMap, Weight,
+        EssenceKindEnum, EssenceTierLevelMeta, ItemId, ItemRarityEnum, THashMap, Weight,
     };
     use craftpath_core::calc::matrix::presets::matrix_builder_presets::MatrixBuilderPreset;
     use craftpath_core::calc::statistics::helpers::{RouteChance, RouteCustomWeight};
@@ -116,6 +116,7 @@ pub mod py {
         // Essence classes
         m.add_class::<EssenceId>()?;
         m.add_class::<EssenceDefinition>()?;
+        m.add_class::<EssenceKindEnum>()?;
         m.add_class::<EssenceTierLevelMeta>()?;
 
         // Misc / route

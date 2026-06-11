@@ -69,6 +69,9 @@ pub enum AffixLocationEnum {
     Socket,
     Prefix,
     Suffix,
+    /// Corruption implicit (Vaal Orb outcome). Never counts toward
+    /// prefix/suffix capacity and is excluded from all craft pools.
+    Corrupted,
 }
 
 #[derive(Clone, Debug, Hash, Eq, PartialEq, Serialize, Deserialize)]
@@ -125,6 +128,27 @@ pub struct AffixDefinition {
     pub affix_location: AffixLocationEnum,
 }
 
+/// How an essence-type item behaves when crafting (game patch 0.5.0 added
+/// Alloys, which apply like Perfect essences).
+#[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass_enum)]
+#[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
+#[cfg_attr(
+    feature = "python",
+    pyo3(eq, weakref, from_py_object, frozen, hash, str)
+)]
+pub enum EssenceKindEnum {
+    /// Lesser/Normal/Greater essences: guaranteed affix on Magic items.
+    Standard,
+    /// Perfect essences: remove-one-add-one on Rare items.
+    Perfect,
+    /// 0.5.0 Alloys (e.g. Transcendent Alloy): apply like Perfect essences,
+    /// usually paired with Dextral/Sinistral Crystallisation omens.
+    Alloy,
+}
+
+crate::derive_DebugDisplay!(EssenceKindEnum);
+
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
@@ -133,6 +157,7 @@ pub struct EssenceDefinition {
     pub name_essence: String,
     pub base_tier_table: THashMap<BaseItemId, THashMap<AffixId, EssenceTierLevelMeta>>,
     pub corrupt: bool,
+    pub kind: EssenceKindEnum,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]

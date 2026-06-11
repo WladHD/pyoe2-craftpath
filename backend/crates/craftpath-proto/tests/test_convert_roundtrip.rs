@@ -123,6 +123,8 @@ fn test_all_craft_currency_variants_roundtrip() {
         CraftCurrencyEnum::Essence(EssenceId::from(11)),
         CraftCurrencyEnum::DextralCrystallisation(),
         CraftCurrencyEnum::SinistralCrystallisation(),
+        CraftCurrencyEnum::OmenOfGreaterExaltation(),
+        CraftCurrencyEnum::OmenOfLight(),
     ];
 
     for original in variants {

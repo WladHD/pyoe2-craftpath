@@ -21,7 +21,7 @@ use crate::{
         orb_of_augmentation::OrbOfAugmentationPropagator,
         orb_of_transmutation::OrbOfTransmutationPropagator,
         perfect_essences::PerfectEssencePropagator, regal_orb::RegalOrbPropagator,
-        vaal_orb_socket::VaalOrbSocketPropagator,
+        vaal_orb::VaalOrbPropagator,
     },
     utils::{fraction_utils::Fraction, hash_utils::hash_value},
 };
@@ -97,7 +97,7 @@ fn generate_item_matrix(
         Box::new(NormalEssencePropagator),
         // finishers
         Box::new(ArtificersOrbPropagator),
-        Box::new(VaalOrbSocketPropagator),
+        Box::new(VaalOrbPropagator),
     ];
 
     let essence_only: Vec<Box<dyn MatrixPropagator>> = vec![Box::new(PerfectEssencePropagator)];

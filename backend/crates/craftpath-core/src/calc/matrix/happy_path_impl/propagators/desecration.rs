@@ -1,5 +1,5 @@
 use anyhow::Result;
-use num_integer::binomial;
+
 
 use crate::{
     api::{
@@ -16,8 +16,14 @@ use crate::{
     utils::fraction_utils::Fraction,
 };
 
-static REROLL_OMEN: &[Option<CraftCurrencyEnum>] =
-    &[Some(CraftCurrencyEnum::AbyssalEchoes()), None];
+/// Reroll-omen combinations and the resulting number of picks `k` of the
+/// desecration 3-option choice (MECHANICS.md V6): baseline = one set of
+/// options, Omen of Abyssal Echoes allows rerolling the set once (k=2).
+/// (Omen of Light is an ANNULMENT omen — see orb_of_annulment.rs.)
+static REROLL_OMEN_COMBOS: &[(&[CraftCurrencyEnum], u32)] = &[
+    (&[], 1),
+    (&[CraftCurrencyEnum::AbyssalEchoes()], 2),
+];
 
 static DEX_SIN_OMEN_GROUP: &[Option<CraftCurrencyEnum>] = &[
     Some(CraftCurrencyEnum::SinistralNecromancy()),
@@ -36,7 +42,7 @@ pub struct DesecrationPropagator;
 
 impl DesecrationPropagator {
     pub fn propagate_step_explicit(
-        reroll_omen: Option<&CraftCurrencyEnum>,
+        reroll_picks: u32,
         dex_sin: Option<&CraftCurrencyEnum>,
         constraint_modgroup: Option<&CraftCurrencyEnum>,
         item_instance: &Item,
@@ -99,7 +105,10 @@ impl DesecrationPropagator {
                             return false;
                         }
 
-                        CraftCurrencyEnum::SinistralExaltation()
+                        // NOTE: this previously matched SinistralExaltation()
+                        // by mistake, so the prefix filter never fired for
+                        // Sinistral Necromancy.
+                        CraftCurrencyEnum::SinistralNecromancy()
                             if (affix_def.affix_location != AffixLocationEnum::Prefix) =>
                         {
                             return false;
@@ -229,14 +238,8 @@ impl DesecrationPropagator {
                 continue;
             }
 
-            let hit_chance_fraction = hit_chance_at_least_once(
-                max_weight,
-                affix_chance,
-                match reroll_omen {
-                    Some(_) => 2, // CraftCurrencyEnum::AbyssalEchoes
-                    _ => 1,
-                },
-            );
+            let hit_chance_fraction =
+                hit_chance_at_least_once(max_weight, affix_chance, reroll_picks);
 
             let next_item = PropagationTarget::new(hit_chance_fraction, next_item_snapshot);
 
@@ -258,11 +261,11 @@ impl MatrixPropagator for DesecrationPropagator {
         let mut propagation_result: THashMap<CraftCurrencyList, Vec<PropagationTarget>> =
             THashMap::default();
 
-        for reroll_omen in REROLL_OMEN {
+        for (reroll_omens, reroll_picks) in REROLL_OMEN_COMBOS {
             for dex_sin in DEX_SIN_OMEN_GROUP {
                 for constraint_modgroup in HOMOGEN_OMEN_GROUP {
                     if let Ok(next_items) = DesecrationPropagator::propagate_step_explicit(
-                        reroll_omen.as_ref(),
+                        *reroll_picks,
                         dex_sin.as_ref(),
                         constraint_modgroup.as_ref(),
                         &item_instance,
@@ -273,7 +276,7 @@ impl MatrixPropagator for DesecrationPropagator {
                             list: THashSet::default(),
                         };
 
-                        if let Some(reroll_omen) = reroll_omen {
+                        for reroll_omen in reroll_omens.iter() {
                             unique_currency_list.list.insert(reroll_omen.clone());
                         }
 
@@ -332,20 +335,59 @@ impl MatrixPropagator for DesecrationPropagator {
 /// N: total affixes
 /// n: number of draws per pull
 /// k: number of pulls
+///
+/// Uses the identity C(N-1, n) / C(N, n) = (N - n) / N so no binomials are
+/// computed (the previous implementation overflowed u32 for weight-sized N),
+/// plus u128 intermediates for the k-th power with a precision-degrading
+/// fallback should the reduced fraction still not fit u32.
 fn hit_chance_at_least_once(total_amount: u32, n: u32, k: u32) -> Fraction {
-    if n > total_amount {
-        return Fraction::new(1, 1); // you always hit if you draw more than the pool
+    if n >= total_amount {
+        return Fraction::new(1, 1); // you always hit if you draw the whole pool
     }
 
-    // Probability of missing in a single pull: C(N-1, n) / C(N, n)
-    let miss_single = Fraction::new(binomial(total_amount - 1, n), binomial(total_amount, n));
-
-    // Probability of missing in all k pulls
-    let mut miss_all = Fraction::one();
+    // miss in a single pull: (N - n) / N; miss in all k pulls: ((N - n) / N)^k
+    let mut miss_num: u128 = 1;
+    let mut miss_den: u128 = 1;
     for _ in 0..k {
-        miss_all = miss_all * miss_single.clone();
+        miss_num *= (total_amount - n) as u128;
+        miss_den *= total_amount as u128;
     }
 
-    // Probability of hitting at least once
-    Fraction::one() - miss_all
+    // hit at least once = 1 - miss_all = (den - num) / den
+    let mut hit_num = miss_den - miss_num;
+    let mut hit_den = miss_den;
+
+    let g = num_integer::gcd(hit_num, hit_den);
+    hit_num /= g;
+    hit_den /= g;
+
+    // degrade precision only if u32 cannot hold the reduced fraction
+    while hit_num > u32::MAX as u128 || hit_den > u32::MAX as u128 {
+        hit_num >>= 1;
+        hit_den >>= 1;
+    }
+
+    Fraction::new(hit_num.max(1) as u32, hit_den.max(1) as u32)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::hit_chance_at_least_once;
+
+    /// More picks of the desecration choice (Abyssal Echoes k=2, plus Omen of
+    /// Light k=3) must strictly increase the hit chance while staying <= 1.
+    #[test]
+    fn test_hit_chance_monotonic_in_reroll_picks() {
+        let total = 100;
+        let wanted = 7;
+
+        let k1 = hit_chance_at_least_once(total, wanted, 1).to_f64();
+        let k2 = hit_chance_at_least_once(total, wanted, 2).to_f64();
+        let k3 = hit_chance_at_least_once(total, wanted, 3).to_f64();
+
+        assert!(k1 > 0.0);
+        assert!(k2 > k1, "echoes must improve the chance: {k2} <= {k1}");
+        assert!(k3 > k2, "omen of light must improve further: {k3} <= {k2}");
+        assert!(k3 <= 1.0);
+    }
 }

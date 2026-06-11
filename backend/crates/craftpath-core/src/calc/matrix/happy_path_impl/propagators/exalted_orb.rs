@@ -28,9 +28,9 @@ static DEX_SIN_OMEN_GROUP: &[Option<CraftCurrencyEnum>] = &[
     None,
 ];
 
+// re-enabled for game patch 0.5.0 (was disabled for 0.4.0 in 042587c)
 static HOMOGEN_OMEN_GROUP: &[Option<CraftCurrencyEnum>] =
-    // &[Some(CraftCurrencyEnum::HomogenisingExaltation()), None];
-    &[None];
+    &[Some(CraftCurrencyEnum::HomogenisingExaltation()), None];
 
 pub struct ExaltedOrbPropagator;
 
@@ -303,6 +303,227 @@ impl ExaltedOrbPropagator {
         Ok(next_items)
     }
 
+    /// Omen of Greater Exaltation (game patch 0.5.0): the next Exalted Orb
+    /// adds TWO random affixes at once (MECHANICS.md V4: drawn without
+    /// replacement; combinable with Dextral/Sinistral Exaltation, in which
+    /// case both mods land on the forced side).
+    ///
+    /// Happy-path semantics: only pairs of *missing target affixes* are
+    /// enumerated (a "wanted + random" outcome is proximity-neutral and would
+    /// be pruned anyway), which slightly underestimates Greater-Exalt routes.
+    pub fn propagate_step_greater(
+        currency: &CraftCurrencyEnum,
+        dex_sin: Option<&CraftCurrencyEnum>,
+        item_instance: &Item,
+        target_item: &ItemSnapshot,
+        provider: &ItemInfoProvider,
+    ) -> Result<Vec<PropagationTarget>> {
+        let force_min_starting_level = ItemLevel::from(match currency {
+            &CraftCurrencyEnum::ExaltedOrbNormal() => 0,
+            &CraftCurrencyEnum::ExaltedOrbGreater() => 35,
+            &CraftCurrencyEnum::ExaltedOrbPerfect() => 50,
+            _ => {
+                return Err(anyhow!("Unknown currency"));
+            }
+        });
+
+        if force_min_starting_level > item_instance.snapshot.item_level {
+            return Ok(Vec::new());
+        }
+
+        let mut pool = provider
+            .lookup_base_item_mods(&item_instance.snapshot.base_id)?
+            .clone();
+
+        let base_group_id = provider.lookup_base_group(&item_instance.snapshot.base_id)?;
+        let base_group_def = provider.lookup_base_group_definition(&base_group_id)?;
+        let max_affixes_per_side = base_group_def.max_affix / 2;
+
+        // same pool filter as the single-affix exalt (no homogen combination
+        // in v1, see MECHANICS.md V4)
+        pool.retain(|affix_id, tier_level_holder| {
+            let Ok(affix_def) = provider.lookup_affix_definition(&affix_id) else {
+                return false;
+            };
+
+            match dex_sin {
+                None => {}
+                Some(dex_sin) => {
+                    match dex_sin {
+                        CraftCurrencyEnum::DextralExaltation()
+                            if (affix_def.affix_location != AffixLocationEnum::Suffix) =>
+                        {
+                            return false;
+                        }
+                        CraftCurrencyEnum::SinistralExaltation()
+                            if (affix_def.affix_location != AffixLocationEnum::Prefix) =>
+                        {
+                            return false;
+                        }
+                        _ => {}
+                    };
+                }
+            }
+
+            match affix_def.affix_class {
+                AffixClassEnum::Base => {}
+                _ => return false,
+            }
+
+            match affix_def.affix_location {
+                AffixLocationEnum::Prefix => {
+                    if item_instance.helper.prefix_count >= max_affixes_per_side {
+                        return false;
+                    }
+                }
+                AffixLocationEnum::Suffix => {
+                    if item_instance.helper.suffix_count >= max_affixes_per_side {
+                        return false;
+                    }
+                }
+                _ => return false,
+            }
+
+            if item_instance
+                .snapshot
+                .affixes
+                .iter()
+                .any(|item_affixes| &item_affixes.affix == affix_id)
+            {
+                return false;
+            }
+
+            if !affix_def
+                .exlusive_groups
+                .is_disjoint(&item_instance.helper.blocked_modgroups)
+            {
+                return false;
+            }
+
+            tier_level_holder.retain(|tier, tier_level_meta| {
+                item_instance.snapshot.item_level >= tier_level_meta.min_item_level
+                    && (tier_level_meta.min_item_level >= force_min_starting_level
+                        || tier == &AffixTierLevel::from(1))
+            });
+
+            !tier_level_holder.is_empty()
+        });
+
+        // total pool weight and the per-affix full weight (all surviving
+        // tiers, used for the without-replacement second draw)
+        let max_weight: u32 = pool.iter().fold(0u32, |a, (_, tier_meta)| {
+            a + tier_meta
+                .iter()
+                .fold(0u32, |a, b| a + b.1.weight.get_raw_value().clone())
+        });
+
+        let full_weight = |affix: &AffixSpecifier| -> u32 {
+            pool.get(&affix.affix)
+                .map(|tiers| {
+                    tiers
+                        .iter()
+                        .fold(0u32, |a, b| a + b.1.weight.get_raw_value().clone())
+                })
+                .unwrap_or(0)
+        };
+
+        let acceptable_weight = |affix: &AffixSpecifier| -> u32 {
+            let Some(chance_weight) = pool.get(&affix.affix) else {
+                return 0;
+            };
+            match affix.tier.bounds {
+                AffixTierLevelBoundsEnum::Minimum => chance_weight
+                    .iter()
+                    .filter(|(test_tier_level, _)| **test_tier_level <= affix.tier.tier)
+                    .fold(0u32, |a, b| a + b.1.weight.get_raw_value().clone()),
+                AffixTierLevelBoundsEnum::Exact => chance_weight
+                    .get(&affix.tier.tier)
+                    .map(|cw| cw.weight.get_raw_value().clone())
+                    .unwrap_or(0),
+            }
+        };
+
+        // candidates: missing target affixes reachable in the pool
+        let candidates: Vec<AffixSpecifier> = target_item
+            .affixes
+            .iter()
+            .filter(|test| pool.contains_key(&test.affix))
+            .cloned()
+            .collect();
+
+        let location_of = |affix: &AffixSpecifier| -> Option<AffixLocationEnum> {
+            provider
+                .lookup_affix_definition(&affix.affix)
+                .ok()
+                .map(|def| def.affix_location.clone())
+        };
+
+        let mut next_items: Vec<PropagationTarget> = Vec::new();
+
+        for (i, a) in candidates.iter().enumerate() {
+            for b in candidates.iter().skip(i + 1) {
+                // capacity: a same-side pair needs TWO free slots there (the
+                // pool filter only guarantees one)
+                let (loc_a, loc_b) = match (location_of(a), location_of(b)) {
+                    (Some(a), Some(b)) => (a, b),
+                    _ => continue,
+                };
+                if loc_a == loc_b {
+                    let used = match loc_a {
+                        AffixLocationEnum::Prefix => item_instance.helper.prefix_count,
+                        AffixLocationEnum::Suffix => item_instance.helper.suffix_count,
+                        _ => continue,
+                    };
+                    if used + 2 > max_affixes_per_side {
+                        continue;
+                    }
+                }
+
+                let (w_a_acc, w_b_acc) = (acceptable_weight(a), acceptable_weight(b));
+                if w_a_acc == 0 || w_b_acc == 0 {
+                    continue;
+                }
+                let (w_a_full, w_b_full) = (full_weight(a), full_weight(b));
+                if max_weight <= w_a_full || max_weight <= w_b_full {
+                    continue;
+                }
+
+                // unordered pair, weighted draws without replacement:
+                // P = w_a*w_b/(W*(W-w_a_full)) + w_b*w_a/(W*(W-w_b_full))
+                //   = w_a*w_b * ((W-w_a_full) + (W-w_b_full))
+                //     / (W * (W-w_a_full) * (W-w_b_full))
+                let w = max_weight as u128;
+                let num = (w_a_acc as u128)
+                    * (w_b_acc as u128)
+                    * ((w - w_a_full as u128) + (w - w_b_full as u128));
+                let den = w * (w - w_a_full as u128) * (w - w_b_full as u128);
+                let hit_chance_fraction = Fraction::from_u128_approx(num, den);
+
+                let mut affixes: THashSet<AffixSpecifier> =
+                    item_instance.snapshot.affixes.clone();
+                affixes.insert(a.clone());
+                affixes.insert(b.clone());
+
+                let next_item_snapshot = ItemSnapshot {
+                    rarity: item_instance.snapshot.rarity.clone(),
+                    base_id: item_instance.snapshot.base_id.clone(),
+                    item_level: item_instance.snapshot.item_level.clone(),
+                    affixes,
+                    allowed_sockets: item_instance.snapshot.allowed_sockets.clone(),
+                    corrupted: item_instance.snapshot.corrupted.clone(),
+                    sockets: item_instance.snapshot.sockets.clone(),
+                };
+
+                next_items.push(PropagationTarget::new(
+                    hit_chance_fraction,
+                    next_item_snapshot,
+                ));
+            }
+        }
+
+        Ok(next_items)
+    }
+
     pub fn propagate_step_unwanted_location_bound(
         item_instance: &Item,
         target_item: &ItemSnapshot,
@@ -363,6 +584,51 @@ impl ExaltedOrbPropagator {
     ) -> Result<THashMap<CraftCurrencyList, Vec<PropagationTarget>>> {
         let mut propagation_result: THashMap<CraftCurrencyList, Vec<PropagationTarget>> =
             THashMap::default();
+
+        // Omen of Greater Exaltation pair branches (only worth enumerating
+        // when at least two target affixes are still missing)
+        let missing_targets = target_item
+            .affixes
+            .iter()
+            .filter(|t| {
+                !item_instance
+                    .snapshot
+                    .affixes
+                    .iter()
+                    .any(|have| have.affix == t.affix)
+            })
+            .count();
+
+        if missing_targets >= 2 && item_instance.snapshot.affixes.len() + 2 <= 6 {
+            for currency in EXALTED_ORBS {
+                for dex_sin in DEX_SIN_OMEN_GROUP {
+                    let next_items = ExaltedOrbPropagator::propagate_step_greater(
+                        &currency,
+                        dex_sin.as_ref(),
+                        &item_instance,
+                        &target_item,
+                        &provider,
+                    )?;
+
+                    if next_items.is_empty() {
+                        continue;
+                    }
+
+                    let mut unique_currency_list = CraftCurrencyList {
+                        list: THashSet::default(),
+                    };
+                    unique_currency_list.list.insert(currency.clone());
+                    unique_currency_list
+                        .list
+                        .insert(CraftCurrencyEnum::OmenOfGreaterExaltation());
+                    if let Some(dex_sin) = dex_sin {
+                        unique_currency_list.list.insert(dex_sin.clone());
+                    }
+
+                    propagation_result.insert(unique_currency_list, next_items);
+                }
+            }
+        }
 
         for currency in EXALTED_ORBS {
             for dex_sin in DEX_SIN_OMEN_GROUP {

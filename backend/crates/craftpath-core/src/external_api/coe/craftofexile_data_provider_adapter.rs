@@ -5,6 +5,7 @@ use crate::{
         provider::item_info::{AffixWeightTable, ItemInfoProvider},
         types::{
             AffixDefinition, AffixId, AffixTierLevel, AffixTierLevelMeta, BaseGroupDefinition,
+            EssenceKindEnum,
             BaseGroupId, BaseItemId, EssenceDefinition, EssenceId, EssenceTierLevelMeta, ItemLevel,
             THashMap, THashSet, Weight,
         },
@@ -177,10 +178,8 @@ impl CraftOfExileItemInfoProvider {
                 let affix_location = match &affix_info.affix {
                     Some(location) => location.clone(),
                     None => {
-                        // common since CoE ships corruption-implicit mods;
-                        // logged at debug to avoid flooding
                         tracing::debug!(
-                            "Skipping affix '{}' for item '{}' because its affix type is not craftable (e.g. 'corrupted').",
+                            "Skipping affix '{}' for item '{}' because its affix type is unknown.",
                             affix_id.get_raw_value(),
                             base_item_id.get_raw_value()
                         );
@@ -248,12 +247,22 @@ impl CraftOfExileItemInfoProvider {
                 essence_tiers.insert(base_id, hm);
             });
 
+            // classify by name: the data has no explicit kind marker
+            let kind = if essence.name_essence.starts_with("Perfect") {
+                EssenceKindEnum::Perfect
+            } else if essence.name_essence.contains("Alloy") {
+                EssenceKindEnum::Alloy
+            } else {
+                EssenceKindEnum::Standard
+            };
+
             transformed_cache.essence_definition_table.insert(
                 essence_id.clone(),
                 EssenceDefinition {
                     corrupt: essence.corrupt,
                     name_essence: essence.name_essence.clone(),
                     base_tier_table: essence_tiers,
+                    kind,
                 },
             );
         });
@@ -266,5 +275,84 @@ impl CraftOfExileItemInfoProvider {
             cache_base_group_table: transformed_cache.base_group_mappings,
             base_group_definition: transformed_cache.base_group_definition,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use anyhow::Result;
+
+    use crate::api::item::{Item, ItemSnapshot};
+    use crate::api::types::{
+        AffixLocationEnum, AffixSpecifier, AffixTierConstraints, AffixTierLevel,
+        AffixTierLevelBoundsEnum, ItemLevel, ItemRarityEnum, THashMap, THashSet,
+    };
+    use crate::external_api::coe::craftofexile_data_provider_adapter::CraftOfExileItemInfoProvider;
+    use crate::external_api::fetch_json_from_urls::retrieve_contents_from_urls_with_cache_unstable_order;
+
+    /// Game patch 0.5.0: the CoE data carries corruption-implicit modifiers
+    /// (affix type "corrupted"). They must parse into the provider with the
+    /// Corrupted location and never count toward prefix/suffix capacity.
+    #[test]
+    fn test_corrupted_implicits_parse_and_do_not_consume_affix_slots() -> Result<()> {
+        let hm = THashMap::from_iter(vec![(
+            "./cache/coe2.json".to_string(),
+            "https://www.craftofexile.com/json/poe2/main/poec_data.json".to_string(),
+        )]);
+        let jsons = retrieve_contents_from_urls_with_cache_unstable_order(hm, 60 * 60 * 24)?;
+        let provider = CraftOfExileItemInfoProvider::parse_from_json(jsons.first().unwrap())?;
+
+        // corrupted definitions parsed (CoE ships ~101 of them, referenced by
+        // most bases; the exact count may drift with patches)
+        let corrupted: Vec<_> = provider
+            .cache_affix_def
+            .iter()
+            .filter(|(_, def)| def.affix_location == AffixLocationEnum::Corrupted)
+            .collect();
+        assert!(
+            corrupted.len() > 50,
+            "expected >50 corrupted implicit definitions, got {}",
+            corrupted.len()
+        );
+
+        // find a base whose weight table references a corrupted mod so the
+        // snapshot below is consistent with real data
+        let (base_id, corrupted_affix_id) = provider
+            .cache_item_affix_table
+            .iter()
+            .find_map(|(base_id, table)| {
+                table.keys().find_map(|affix_id| {
+                    let def = provider.lookup_affix_definition(affix_id).ok()?;
+                    (def.affix_location == AffixLocationEnum::Corrupted)
+                        .then(|| (base_id.clone(), affix_id.clone()))
+                })
+            })
+            .expect("no base references a corrupted implicit");
+
+        let mut affixes: THashSet<AffixSpecifier> = THashSet::default();
+        affixes.insert(AffixSpecifier {
+            affix: corrupted_affix_id,
+            fractured: false,
+            tier: AffixTierConstraints {
+                tier: AffixTierLevel::from(1),
+                bounds: AffixTierLevelBoundsEnum::Minimum,
+            },
+        });
+
+        let snapshot = ItemSnapshot {
+            item_level: ItemLevel::from(81),
+            rarity: ItemRarityEnum::Rare,
+            base_id,
+            affixes,
+            corrupted: true,
+            allowed_sockets: 0,
+            sockets: THashSet::default(),
+        };
+
+        let item = Item::build_with(snapshot.clone(), &snapshot, &provider)?;
+        assert_eq!(item.helper.prefix_count, 0);
+        assert_eq!(item.helper.suffix_count, 0);
+
+        Ok(())
     }
 }

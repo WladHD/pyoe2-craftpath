@@ -192,7 +192,9 @@ impl Item {
             let def = provider.lookup_affix_definition(&specifier.affix)?;
 
             blocked_modgroups.extend(def.exlusive_groups.iter().cloned());
-            homogenized_mods.extend(def.tags.iter().cloned());
+            // tag 38 ("Drop") is excluded from homogenising per CoE
+            // (MECHANICS.md V8)
+            homogenized_mods.extend(def.tags.iter().filter(|t| **t != 38).cloned());
 
             if !provider.is_abyssal_mark(&specifier.affix)
                 && def.affix_class == AffixClassEnum::Desecrated
@@ -205,6 +207,8 @@ impl Item {
                 AffixLocationEnum::Prefix => prefix_count += 1,
                 AffixLocationEnum::Suffix => suffix_count += 1,
                 AffixLocationEnum::Socket => {} // TODO? <-- this will be in own
+                // corruption implicits never consume prefix/suffix capacity
+                AffixLocationEnum::Corrupted => {}
             }
 
             // Determine if this affix is unwanted

@@ -21,9 +21,9 @@ static REGAL_ORBS: &[CraftCurrencyEnum] = &[
     CraftCurrencyEnum::RegalOrbPerfect(),
 ];
 
+// re-enabled for game patch 0.5.0 (was disabled for 0.4.0 in 042587c)
 static HOMOGEN_OMEN_GROUP: &[Option<CraftCurrencyEnum>] =
-    // &[Some(CraftCurrencyEnum::HomogenisingCoronation()), None];
-    &[None];
+    &[Some(CraftCurrencyEnum::HomogenisingCoronation()), None];
 
 pub struct RegalOrbPropagator;
 

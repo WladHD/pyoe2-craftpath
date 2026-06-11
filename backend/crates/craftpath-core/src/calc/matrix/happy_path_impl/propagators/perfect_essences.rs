@@ -10,7 +10,7 @@ use crate::{
         provider::item_info::ItemInfoProvider,
         types::{
             AffixClassEnum, AffixLocationEnum, AffixSpecifier, AffixTierConstraints,
-            AffixTierLevelBoundsEnum, ItemRarityEnum, THashMap, THashSet,
+            AffixTierLevelBoundsEnum, EssenceKindEnum, ItemRarityEnum, THashMap, THashSet,
         },
     },
     calc::matrix::happy_path_impl::propagators::exalted_orb::ExaltedOrbPropagator,
@@ -45,7 +45,12 @@ impl PerfectEssencePropagator {
             }
         };
 
-        if !target_essence_def.name_essence.starts_with("Perfect") {
+        // Perfect essences and 0.5.0 Alloys share the remove-one-add-one
+        // mechanic (Alloys pair with Dextral/Sinistral Crystallisation)
+        if !matches!(
+            target_essence_def.kind,
+            EssenceKindEnum::Perfect | EssenceKindEnum::Alloy
+        ) {
             return Ok(None);
         }
 

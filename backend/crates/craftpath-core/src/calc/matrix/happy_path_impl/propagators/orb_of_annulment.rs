@@ -7,7 +7,7 @@ use crate::{
         item::{Item, ItemSnapshot},
         matrix_propagator::MatrixPropagator,
         provider::item_info::ItemInfoProvider,
-        types::{AffixLocationEnum, AffixSpecifier, THashMap, THashSet},
+        types::{AffixClassEnum, AffixLocationEnum, AffixSpecifier, THashMap, THashSet},
     },
     utils::fraction_utils::Fraction,
 };
@@ -15,6 +15,9 @@ use crate::{
 static ANNUL_OMEN: &[Option<CraftCurrencyEnum>] = &[
     Some(CraftCurrencyEnum::DextralAnnulment()),
     Some(CraftCurrencyEnum::SinistralAnnulment()),
+    // Omen of Light (game patch 0.5.0, MECHANICS.md V5): the next Orb of
+    // Annulment removes only DESECRATED modifiers
+    Some(CraftCurrencyEnum::OmenOfLight()),
     None,
 ];
 
@@ -36,6 +39,13 @@ impl MatrixPropagator for OrbOfAnnulmentPropagator {
                 item_instance.snapshot.affixes.clone();
 
             delete_item_affix_pool.retain(|test| !test.fractured);
+            // corruption implicits cannot be annulled
+            delete_item_affix_pool.retain(|test| {
+                provider
+                    .lookup_affix_definition(&test.affix)
+                    .map(|def| def.affix_location != AffixLocationEnum::Corrupted)
+                    .unwrap_or(false)
+            });
 
             match omen {
                 Some(e) => match e {
@@ -53,6 +63,16 @@ impl MatrixPropagator for OrbOfAnnulmentPropagator {
                         delete_item_affix_pool.retain(|test| {
                             if let Ok(def) = provider.lookup_affix_definition(&test.affix) {
                                 return def.affix_location == AffixLocationEnum::Prefix;
+                            }
+
+                            false
+                        });
+                    }
+
+                    CraftCurrencyEnum::OmenOfLight() => {
+                        delete_item_affix_pool.retain(|test| {
+                            if let Ok(def) = provider.lookup_affix_definition(&test.affix) {
+                                return def.affix_class == AffixClassEnum::Desecrated;
                             }
 
                             false

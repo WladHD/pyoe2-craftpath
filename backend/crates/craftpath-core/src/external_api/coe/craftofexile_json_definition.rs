@@ -129,9 +129,9 @@ where
     deserializer.deserialize_any(NumberOrString)
 }
 
-/// Deserializes "socket", "prefix", "suffix" into AffixType.
-/// Unknown values (e.g. "corrupted", added to the CoE data in mid-2026) yield
-/// `None`; those modifiers are not craftable and get skipped by the adapter.
+/// Deserializes "socket", "prefix", "suffix", "corrupted" into AffixType.
+/// Genuinely unknown values yield `None`; those modifiers get skipped by the
+/// adapter.
 fn deserialize_affix_type<'de, D>(deserializer: D) -> Result<Option<AffixLocationEnum>, D::Error>
 where
     D: Deserializer<'de>,
@@ -141,6 +141,8 @@ where
         "socket" => Ok(Some(AffixLocationEnum::Socket)),
         "prefix" => Ok(Some(AffixLocationEnum::Prefix)),
         "suffix" => Ok(Some(AffixLocationEnum::Suffix)),
+        // corruption implicits, added to the CoE data for game patch 0.5.0
+        "corrupted" => Ok(Some(AffixLocationEnum::Corrupted)),
         other => {
             tracing::debug!("Skipping modifier with unknown affix type '{}'.", other);
             Ok(None)

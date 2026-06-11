@@ -259,6 +259,8 @@ pub fn craft_currency_to_proto(
         CraftCurrencyEnum::DextralErasure() => (K::DextralErasure, None, None),
         CraftCurrencyEnum::SinistralErasure() => (K::SinistralErasure, None, None),
         CraftCurrencyEnum::Whittling() => (K::Whittling, None, None),
+        CraftCurrencyEnum::OmenOfGreaterExaltation() => (K::OmenOfGreaterExaltation, None, None),
+        CraftCurrencyEnum::OmenOfLight() => (K::OmenOfLight, None, None),
         CraftCurrencyEnum::Essence(essence_id) => (
             K::Essence,
             None,
@@ -349,6 +351,8 @@ impl TryFrom<&v1::CraftCurrency> for CraftCurrencyEnum {
             }
             K::DextralCrystallisation => CraftCurrencyEnum::DextralCrystallisation(),
             K::SinistralCrystallisation => CraftCurrencyEnum::SinistralCrystallisation(),
+            K::OmenOfGreaterExaltation => CraftCurrencyEnum::OmenOfGreaterExaltation(),
+            K::OmenOfLight => CraftCurrencyEnum::OmenOfLight(),
         })
     }
 }

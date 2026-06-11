@@ -43,6 +43,14 @@ impl MatrixPropagator for ChaosOrbPropagator {
             THashMap::default();
 
         let mut lowest_pool = item_instance.snapshot.affixes.clone();
+        // corruption implicits are untouchable and must not drive the
+        // whittling minimum either
+        lowest_pool.retain(|test| {
+            provider
+                .lookup_affix_definition(&test.affix)
+                .map(|def| def.affix_location != AffixLocationEnum::Corrupted)
+                .unwrap_or(false)
+        });
         // EDIT!!! WHITTLING OMEN REMOVES LOWEST ***ITEMLEVEL*** MOD !!!!!
 
         if let Some(min_item_level) = lowest_pool
@@ -162,6 +170,13 @@ impl MatrixPropagator for ChaosOrbPropagator {
                         item_instance.snapshot.affixes.clone();
 
                     delete_item_affix_pool.retain(|test| !test.fractured);
+                    // corruption implicits cannot be rerolled away
+                    delete_item_affix_pool.retain(|test| {
+                        provider
+                            .lookup_affix_definition(&test.affix)
+                            .map(|def| def.affix_location != AffixLocationEnum::Corrupted)
+                            .unwrap_or(false)
+                    });
 
                     match location_omen {
                         Some(e) => match e {

@@ -9,7 +9,7 @@ use crate::{
         provider::item_info::ItemInfoProvider,
         types::{
             AffixClassEnum, AffixLocationEnum, AffixSpecifier, AffixTierConstraints,
-            AffixTierLevelBoundsEnum, ItemRarityEnum, THashMap, THashSet,
+            AffixTierLevelBoundsEnum, EssenceKindEnum, ItemRarityEnum, THashMap, THashSet,
         },
     },
     utils::fraction_utils::Fraction,
@@ -95,7 +95,10 @@ impl MatrixPropagator for NormalEssencePropagator {
                     continue;
                 };
 
-                if essence_def.name_essence.starts_with("Perfect") {
+                // only Standard essences apply on Magic items; Perfect
+                // essences and 0.5.0 Alloys go through the perfect-essence
+                // (remove-one-add-one) flow on Rare items
+                if essence_def.kind != EssenceKindEnum::Standard {
                     continue;
                 }
 
