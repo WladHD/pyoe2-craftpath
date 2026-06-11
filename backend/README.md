@@ -14,24 +14,30 @@ backend services and the Python bindings.
 
 ## Services
 
-```
-client ── REST (JSON or protobuf) ──> pyoe2-backend rest ──> Redis queue ──> pyoe2-backend worker
-   │                                        │                                   │
-   └── WebSocket live mode <── pub/sub ─────┘          league data (CoE + poe.ninja, cached)
-                LLMs ──> pyoe2-backend mcp (MCP tools) ──> same Redis queue
+```mermaid
+flowchart LR
+    client["Client"] -->|"REST (JSON or protobuf)"| rest["pyoe2-backend rest"]
+    llm["LLM clients"] -->|"MCP tools"| mcp["pyoe2-backend mcp"]
+    rest -->|enqueue| redis[("Redis<br/>stream + results + pub/sub")]
+    mcp -->|enqueue| redis
+    redis -->|claim| worker["pyoe2-backend worker"]
+    worker -->|"status, progress, result"| redis
+    ext["league data<br/>(CoE + poe.ninja, cached)"] --> worker
+    redis -.->|"pub/sub"| rest
+    rest -.->|"WebSocket live mode"| client
 ```
 
-- `pyoe2-backend rest` — API under `/api/v1`: `POST /jobs`, `GET /jobs/{id}`,
+- `pyoe2-backend rest` - API under `/api/v1`: `POST /jobs`, `GET /jobs/{id}`,
   `GET /jobs/{id}/result`, `DELETE /jobs/{id}`, `GET /jobs/{id}/ws` (live mode),
   `GET /presets`, plus `/healthz` `/readyz`. Bodies are negotiated between
   `application/json` and `application/x-protobuf` (see `/proto/craftpath/v1`).
-- `pyoe2-backend worker` — claims jobs from the Redis stream (consumer group
+- `pyoe2-backend worker` - claims jobs from the Redis stream (consumer group
   with crash recovery), one calculation per pod, progress/heartbeat flushed
   every 500ms, cooperative cancellation and wall-clock timeouts.
-- `pyoe2-backend mcp` — Model Context Protocol server (streamable HTTP or
+- `pyoe2-backend mcp` - Model Context Protocol server (streamable HTTP or
   stdio) with tools `submit_calculation`, `get_job_status`, `get_job_result`,
   `cancel_job`, `list_presets`.
-- `pyoe2-backend cli` — the classic interactive CLI, unchanged.
+- `pyoe2-backend cli` - the classic interactive CLI, unchanged.
 
 ### Run locally
 
@@ -89,21 +95,21 @@ echoes, greater exaltation, omen of light, homogenising (legacy),
 omen of corruption (legacy).
 
 **Implementable now (data already parsed or no data needed):**
-- [ ] Divine Orb value rerolling — per-tier `nvalues` ranges already parsed
+- [ ] Divine Orb value rerolling - per-tier `nvalues` ranges already parsed
 - [ ] Orb of Alchemy (`poe2_alchemy`: Normal/Magic → Rare with 4 mods)
-- [ ] Runes + Soul Cores (+ Talismans) — `socketables` section already
+- [ ] Runes + Soul Cores (+ Talismans) - `socketables` section already
       deserialized; ninja prices for runes/cores exist (talismans missing)
-- [ ] Catalysts (value-quality on jewellery) — `catalysts` section +
+- [ ] Catalysts (value-quality on jewellery) - `catalysts` section +
       modifier `mtags`; ninja Breach prices incl. Refined variants
 - [ ] Remaining emulator omens: Sinistral/Dextral Alchemy,
       Sinistral/Dextral Coronation, Greater Annulment, the Blessed
       (needs Divine), Blackblooded/Liege/Sovereign cross-check
 - [ ] Hinekora's Lock as a "preview next result" policy action
-- [ ] Alloy price source (absent from the poe.ninja exchange — official
+- [ ] Alloy price source (absent from the poe.ninja exchange - official
       trade API or user-supplied)
 
 **Waiting for CoE data:**
-- [ ] Omen of Catalysing Exaltation (catalyst-quality weight multiplier —
+- [ ] Omen of Catalysing Exaltation (catalyst-quality weight multiplier -
       not in the emulator omen vocabulary yet)
 - [ ] Omen of Sanctification / Sanctified items
 - [ ] Vaal Catalysing Infuser (jewellery quality > 20%)
@@ -113,7 +119,7 @@ omen of corruption (legacy).
 **Refactor follow-ups:**
 - [ ] Unify the per-propagator `pool.retain(...)` filter blocks onto
       `features/matrix/happy_path/pool_filter.rs` (one propagator per commit,
-      matrix-hash goldens — each block has behavioral variations)
+      matrix-hash goldens - each block has behavioral variations)
 - [ ] Adopt `pool_filter::{pool_total_weight, acceptable_affix_weight}` in
       the remaining propagators (engine + exalted already share the logic)
 - [ ] Drop the legacy path shims (`calc::*`, `external_api::*`,
