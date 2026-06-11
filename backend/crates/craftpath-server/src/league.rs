@@ -12,7 +12,7 @@ use crate::config::Config;
 /// Fetch (or serve from the file cache) the CraftOfExile item data and the
 /// poe.ninja economy data for a league, then parse them into providers.
 ///
-/// Blocking (uses the blocking reqwest fetcher from craftpath-core) — call
+/// Blocking (uses the blocking reqwest fetcher from craftpath-core) - call
 /// from `spawn_blocking` in async contexts. Clients never upload this data;
 /// it is resolved server-side per league.
 pub fn load_league_data(

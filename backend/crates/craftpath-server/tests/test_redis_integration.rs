@@ -78,7 +78,7 @@ fn sample_request() -> v1::SubmitJobRequest {
 #[tokio::test]
 async fn test_queue_lifecycle() -> anyhow::Result<()> {
     let Some(url) = test_redis_url() else {
-        eprintln!("REDIS_TEST_URL not set — skipping");
+        eprintln!("REDIS_TEST_URL not set - skipping");
         return Ok(());
     };
 
@@ -150,7 +150,7 @@ async fn test_queue_lifecycle() -> anyhow::Result<()> {
 #[tokio::test]
 async fn test_rest_api_json_and_proto() -> anyhow::Result<()> {
     let Some(url) = test_redis_url() else {
-        eprintln!("REDIS_TEST_URL not set — skipping");
+        eprintln!("REDIS_TEST_URL not set - skipping");
         return Ok(());
     };
 

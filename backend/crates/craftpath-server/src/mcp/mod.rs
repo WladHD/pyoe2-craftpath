@@ -1,6 +1,6 @@
 //! MCP mode: exposes the job API as Model Context Protocol tools so LLM
 //! clients can submit and inspect crafting-path calculations. Like the REST
-//! node this is just another Redis producer — no computation happens here.
+//! node this is just another Redis producer - no computation happens here.
 
 use anyhow::{Context, Result};
 use prost::Message as _;
@@ -167,7 +167,7 @@ impl CraftPathMcp {
         let state = v1::JobState::try_from(status.state).unwrap_or(v1::JobState::Unspecified);
         if state != v1::JobState::Succeeded {
             return Ok(CallToolResult::success(vec![Content::text(format!(
-                "job is {state:?}, no result yet — poll get_job_status"
+                "job is {state:?}, no result yet - poll get_job_status"
             ))]));
         }
 

@@ -34,7 +34,7 @@ jobs:
           sudo apt-get update && sudo apt-get install -y --no-install-recommends protobuf-compiler
           ./backend/scripts/gen_proto.sh
           git diff --exit-code -- backend/crates/pyoe2-craftpath/python/pyoe2_craftpath/_proto || {
-            echo "::error::generated proto code is stale — run backend/scripts/gen_proto.sh"; exit 1; }
+            echo "::error::generated proto code is stale - run backend/scripts/gen_proto.sh"; exit 1; }
 
       - name: Build and install package with dev extras
         working-directory: backend/crates/pyoe2-craftpath

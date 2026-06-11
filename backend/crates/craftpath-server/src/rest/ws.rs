@@ -55,7 +55,7 @@ async fn stream_job_events(
     job_id: String,
     proto: bool,
 ) -> anyhow::Result<()> {
-    // snapshot first — also validates the job id
+    // snapshot first - also validates the job id
     let Some(status) = state.jobs.status(&job_id).await? else {
         socket
             .send(Message::Text(

@@ -5,7 +5,7 @@ FROM ghcr.io/cirruslabs/flutter:3.38.9
 # Switch to root for installing packages
 USER root
 
-# uv tool shims land in $HOME/.local/bin — make them available for the root user
+# uv tool shims land in $HOME/.local/bin - make them available for the root user
 ENV PATH="/root/.local/bin:${PATH}"
 
 # Setup sudo for the default user (UID 1000) and create vscode user alias if needed

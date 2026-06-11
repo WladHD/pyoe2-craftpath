@@ -1,7 +1,7 @@
 """The classic example, rewritten with the new engine layer.
 
-Same scenario as example_calculator_for_example_items.py — fetch league data,
-parse the example bow items, find the best routes — in a few lines.
+Same scenario as example_calculator_for_example_items.py - fetch league data,
+parse the example bow items, find the best routes - in a few lines.
 """
 
 import pyoe2_craftpath as pc

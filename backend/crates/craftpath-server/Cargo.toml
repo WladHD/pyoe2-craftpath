@@ -1,6 +1,6 @@
 [package]
 name = "craftpath-server"
-description = "Backend services for pyoe2-craftpath: REST API, Redis-queued calculation workers, MCP server and the CLI — one binary, selected by subcommand."
+description = "Backend services for pyoe2-craftpath: REST API, Redis-queued calculation workers, MCP server and the CLI - one binary, selected by subcommand."
 publish = false
 version.workspace = true
 edition.workspace = true

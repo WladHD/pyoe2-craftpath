@@ -2,7 +2,7 @@
 //! (builder) plus a [`CraftSession`] bundling providers, config and progress
 //! so callers stop threading five arguments through every call.
 //!
-//! Purely additive — the classic `Calculator::*` functions stay untouched.
+//! Purely additive - the classic `Calculator::*` functions stay untouched.
 
 use anyhow::Result;
 
@@ -53,7 +53,7 @@ impl CalculationConfig {
     }
 
     /// The omens that exist in the model but are unobtainable in the 0.5.0
-    /// league (see MECHANICS.md) — convenience set for `disable_currencies`.
+    /// league (see MECHANICS.md) - convenience set for `disable_currencies`.
     pub fn legacy_currencies() -> [CraftCurrencyEnum; 3] {
         [
             CraftCurrencyEnum::HomogenisingCoronation(),

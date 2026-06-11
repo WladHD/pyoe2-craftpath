@@ -96,7 +96,7 @@ class LocalJob:
             try:
                 self._result = _run_local(engine, spec)
                 self.state = JobState.SUCCEEDED
-            except BaseException as exc:  # noqa: BLE001 — stored, re-raised in wait()
+            except BaseException as exc:  # noqa: BLE001 - stored, re-raised in wait()
                 self._error = exc
                 self.state = JobState.FAILED
 

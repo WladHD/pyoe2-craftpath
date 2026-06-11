@@ -4,13 +4,13 @@
 //! The calculation hot loops only call [`ProgressSink::report`] /
 //! [`ProgressSink::is_cancelled`] every couple hundred thousand iterations,
 //! so implementations may do cheap work (atomics, formatting) but should not
-//! block (no I/O) — push I/O into a sampler thread instead.
+//! block (no I/O) - push I/O into a sampler thread instead.
 
 /// Receiver for progress updates from long-running calculations.
 pub trait ProgressSink: Send + Sync {
     /// `message` is a human-readable status line (same text the CLI spinner
     /// used to display), `current` a monotone counter for the running phase,
-    /// `total` the phase total if known (usually unknown — route counts are
+    /// `total` the phase total if known (usually unknown - route counts are
     /// only known once collection finishes).
     fn report(&self, message: &str, current: u64, total: Option<u64>);
 

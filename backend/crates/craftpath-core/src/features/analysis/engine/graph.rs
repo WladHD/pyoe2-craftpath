@@ -19,7 +19,7 @@ use crate::{
 /// One outgoing edge with everything the analyzers need, resolved once.
 pub struct GraphEdge<'a> {
     pub to: u32,
-    /// `target.chance.to_f64()` — the hot-loop accumulator input.
+    /// `target.chance.to_f64()` - the hot-loop accumulator input.
     pub chance_f64: f64,
     /// Exact fraction for route reconstruction.
     pub chance: &'a Fraction,
@@ -302,7 +302,7 @@ mod tests {
 
     #[test]
     fn test_cyclic_matrix_builds_fine() {
-        // a <-> b cycle plus an exit — Yen handles cycles, no error expected
+        // a <-> b cycle plus an exit - Yen handles cycles, no error expected
         let s = snapshot(10);
         let a = snapshot(20);
         let t = snapshot(30);

@@ -27,7 +27,7 @@ done
 
 cat > "$OUT_DIR/__init__.py" <<'EOF'
 """Generated protobuf code for craftpath.v1 (see /proto). Regenerate with
-backend/scripts/gen_proto.sh — do not edit by hand."""
+backend/scripts/gen_proto.sh - do not edit by hand."""
 
 from . import common_pb2, currency_pb2, item_pb2, job_pb2, presets_pb2  # noqa: F401
 

@@ -97,7 +97,7 @@ mod tests {
     /// Small fixture: the exhaustive all-path oracle can enumerate it.
     const ORACLE_PAIR: (&str, &str) =
         ("startitem_good_essence_bow.json", "targetitem_good_essence_bow.json");
-    /// Heavy fixture: the all-path enumeration exceeds 4 GB here — only the
+    /// Heavy fixture: the all-path enumeration exceeds 4 GB here - only the
     /// fast engine can handle it (showcased in the timing test).
     const HEAVY_PAIR: (&str, &str) = (
         "start_item_magic_1_affix_bow.json",

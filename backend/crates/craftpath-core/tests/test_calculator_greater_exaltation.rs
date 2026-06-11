@@ -31,7 +31,7 @@ mod tests {
     /// Game patch 0.5.0: Omen of Greater Exaltation makes the next Exalted
     /// Orb add two affixes at once. For a Rare missing two target affixes the
     /// propagator must offer the pair branch, with the unordered
-    /// without-replacement pair probability — strictly better than the
+    /// without-replacement pair probability - strictly better than the
     /// product of two sequential single-exalt chances.
     #[test]
     fn test_greater_exaltation_pair_branch() -> Result<()> {

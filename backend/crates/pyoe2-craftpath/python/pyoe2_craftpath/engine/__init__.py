@@ -1,8 +1,8 @@
 """Engine layer: one interface, two execution backends.
 
-* :class:`LocalEngine` — runs the calculation in-process via the native
+* :class:`LocalEngine` - runs the calculation in-process via the native
   Rust module (exactly the classic flow).
-* :class:`RemoteEngine` / :class:`AsyncRemoteEngine` — submits the job to a
+* :class:`RemoteEngine` / :class:`AsyncRemoteEngine` - submits the job to a
   pyoe2-craftpath backend over REST, with queue-position polling and a
   WebSocket live mode. Requires ``pip install pyoe2-craftpath[client]``.
 """

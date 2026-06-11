@@ -19,7 +19,7 @@ use crate::{
 /// Reroll-omen combinations and the resulting number of picks `k` of the
 /// desecration 3-option choice (MECHANICS.md V6): baseline = one set of
 /// options, Omen of Abyssal Echoes allows rerolling the set once (k=2).
-/// (Omen of Light is an ANNULMENT omen — see orb_of_annulment.rs.)
+/// (Omen of Light is an ANNULMENT omen - see orb_of_annulment.rs.)
 static REROLL_OMEN_COMBOS: &[(&[CraftCurrencyEnum], u32)] = &[
     (&[], 1),
     (&[CraftCurrencyEnum::AbyssalEchoes()], 2),

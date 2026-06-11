@@ -316,7 +316,7 @@ pub struct Section<T> {
 
 // -------------------- Entities --------------------
 
-/// "bitems" entries — individual base items.
+/// "bitems" entries - individual base items.
 #[derive(Debug, Deserialize)]
 pub struct RawBItem {
     #[serde(deserialize_with = "deserialize_from_string_or_number")]
@@ -334,7 +334,7 @@ pub struct RawBItem {
     pub exmods: Option<String>,
 }
 
-/// "bases" entries — base types like "Amulet".
+/// "bases" entries - base types like "Amulet".
 #[derive(Debug, Deserialize)]
 pub struct RawBase {
     #[serde(deserialize_with = "deserialize_from_string_or_number")]
@@ -353,7 +353,7 @@ pub struct RawBase {
     pub is_martial: String,
 }
 
-/// "bgroups" entries — base groups like "Boots".
+/// "bgroups" entries - base groups like "Boots".
 #[derive(Debug, Deserialize)]
 pub struct RawBGroup {
     #[serde(deserialize_with = "deserialize_from_string_or_number")]
@@ -381,7 +381,7 @@ pub struct RawBGroup {
     pub max_sockets: u8,
 }
 
-/// "modifiers" entries — affixes.
+/// "modifiers" entries - affixes.
 #[derive(Debug, Deserialize, Clone)]
 pub struct RawModifier {
     #[serde(deserialize_with = "deserialize_from_string_or_number")]
@@ -411,7 +411,7 @@ pub struct RawModifier {
     pub ha: bool,
 }
 
-/// "mgroups" entries — modifier groups.
+/// "mgroups" entries - modifier groups.
 #[derive(Debug, Deserialize)]
 pub struct RawMGroup {
     pub is_influence: String,
@@ -424,7 +424,7 @@ pub struct RawMGroup {
     pub is_compute: String,
 }
 
-/// "mtypes" entries — modifier type definitions.
+/// "mtypes" entries - modifier type definitions.
 #[derive(Debug, Deserialize)]
 pub struct RawMType {
     pub id_mtype: String,
@@ -436,7 +436,7 @@ pub struct RawMType {
     pub name_mtype: String,
 }
 
-/// "fossils" entries — empty in the sample.
+/// "fossils" entries - empty in the sample.
 #[derive(Debug, Deserialize)]
 pub struct RawFossil {}
 
@@ -507,7 +507,7 @@ pub struct RawTierEntry {
     pub alias: Option<String>,
 }
 
-/// "clngs" entries — language info.
+/// "clngs" entries - language info.
 #[derive(Debug, Deserialize)]
 pub struct RawLanguage {
     pub name: String,
@@ -519,7 +519,7 @@ pub struct RawLanguage {
 
 // -------------------- Socketables --------------------
 
-/// "socketables" section — has seq, ind, plus bytype/bybase maps.
+/// "socketables" section - has seq, ind, plus bytype/bybase maps.
 #[derive(Debug, Deserialize)]
 pub struct RawSocketablesSection {
     pub seq: Vec<Socketable>,

@@ -207,7 +207,7 @@ async fn process_job(config: &Config, jobs: &JobsClient, job_id: &str) -> Result
             timed_out = true;
             progress.request_cancel();
             // the hot loops observe the flag within their next check window;
-            // nothing else to await here — mark the job and move on.
+            // nothing else to await here - mark the job and move on.
             Err(CraftPathError::Cancelled().into())
         }
     };

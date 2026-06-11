@@ -2,12 +2,12 @@
 //!
 //! Four uniform outcome branches: add socket / add corruption implicit /
 //! partial mod reroll / no change. Exactly one branch fires per corruption
-//! (V3), so a target may ask for either +1 socket or one corrupted implicit —
+//! (V3), so a target may ask for either +1 socket or one corrupted implicit -
 //! never both. On non-socketable bases (jewellery) the socket branch acts as
 //! "no change" but the branch count stays 4.
 //!
 //! Omen of Corruption removes the "no change" branch (1/3 each). NOTE: the
-//! omen is unobtainable in the 0.5.0 league (legacy items only) — routes
+//! omen is unobtainable in the 0.5.0 league (legacy items only) - routes
 //! using it are still enumerated for Standard-league legacy stock.
 
 use anyhow::Result;
@@ -88,13 +88,13 @@ impl VaalOrbPropagator {
 
         if wants_socket && !missing_implicits.is_empty() {
             tracing::warn!(
-                "Target wants both an extra socket and a corruption implicit — a single Vaal Orb cannot grant both (MECHANICS.md V3); no Vaal route emitted."
+                "Target wants both an extra socket and a corruption implicit - a single Vaal Orb cannot grant both (MECHANICS.md V3); no Vaal route emitted."
             );
             return Ok(None);
         }
         if missing_implicits.len() > 1 {
             tracing::warn!(
-                "Target wants {} corruption implicits — one corruption adds exactly one (MECHANICS.md V2); no Vaal route emitted.",
+                "Target wants {} corruption implicits - one corruption adds exactly one (MECHANICS.md V2); no Vaal route emitted.",
                 missing_implicits.len()
             );
             return Ok(None);
@@ -121,7 +121,7 @@ impl VaalOrbPropagator {
 
     /// Chance that the implicit branch yields the wanted implicit:
     /// `w_acceptable / W_pool` over the base's corrupted-mod weights
-    /// (uniform in practice — all corrupted tier weights are 1, V2).
+    /// (uniform in practice - all corrupted tier weights are 1, V2).
     fn implicit_pick_chance(
         wanted: &AffixSpecifier,
         snapshot: &ItemSnapshot,
@@ -177,7 +177,7 @@ impl MatrixPropagator for VaalOrbPropagator {
         let mut propagation_result: THashMap<CraftCurrencyList, Vec<PropagationTarget>> =
             THashMap::default();
 
-        // only apply the orb as the very last step — corruption is terminal
+        // only apply the orb as the very last step - corruption is terminal
         if calculate_target_proximity(&item_instance.snapshot, &target, &provider)? != 1 {
             return Ok(propagation_result);
         }

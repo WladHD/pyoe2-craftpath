@@ -1,7 +1,7 @@
 //! Dijkstra + Yen's K best loopless paths, generic over a monotone
 //! [`EdgeMetric`], plus an exact branch-and-bound for the efficiency metric.
 //!
-//! Monotonicity (extending a path never improves the accumulator — chance
+//! Monotonicity (extending a path never improves the accumulator - chance
 //! multiplies factors ≤ 1, cost adds ≥ 0) makes Dijkstra's settle-order
 //! argument valid for both metrics, and guarantees Yen enumerates simple
 //! paths in non-improving metric order.
@@ -304,20 +304,20 @@ pub fn efficiency(cost: f64, chance: f64) -> f64 {
     cost * tries as f64
 }
 
-/// Top-K by efficiency (`cost × tries60(chance)` — not edge-decomposable)
+/// Top-K by efficiency (`cost × tries60(chance)` - not edge-decomposable)
 /// via bi-criteria label-setting search:
 ///
 /// - Labels `(cost, chance, parent)` are processed in ascending **cost**
 ///   order from a global queue. Edge costs are > 0 (zero prices are clamped
 ///   to an epsilon internally), so by the Dijkstra settle argument a popped
-///   label's cost is final — label-setting, no correcting.
+///   label's cost is final - label-setting, no correcting.
 /// - Per node, a label is discarded iff ≥ K already-settled labels dominate
 ///   it (cost ≤ and chance ≥). Both accumulators are suffix-monotone, so
-///   each dominator extended by the same suffix is at least as good — K
+///   each dominator extended by the same suffix is at least as good - K
 ///   dominators ⇒ the label cannot reach the global top-K (exact).
 /// - Cycles need no special handling: a path containing a cycle is strictly
 ///   cost-dominated by its simple reduction, so it is pruned by dominance.
-/// - `frontier_cap` bounds per-node settled labels — the only inexact knob;
+/// - `frontier_cap` bounds per-node settled labels - the only inexact knob;
 ///   exact whenever the K-dominance frontier fits within it.
 pub fn k_best_efficiency_paths<'a, T: StatisticAnalyzerCollectorTrait>(
     graph: &CraftGraph<'a>,

@@ -14,7 +14,7 @@ import pyoe2_craftpath as pc
 
 BACKEND_URL = os.environ.get("CRAFTPATH_BACKEND_URL")
 if not BACKEND_URL:
-    print("CRAFTPATH_BACKEND_URL not set — skipping remote example.")
+    print("CRAFTPATH_BACKEND_URL not set - skipping remote example.")
     sys.exit(0)
 
 POE2_LEAGUE = "Standard"

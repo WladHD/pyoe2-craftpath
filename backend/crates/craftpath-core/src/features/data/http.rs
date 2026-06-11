@@ -34,13 +34,13 @@ pub fn retrieve_contents_from_urls_with_cache_unstable_order(
             tracing::info!("Downloading fresh data for {}...", cache_path);
             let response = reqwest::blocking::get(&url)?;
 
-            // never cache error bodies ("error code: 502" etc.) — fall back
+            // never cache error bodies ("error code: 502" etc.) - fall back
             // to a stale cache file if one exists
             if !response.status().is_success() {
                 let status = response.status();
                 if path.exists() {
                     tracing::warn!(
-                        "Download of '{}' failed with HTTP {} — using stale cache.",
+                        "Download of '{}' failed with HTTP {} - using stale cache.",
                         url,
                         status
                     );

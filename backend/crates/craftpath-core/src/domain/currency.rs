@@ -161,12 +161,12 @@ impl CraftCurrencyEnum {
                         1 => "Preserved Collarbone",
                         9 => "Preserved Cranium",
                         11 => "Preserved Spine",
-                        // safe fallback instead of a panic — new 0.5.0 base
+                        // safe fallback instead of a panic - new 0.5.0 base
                         // groups would otherwise crash route rendering; the
                         // price lookup degrades to the 1-Exalted placeholder
                         _ => {
                             tracing::warn!(
-                                "Unhandled bone type for base group {:?} — using generic name.",
+                                "Unhandled bone type for base group {:?} - using generic name.",
                                 base_group_id
                             );
                             "Preserved Bone"
