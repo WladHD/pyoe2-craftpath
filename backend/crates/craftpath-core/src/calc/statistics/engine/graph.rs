@@ -262,8 +262,6 @@ pub(crate) mod test_support {
             matrix,
             starting_item: start,
             target_item: target,
-            statistics: THashMap::default(),
-            statistics_grouped: THashMap::default(),
         }
     }
 }

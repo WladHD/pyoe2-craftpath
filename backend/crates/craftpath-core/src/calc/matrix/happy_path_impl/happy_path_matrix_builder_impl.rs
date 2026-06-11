@@ -7,7 +7,7 @@ use crate::progress::{NoopProgress, ProgressSink};
 use crate::{
     api::{
         calculator::{ItemMatrix, ItemMatrixNode, MatrixBuilder, PropagationTarget},
-        currency::CraftCurrencyList,
+        currency::{CraftCurrencyEnum, CraftCurrencyList},
         item::{Item, ItemSnapshot, ItemTechnicalMeta},
         matrix_propagator::MatrixPropagator,
         provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
@@ -26,10 +26,111 @@ use crate::{
     utils::{fraction_utils::Fraction, hash_utils::hash_value},
 };
 
+/// Happy-path matrix builder with an injectable propagator registry and a
+/// config-driven currency filter (e.g. to exclude legacy omens without code
+/// edits).
+pub struct HappyPathMatrixBuilder {
+    propagators: Vec<Box<dyn MatrixPropagator + Send + Sync>>,
+    essence_only: Vec<Box<dyn MatrixPropagator + Send + Sync>>,
+    disabled_currencies: THashSet<CraftCurrencyEnum>,
+}
+
+impl HappyPathMatrixBuilder {
+    /// Exactly the historical propagator set, in the historical order (order
+    /// affects which duplicate branch survives the cheapest-route pruning).
+    pub fn standard() -> Self {
+        Self {
+            propagators: vec![
+                Box::new(FracturingOrbPropagator),
+                Box::new(OrbOfTransmutationPropagator),
+                Box::new(OrbOfAugmentationPropagator),
+                Box::new(RegalOrbPropagator),
+                Box::new(ExaltedOrbPropagator),
+                Box::new(ChaosOrbPropagator),
+                Box::new(OrbOfAnnulmentPropagator),
+                Box::new(PerfectEssencePropagator),
+                Box::new(DesecrationPropagator),
+                Box::new(NormalEssencePropagator),
+                // finishers
+                Box::new(ArtificersOrbPropagator),
+                Box::new(VaalOrbPropagator),
+            ],
+            essence_only: vec![Box::new(PerfectEssencePropagator)],
+            disabled_currencies: THashSet::default(),
+        }
+    }
+
+    pub fn with_propagators(
+        propagators: Vec<Box<dyn MatrixPropagator + Send + Sync>>,
+        essence_only: Vec<Box<dyn MatrixPropagator + Send + Sync>>,
+    ) -> Self {
+        Self {
+            propagators,
+            essence_only,
+            disabled_currencies: THashSet::default(),
+        }
+    }
+
+    /// Exclude any propagation branch whose currency list contains one of
+    /// the given currencies (e.g. unobtainable legacy omens).
+    pub fn without_currencies(
+        mut self,
+        currencies: impl IntoIterator<Item = CraftCurrencyEnum>,
+    ) -> Self {
+        self.disabled_currencies.extend(currencies);
+        self
+    }
+}
+
+/// Historical zero-config builder, kept for compatibility; prefer
+/// [`HappyPathMatrixBuilder::standard`].
 #[derive(Clone, Debug)]
 pub struct HappyPathMatrixBuilderImpl;
 
 impl MatrixBuilder for HappyPathMatrixBuilderImpl {
+    fn get_name(&self) -> &'static str {
+        "Happy Path Matrix Builder"
+    }
+
+    fn get_description(&self) -> &'static str {
+        "Builds an optimized item matrix containing reachable items starting from \
+        the given item, that only come closer to the target item (target_proximity)."
+    }
+
+    fn generate_item_matrix(
+        &self,
+        starting_item: ItemSnapshot,
+        target_item: ItemSnapshot,
+        item_info: &ItemInfoProvider,
+        market_info: &MarketPriceProvider,
+    ) -> Result<ItemMatrix> {
+        HappyPathMatrixBuilder::standard().generate_item_matrix(
+            starting_item,
+            target_item,
+            item_info,
+            market_info,
+        )
+    }
+
+    fn generate_item_matrix_with_progress(
+        &self,
+        starting_item: ItemSnapshot,
+        target_item: ItemSnapshot,
+        item_info: &ItemInfoProvider,
+        market_info: &MarketPriceProvider,
+        sink: &dyn ProgressSink,
+    ) -> Result<ItemMatrix> {
+        HappyPathMatrixBuilder::standard().generate_item_matrix_with_progress(
+            starting_item,
+            target_item,
+            item_info,
+            market_info,
+            sink,
+        )
+    }
+}
+
+impl MatrixBuilder for HappyPathMatrixBuilder {
     fn get_name(&self) -> &'static str {
         "Happy Path Matrix Builder"
     }
@@ -51,6 +152,9 @@ impl MatrixBuilder for HappyPathMatrixBuilderImpl {
             target_item,
             item_info,
             market_info,
+            &self.propagators,
+            &self.essence_only,
+            &self.disabled_currencies,
             &NoopProgress,
         )
     }
@@ -63,15 +167,28 @@ impl MatrixBuilder for HappyPathMatrixBuilderImpl {
         market_info: &MarketPriceProvider,
         sink: &dyn ProgressSink,
     ) -> Result<ItemMatrix> {
-        generate_item_matrix(starting_item, target_item, item_info, market_info, sink)
+        generate_item_matrix(
+            starting_item,
+            target_item,
+            item_info,
+            market_info,
+            &self.propagators,
+            &self.essence_only,
+            &self.disabled_currencies,
+            sink,
+        )
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn generate_item_matrix(
     starting_item: ItemSnapshot,
     target_item: ItemSnapshot,
     item_info: &ItemInfoProvider,
     market_info: &MarketPriceProvider,
+    propagators: &[Box<dyn MatrixPropagator + Send + Sync>],
+    essence_only: &[Box<dyn MatrixPropagator + Send + Sync>],
+    disabled_currencies: &THashSet<CraftCurrencyEnum>,
     sink: &dyn ProgressSink,
 ) -> Result<ItemMatrix> {
     let mut matrix = ItemMatrix::default();
@@ -82,25 +199,6 @@ fn generate_item_matrix(
         chance: Fraction::one(),
         meta: ItemTechnicalMeta::default(),
     });
-
-    // setup propagators
-    let propagators: Vec<Box<dyn MatrixPropagator>> = vec![
-        Box::new(FracturingOrbPropagator),
-        Box::new(OrbOfTransmutationPropagator),
-        Box::new(OrbOfAugmentationPropagator),
-        Box::new(RegalOrbPropagator),
-        Box::new(ExaltedOrbPropagator),
-        Box::new(ChaosOrbPropagator),
-        Box::new(OrbOfAnnulmentPropagator),
-        Box::new(PerfectEssencePropagator),
-        Box::new(DesecrationPropagator),
-        Box::new(NormalEssencePropagator),
-        // finishers
-        Box::new(ArtificersOrbPropagator),
-        Box::new(VaalOrbPropagator),
-    ];
-
-    let essence_only: Vec<Box<dyn MatrixPropagator>> = vec![Box::new(PerfectEssencePropagator)];
 
     tracing::info!("Starting propagation ...");
 
@@ -150,6 +248,15 @@ fn generate_item_matrix(
 
                         match some_propagator.propagate_step(&item, &target_item, &item_info) {
                             Ok(mut prop) => {
+                                // config-driven branch filter (each currency
+                                // list is an independent branch; disabling
+                                // one leaves the others intact)
+                                if !disabled_currencies.is_empty() {
+                                    prop.retain(|currency_list, _| {
+                                        currency_list.list.is_disjoint(disabled_currencies)
+                                    });
+                                }
+
                                 let mut reached: THashMap<(ItemSnapshot, Fraction), f64> =
                                     THashMap::default();
 

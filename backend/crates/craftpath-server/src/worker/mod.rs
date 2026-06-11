@@ -13,6 +13,7 @@ use craftpath_core::api::item::ItemSnapshot;
 use craftpath_core::calc::matrix::presets::matrix_builder_presets::MatrixBuilderPreset;
 use craftpath_core::calc::statistics::presets::statistic_analyzer_currency_group_presets::StatisticAnalyzerCurrencyGroupPreset;
 use craftpath_core::calc::statistics::presets::statistic_analyzer_path_presets::StatisticAnalyzerPathPreset;
+use craftpath_core::api::session::{CalculationConfig, CraftSession};
 use craftpath_core::progress::ProgressSink;
 use craftpath_proto::convert::{group_route_to_proto, item_route_to_proto};
 use craftpath_proto::v1;
@@ -327,17 +328,20 @@ pub fn run_job(
     progress.set_phase("fetching_league_data", 1);
     let (item_provider, market_info) = load_league_data(config, &league)?;
 
+    let session = CraftSession::new(&item_provider, &market_info)
+        .with_config(
+            CalculationConfig::builder()
+                .max_routes(max_routes)
+                .max_ram(max_ram)
+                .league(league.clone())
+                .build(),
+        )
+        .with_progress(progress);
+
     // -------- matrix --------
     progress.set_phase("building_matrix", 5);
     let builder = matrix_builder.get_instance();
-    let calculator = Calculator::generate_item_matrix_with_progress(
-        start,
-        target,
-        &item_provider,
-        &market_info,
-        builder.0.as_ref(),
-        progress,
-    )?;
+    let calculator = session.build_matrix_with(start, target, builder.0.as_ref())?;
 
     let mut result = v1::JobResult {
         matrix_size: calculator.matrix.len() as u64,
@@ -364,13 +368,7 @@ pub fn run_job(
             40 + analyzer_span * analyzer_index / total_analyzers,
         );
 
-        let groups = calculator.calculate_statistics_currency_group_with_progress(
-            &item_provider,
-            &market_info,
-            max_ram,
-            instance.0.as_ref(),
-            progress,
-        )?;
+        let groups = session.analyze_groups(&calculator, instance.0.as_ref())?;
 
         let mut proto_groups: Vec<v1::GroupRoute> = groups
             .iter()
@@ -379,8 +377,7 @@ pub fn run_job(
 
         if options.include_pretty_strings {
             for (i, group) in groups.iter().take(top_n_pretty).enumerate() {
-                let pretty =
-                    group.to_pretty_string(&item_provider, &market_info, instance.0.as_ref());
+                let pretty = session.render_group(group, instance.0.as_ref());
                 pretty_text.push_str(&pretty);
                 pretty_text.push('\n');
                 proto_groups[i].pretty = Some(pretty);
@@ -410,14 +407,7 @@ pub fn run_job(
             40 + analyzer_span * analyzer_index / total_analyzers,
         );
 
-        let routes = calculator.calculate_statistics_with_progress(
-            &item_provider,
-            &market_info,
-            max_routes,
-            max_ram,
-            instance.0.as_ref(),
-            progress,
-        )?;
+        let routes = session.analyze_paths(&calculator, instance.0.as_ref())?;
 
         let mut proto_routes: Vec<v1::ItemRoute> = routes
             .iter()
@@ -441,13 +431,8 @@ pub fn run_job(
                 instance.0.get_name()
             ));
             for (i, route) in routes.iter().take(top_n_pretty).enumerate() {
-                let pretty = route.to_pretty_string(
-                    &item_provider,
-                    &market_info,
-                    instance.0.as_ref(),
-                    &calculator,
-                    groups_for_pretty,
-                );
+                let pretty =
+                    session.render_route(&calculator, route, instance.0.as_ref(), groups_for_pretty);
                 pretty_text.push_str(&pretty);
                 pretty_text.push('\n');
                 proto_routes[i].pretty = Some(pretty);

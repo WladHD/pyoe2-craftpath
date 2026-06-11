@@ -439,8 +439,6 @@ pub struct Calculator {
     pub matrix: ItemMatrix,
     pub starting_item: ItemSnapshot,
     pub target_item: ItemSnapshot,
-    pub statistics: THashMap<String, StatisticResult>,
-    pub statistics_grouped: THashMap<String, Vec<GroupRoute>>,
 }
 
 impl Calculator {
@@ -499,8 +497,6 @@ impl Calculator {
             matrix: res,
             starting_item: starting_item,
             target_item: target,
-            statistics: THashMap::default(),
-            statistics_grouped: THashMap::default(),
         })
     }
 
