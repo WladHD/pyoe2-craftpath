@@ -177,7 +177,9 @@ impl CraftOfExileItemInfoProvider {
                 let affix_location = match &affix_info.affix {
                     Some(location) => location.clone(),
                     None => {
-                        tracing::warn!(
+                        // common since CoE ships corruption-implicit mods;
+                        // logged at debug to avoid flooding
+                        tracing::debug!(
                             "Skipping affix '{}' for item '{}' because its affix type is not craftable (e.g. 'corrupted').",
                             affix_id.get_raw_value(),
                             base_item_id.get_raw_value()

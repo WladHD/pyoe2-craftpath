@@ -32,7 +32,27 @@ pub fn retrieve_contents_from_urls_with_cache_unstable_order(
 
         let data = if should_download {
             tracing::info!("Downloading fresh data for {}...", cache_path);
-            let response = reqwest::blocking::get(&url)?.text()?;
+            let response = reqwest::blocking::get(&url)?;
+
+            // never cache error bodies ("error code: 502" etc.) — fall back
+            // to a stale cache file if one exists
+            if !response.status().is_success() {
+                let status = response.status();
+                if path.exists() {
+                    tracing::warn!(
+                        "Download of '{}' failed with HTTP {} — using stale cache.",
+                        url,
+                        status
+                    );
+                    results.push(fs::read_to_string(&path)?);
+                    continue;
+                }
+                return Err(anyhow::anyhow!(
+                    "Download of '{url}' failed with HTTP {status} and no cached copy exists."
+                ));
+            }
+
+            let response = response.text()?;
 
             if let Some(parent) = path.parent() {
                 fs::create_dir_all(parent)?;

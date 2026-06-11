@@ -29,7 +29,6 @@ pyo3 = { workspace = true, features = [
 ], optional = true }
 pyo3-stub-gen = { workspace = true, optional = true }
 
-ctrlc = { workspace = true }
 
 [lib]
 name = "pyoe2_craftpath"

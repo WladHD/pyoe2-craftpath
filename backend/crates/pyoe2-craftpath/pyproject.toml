@@ -5,7 +5,7 @@ build-backend = "maturin"
 [project]
 name = "pyoe2-craftpath"
 description = "A tool for Path of Exile 2 to find the best craftpaths based on the categories: *most likely, most efficient and cheapest*, between a starting item and a target item."
-readme = "README.md"
+readme = "../../../README.md"
 license = "MIT"
 authors = [{ name = "Wladislaw Jerokin", email = "wladhd@gmail.com" }]
 keywords = ["path-of-exile-2", "poe2", "crafting", "calculator", "simulator"]
@@ -23,5 +23,16 @@ dependencies = ["polars>=1.34.0"]
 Repository = "https://github.com/WladHD/pyoe2-craftpath/"
 Issues = "https://github.com/WladHD/pyoe2-craftpath/issues"
 
+[project.optional-dependencies]
+# remote backend client (RemoteEngine / AsyncRemoteEngine)
+client = ["httpx>=0.27", "websockets>=13", "protobuf>=5.29"]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "pyoe2-craftpath[client]"]
+
 [tool.maturin]
 features = ["pyo3/extension-module"]
+python-source = "python"
+module-name = "pyoe2_craftpath._native"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["python/tests"]

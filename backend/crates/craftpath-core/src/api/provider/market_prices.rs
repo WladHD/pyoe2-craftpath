@@ -82,9 +82,13 @@ pub struct PriceInDivines {
     raw_value: f64,
 }
 
-#[derive(Clone, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Serialize, Deserialize)]
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass_enum)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
+#[cfg_attr(
+    feature = "python",
+    pyo3(eq, weakref, from_py_object, frozen, hash, str)
+)]
 pub enum PriceKind {
     Divine,
     Exalted,
@@ -117,4 +121,4 @@ impl PriceInDivines {
 }
 
 #[cfg(feature = "python")]
-crate::derive_DebugDisplay!(PriceInDivines, MarketPriceProvider);
+crate::derive_DebugDisplay!(PriceInDivines, MarketPriceProvider, PriceKind);

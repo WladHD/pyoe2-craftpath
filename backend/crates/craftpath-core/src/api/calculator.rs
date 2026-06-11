@@ -623,20 +623,26 @@ impl Calculator {
     #[staticmethod]
     #[pyo3(name = "generate_item_matrix")]
     fn generate_item_matrix_py(
+        py: pyo3::Python,
         starting_item: ItemSnapshot,
         target: ItemSnapshot,
         item_provider: &ItemInfoProvider,
         market_info: &MarketPriceProvider,
         matrix_builder: &DynMatrixBuilder,
     ) -> pyo3::PyResult<Self> {
-        Calculator::generate_item_matrix(
-            starting_item,
-            target,
-            item_provider,
-            market_info,
-            matrix_builder.0.as_ref(),
-        )
-        .map_err(crate::utils::py_err_utils::to_py_err)
+        // allow parallelization (matrix builds can run minutes); Ctrl-C
+        // cancels cooperatively via PySignalSink
+        py.detach(move || {
+            Calculator::generate_item_matrix_with_progress(
+                starting_item,
+                target,
+                item_provider,
+                market_info,
+                matrix_builder.0.as_ref(),
+                &crate::utils::py_err_utils::PySignalSink,
+            )
+            .map_err(crate::utils::py_err_utils::to_py_err)
+        })
     }
 
     #[pyo3(name = "calculate_statistics")]
@@ -649,14 +655,15 @@ impl Calculator {
         max_ram_in_bytes: u64,
         statistic_analyzer: &DynStatisticAnalyzerPaths,
     ) -> pyo3::PyResult<Vec<ItemRoute>> {
-        // allow parallelization
+        // allow parallelization; Ctrl-C cancels cooperatively
         py.detach(move || {
-            self.calculate_statistics(
+            self.calculate_statistics_with_progress(
                 item_provider,
                 market_provider,
                 max_routes,
                 max_ram_in_bytes,
                 statistic_analyzer.0.as_ref(),
+                &crate::utils::py_err_utils::PySignalSink,
             )
             .map_err(crate::utils::py_err_utils::to_py_err)
         })
@@ -665,18 +672,24 @@ impl Calculator {
     #[pyo3(name = "calculate_statistics_currency_group")]
     pub fn calculate_statistics_currency_group_py(
         &mut self,
+        py: pyo3::Python,
         item_provider: &ItemInfoProvider,
         market_provider: &MarketPriceProvider,
         max_ram_in_bytes: u64,
         statistic_analyzer: &DynStatisticAnalyzerCurrencyGroups,
     ) -> pyo3::PyResult<Vec<GroupRoute>> {
-        self.calculate_statistics_currency_group(
-            item_provider,
-            market_provider,
-            max_ram_in_bytes,
-            statistic_analyzer.0.as_ref(),
-        )
-        .map_err(crate::utils::py_err_utils::to_py_err)
+        // allow parallelization (group analysis can run minutes); Ctrl-C
+        // cancels cooperatively
+        py.detach(move || {
+            self.calculate_statistics_currency_group_with_progress(
+                item_provider,
+                market_provider,
+                max_ram_in_bytes,
+                statistic_analyzer.0.as_ref(),
+                &crate::utils::py_err_utils::PySignalSink,
+            )
+            .map_err(crate::utils::py_err_utils::to_py_err)
+        })
     }
 
     #[staticmethod]
@@ -690,11 +703,9 @@ impl Calculator {
             .map_err(crate::utils::py_err_utils::to_py_err)
     }
 
-    #[staticmethod]
-    #[pyo3(name = "sanity_check_item")]
-    fn sanity_check_item_py(start: &ItemSnapshot, provider: &ItemInfoProvider) -> bool {
-        Calculator::sanity_check_item(start, provider)
-    }
+    // NOTE: sanity_check_item is intentionally NOT exposed to Python anymore:
+    // the underlying implementation is still `todo!()` and calling it raised
+    // an opaque panic. Re-expose once implemented.
 }
 
 #[cfg(feature = "python")]

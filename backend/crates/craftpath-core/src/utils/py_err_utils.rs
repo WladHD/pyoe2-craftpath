@@ -69,9 +69,27 @@ pub fn to_py_err(err: anyhow::Error) -> PyErr {
         Some(CraftPathError::EssenceIntermediaryStepRequired(..)) => {
             EssenceIntermediaryError::new_err(msg)
         }
+        // In Python the only cancellation source is a pending signal observed
+        // by PySignalSink, so surface it as the idiomatic KeyboardInterrupt.
         Some(CraftPathError::Cancelled()) => {
-            pyo3::exceptions::PyInterruptedError::new_err(msg)
+            pyo3::exceptions::PyKeyboardInterrupt::new_err(msg)
         }
         None => CraftPathException::new_err(msg),
+    }
+}
+
+/// ProgressSink that lets Ctrl-C interrupt long-running calculations: the hot
+/// loops poll `is_cancelled` every couple hundred thousand iterations, which
+/// briefly attaches to the interpreter and checks for pending signals.
+///
+/// This replaces the old import-time `ctrlc` handler that hard-exited the
+/// whole process (exit code 2) and broke Jupyter/SIGINT semantics.
+pub struct PySignalSink;
+
+impl crate::progress::ProgressSink for PySignalSink {
+    fn report(&self, _message: &str, _current: u64, _total: Option<u64>) {}
+
+    fn is_cancelled(&self) -> bool {
+        pyo3::Python::attach(|py| py.check_signals().is_err())
     }
 }
