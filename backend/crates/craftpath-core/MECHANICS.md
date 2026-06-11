@@ -1,5 +1,29 @@
 # Game-patch 0.5.0 mechanics — verification table
 
+## Sources & retrieval
+
+Game information in this repository was cross-referenced on **2026-06-11**
+from these sources (in trust order):
+
+1. **CraftOfExile emulator JS** (`poe2.js` + `package.js`, craftofexile.com):
+   authoritative action vocabulary and simulation handlers of the CoE PoE2
+   simulator — omen effects, vaal outcome table, desecration reveal rates,
+   currency tier breakpoints (`currencyModLevelFilter`: transmute/augment
+   greater = 44, perfect = 70; regal/exalt/chaos greater = 35, perfect = 50).
+2. **CraftOfExile data file** (`poec_data.json`, parsed by our
+   `CoEGameData` struct): modifiers (incl. 101 corruption implicits),
+   essences (95 incl. 13 Alloys), socketables (runes/soul cores/talismans),
+   catalysts, bases/tiers/weights.
+3. **poe2wiki.net** (MediaWiki API): omen/essence/corruption semantics.
+4. **poe.ninja PoE2 exchange API** (league "Runes of Aldur"): item names and
+   price availability per category (Currency/Ritual/Abyss/Essences/Runes/
+   SoulCores/Breach).
+5. **Guide articles** (poecurrency.com 0.5.0 crafting meta; boostmatch.gg
+   0.5.0 currency guide): used for discovery only — the boostmatch guide is
+   partially PoE1-contaminated (nonexistent "Orb of Alteration",
+   Sinistral/Dextral Erasure effects swapped) and individual claims were
+   verified against sources 1-3 before any modeling change.
+
 Verified 2026-06-11 against (in priority order): the CraftOfExile PoE2 emulator
 code (`poe2.js` config/omen/desecration data + `package.js` simulation
 handlers), [poe2wiki](https://www.poe2wiki.net), and the poe.ninja PoE2
@@ -32,3 +56,12 @@ rows as `MECHANICS.md V<n>`.
 - Omen of Corruption and Homogenising omens are modeled but unobtainable in
   the 0.5.0 league — their routes only make sense with legacy stock, and
   their prices fall back to the 1-Exalted placeholder.
+
+## 0.5.0 additions from the currency-guide cross-check (2026-06-11)
+
+- **Greater Orb of Transmutation/Augmentation min modlevel changed 55 → 44**
+  in 0.5.0 (emulator `currencyModLevelFilter`) — applied in the propagators.
+- Omen of Corruption and the Homogenising omens are unobtainable in the
+  0.5.0 league (drop-disabled); Omen of Recombination was deleted outright.
+- Alloys have **no poe.ninja exchange listing** — their route costs use the
+  1-Exalted placeholder until another price source exists.

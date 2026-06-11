@@ -74,3 +74,42 @@ integration tests) and `python -m pytest python/tests` in
 `crates/pyoe2-craftpath` (Python). Regenerate the committed proto code with
 `scripts/gen_proto.sh`, the `.pyi` stub with `cargo run -p pyoe2-craftpath
 --bin stub_gen`.
+
+## 0.5.0 mechanics coverage & TODO
+
+Cross-referenced 2026-06-11 against the CraftOfExile emulator/data, poe2wiki
+and the poe.ninja exchange API (see `crates/craftpath-core/MECHANICS.md` for
+sources and the full verification table).
+
+**Modeled today:** transmutation/augmentation/regal/exalted/chaos (3 tiers,
+0.5.0 thresholds), annulment, artificer, fracturing, vaal (sockets +
+corruption implicits), desecration (bones + omens), essences
+(standard/perfect/alloys), all dextral/sinistral omens, whittling, abyssal
+echoes, greater exaltation, omen of light, homogenising (legacy),
+omen of corruption (legacy).
+
+**Implementable now (data already parsed or no data needed):**
+- [ ] Divine Orb value rerolling — per-tier `nvalues` ranges already parsed
+- [ ] Orb of Alchemy (`poe2_alchemy`: Normal/Magic → Rare with 4 mods)
+- [ ] Runes + Soul Cores (+ Talismans) — `socketables` section already
+      deserialized; ninja prices for runes/cores exist (talismans missing)
+- [ ] Catalysts (value-quality on jewellery) — `catalysts` section +
+      modifier `mtags`; ninja Breach prices incl. Refined variants
+- [ ] Remaining emulator omens: Sinistral/Dextral Alchemy,
+      Sinistral/Dextral Coronation, Greater Annulment, the Blessed
+      (needs Divine), Blackblooded/Liege/Sovereign cross-check
+- [ ] Hinekora's Lock as a "preview next result" policy action
+- [ ] Alloy price source (absent from the poe.ninja exchange — official
+      trade API or user-supplied)
+
+**Waiting for CoE data:**
+- [ ] Omen of Catalysing Exaltation (catalyst-quality weight multiplier —
+      not in the emulator omen vocabulary yet)
+- [ ] Omen of Sanctification / Sanctified items
+- [ ] Vaal Catalysing Infuser (jewellery quality > 20%)
+- [ ] Runeforging / Verisium / Genesis Tree (only Runeforged base items
+      exist in `bitems`; no emulator actions yet)
+
+**Out of scope:** Jeweller's Orbs (support-gem sockets), Mirror, Orb of
+Chance, quality currencies, Distilled Emotions, Starlit Ore;
+Recombinator/Omen of Recombination (removed in 0.5.0).

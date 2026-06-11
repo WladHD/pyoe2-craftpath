@@ -38,7 +38,7 @@ impl MatrixPropagator for OrbOfTransmutationPropagator {
         for currency in TRANSMUT_ORBS {
             let force_min_starting_level = ItemLevel::from(match currency {
                 &CraftCurrencyEnum::OrbOfTransmutationNormal() => 0,
-                &CraftCurrencyEnum::OrbOfTransmutationGreater() => 55,
+                &CraftCurrencyEnum::OrbOfTransmutationGreater() => 44, // 0.5.0: was 55 (MECHANICS.md sources)
                 &CraftCurrencyEnum::OrbOfTransmutationPerfect() => 70,
                 _ => continue,
             });
