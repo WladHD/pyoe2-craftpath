@@ -1,4 +1,4 @@
-use anyhow::{Result, anyhow};
+use anyhow::Result;
 
 use crate::{
     api::{
@@ -9,7 +9,7 @@ use crate::{
         provider::item_info::ItemInfoProvider,
         types::{
             AffixClassEnum, AffixLocationEnum, AffixSpecifier, AffixTierConstraints,
-            AffixTierLevel, AffixTierLevelBoundsEnum, ItemLevel, ItemRarityEnum, THashMap,
+            AffixTierLevel, AffixTierLevelBoundsEnum, ItemRarityEnum, THashMap,
             THashSet,
         },
     },
@@ -46,14 +46,8 @@ impl ExaltedOrbPropagator {
     ) -> Result<Vec<PropagationTarget>> {
         let target_affixes = &target_item.affixes;
 
-        let force_min_starting_level = ItemLevel::from(match currency {
-            &CraftCurrencyEnum::ExaltedOrbNormal() => 0,
-            &CraftCurrencyEnum::ExaltedOrbGreater() => 35,
-            &CraftCurrencyEnum::ExaltedOrbPerfect() => 50,
-            _ => {
-                return Err(anyhow!("Unknown currency"));
-            }
-        });
+        let force_min_starting_level =
+            crate::domain::currency_data::min_starting_item_level(currency);
 
         if force_min_starting_level > item_instance.snapshot.item_level {
             return Ok(Vec::new());
@@ -318,14 +312,8 @@ impl ExaltedOrbPropagator {
         target_item: &ItemSnapshot,
         provider: &ItemInfoProvider,
     ) -> Result<Vec<PropagationTarget>> {
-        let force_min_starting_level = ItemLevel::from(match currency {
-            &CraftCurrencyEnum::ExaltedOrbNormal() => 0,
-            &CraftCurrencyEnum::ExaltedOrbGreater() => 35,
-            &CraftCurrencyEnum::ExaltedOrbPerfect() => 50,
-            _ => {
-                return Err(anyhow!("Unknown currency"));
-            }
-        });
+        let force_min_starting_level =
+            crate::domain::currency_data::min_starting_item_level(currency);
 
         if force_min_starting_level > item_instance.snapshot.item_level {
             return Ok(Vec::new());

@@ -110,6 +110,15 @@ omen of corruption (legacy).
 - [ ] Runeforging / Verisium / Genesis Tree (only Runeforged base items
       exist in `bitems`; no emulator actions yet)
 
+**Refactor follow-ups:**
+- [ ] Unify the per-propagator `pool.retain(...)` filter blocks onto
+      `features/matrix/happy_path/pool_filter.rs` (one propagator per commit,
+      matrix-hash goldens — each block has behavioral variations)
+- [ ] Adopt `pool_filter::{pool_total_weight, acceptable_affix_weight}` in
+      the remaining propagators (engine + exalted already share the logic)
+- [ ] Drop the legacy path shims (`calc::*`, `external_api::*`,
+      `api::types`-style re-exports) in the next major release
+
 **Out of scope:** Jeweller's Orbs (support-gem sockets), Mirror, Orb of
 Chance, quality currencies, Distilled Emotions, Starlit Ore;
 Recombinator/Omen of Recombination (removed in 0.5.0).

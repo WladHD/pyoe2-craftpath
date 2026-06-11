@@ -1,6 +1,7 @@
 //! Shared kernel: pure domain data types with no feature dependencies.
 
 pub mod currency;
+pub mod currency_data;
 pub mod errors;
 pub mod fraction;
 pub mod item;

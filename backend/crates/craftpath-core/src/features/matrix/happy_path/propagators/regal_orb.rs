@@ -9,7 +9,7 @@ use crate::{
         provider::item_info::ItemInfoProvider,
         types::{
             AffixClassEnum, AffixLocationEnum, AffixSpecifier, AffixTierLevel,
-            AffixTierLevelBoundsEnum, ItemLevel, ItemRarityEnum, THashMap, THashSet,
+            AffixTierLevelBoundsEnum, ItemRarityEnum, THashMap, THashSet,
         },
     },
     utils::fraction_utils::Fraction,
@@ -44,12 +44,8 @@ impl MatrixPropagator for RegalOrbPropagator {
         let max_affixes_per_side = base_group_def.max_affix / 2;
 
         for currency in REGAL_ORBS {
-            let force_min_starting_level = ItemLevel::from(match currency {
-                &CraftCurrencyEnum::RegalOrbNormal() => 0,
-                &CraftCurrencyEnum::RegalOrbGreater() => 35,
-                &CraftCurrencyEnum::RegalOrbPerfect() => 50,
-                _ => continue,
-            });
+            let force_min_starting_level =
+                crate::domain::currency_data::min_starting_item_level(currency);
 
             if force_min_starting_level > item_instance.snapshot.item_level {
                 continue;

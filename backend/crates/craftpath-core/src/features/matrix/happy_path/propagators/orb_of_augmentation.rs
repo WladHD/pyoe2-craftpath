@@ -9,7 +9,7 @@ use crate::{
         provider::item_info::ItemInfoProvider,
         types::{
             AffixClassEnum, AffixLocationEnum, AffixSpecifier, AffixTierLevel,
-            AffixTierLevelBoundsEnum, ItemLevel, ItemRarityEnum, THashMap, THashSet,
+            AffixTierLevelBoundsEnum, ItemRarityEnum, THashMap, THashSet,
         },
     },
     utils::fraction_utils::Fraction,
@@ -36,12 +36,8 @@ impl MatrixPropagator for OrbOfAugmentationPropagator {
             THashMap::default();
 
         for currency in AUGMENT_ORBS {
-            let force_min_starting_level = ItemLevel::from(match currency {
-                &CraftCurrencyEnum::OrbOfAugmentationNormal() => 0,
-                &CraftCurrencyEnum::OrbOfAugmentationGreater() => 44, // 0.5.0: was 55 (MECHANICS.md sources)
-                &CraftCurrencyEnum::OrbOfAugmentationPerfect() => 70,
-                _ => continue,
-            });
+            let force_min_starting_level =
+                crate::domain::currency_data::min_starting_item_level(currency);
 
             if force_min_starting_level > item_instance.snapshot.item_level {
                 continue;
