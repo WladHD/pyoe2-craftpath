@@ -1,0 +1,23 @@
+[package]
+name = "craftpath-proto"
+description = "Generated protobuf/JSON wire types for the craftpath job API plus conversions from the craftpath-core domain types."
+publish = false
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[dependencies]
+craftpath-core = { workspace = true }
+prost = { workspace = true }
+pbjson = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+
+[build-dependencies]
+prost-build = { workspace = true }
+pbjson-build = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }
