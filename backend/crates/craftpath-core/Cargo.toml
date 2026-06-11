@@ -1,7 +1,7 @@
 [package]
 name = "craftpath-core"
 description = "Core crafting-path calculation engine for Path of Exile 2: item matrix propagation and route statistics. Used by the pyoe2-craftpath Python bindings and the craftpath backend services."
-readme = "../../../README.md"
+readme = "README.md"
 keywords = ["path-of-exile-2", "poe2", "crafting", "calculator", "simulator"]
 categories = ["games", "algorithms"]
 version.workspace = true

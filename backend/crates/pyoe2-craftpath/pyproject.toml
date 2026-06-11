@@ -5,7 +5,7 @@ build-backend = "maturin"
 [project]
 name = "pyoe2-craftpath"
 description = "A tool for Path of Exile 2 to find the best craftpaths based on the categories: *most likely, most efficient and cheapest*, between a starting item and a target item."
-readme = "../../../README.md"
+readme = "README.md"
 license = "MIT"
 authors = [{ name = "Wladislaw Jerokin", email = "wladhd@gmail.com" }]
 keywords = ["path-of-exile-2", "poe2", "crafting", "calculator", "simulator"]
