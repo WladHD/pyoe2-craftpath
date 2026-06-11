@@ -4,10 +4,16 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "src/**"
+      - "backend/**"
+      - ".github/workflows/test_cargo.yml"
   pull_request:
     paths:
-      - "src/**"
+      - "backend/**"
+      - ".github/workflows/test_cargo.yml"
+
+defaults:
+  run:
+    working-directory: backend
 
 jobs:
   test:
@@ -23,13 +29,9 @@ jobs:
           curl https://sh.rustup.rs -sSf | sh -s -- -y
           source $HOME/.cargo/env
 
-          # Add Windows target
-          rustup target add x86_64-pc-windows-gnu
-
           # Install required packages
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            mingw-w64 \
             pkg-config \
             build-essential \
             git \
@@ -38,8 +40,11 @@ jobs:
             jq
           sudo rm -rf /var/lib/apt/lists/*
 
-      - name: Run tests Python feature
-        run: cargo test --all --verbose
+      - name: Run tests (workspace, default features)
+        run: cargo test --workspace --verbose
 
-      - name: Run tests Windows mode
-        run: cargo test --all --no-default-features --verbose
+      - name: Run tests without python feature
+        run: cargo test --workspace --no-default-features --verbose
+
+      - name: Build python extension crate
+        run: cargo build -p pyoe2-craftpath --verbose

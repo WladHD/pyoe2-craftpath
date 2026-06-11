@@ -1,6 +1,10 @@
-/target
-/python_examples/cache
-/cache
+target/
+cache/
+
+# local agent/tooling state
+.claude/
+.claude-config/
+.memsearch/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

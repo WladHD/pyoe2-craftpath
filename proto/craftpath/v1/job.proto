@@ -1,0 +1,165 @@
+syntax = "proto3";
+
+package craftpath.v1;
+
+import "craftpath/v1/common.proto";
+import "craftpath/v1/currency.proto";
+import "craftpath/v1/item.proto";
+import "craftpath/v1/presets.proto";
+
+// ---------------------------------------------------------------------------
+// Request
+// ---------------------------------------------------------------------------
+
+message Limits {
+  // Number of grouped routes / unique paths to search for.
+  uint32 max_routes = 1;
+  // Hard RAM bound for the calculation (canonical JSON encodes as string).
+  uint64 max_ram_in_bytes = 2;
+  // Server-enforced wall-clock timeout; unset means the server default.
+  optional uint32 timeout_seconds = 3;
+}
+
+message ResultOptions {
+  // Render server-side pretty strings per route/group (clients cannot render
+  // them since rendering needs provider data and the item matrix).
+  bool include_pretty_strings = 1;
+  // Resolve each ItemRouteNode.item_matrix_id into a full ItemSnapshot.
+  bool include_route_snapshots = 2;
+  // Render pretty strings only for the first N results per analyzer.
+  optional uint32 top_n_pretty = 3;
+}
+
+message SubmitJobRequest {
+  // League whose CoE / poe.ninja data the server should use. The server
+  // fetches and caches this data per league; it is never uploaded.
+  // Empty string means the server default league.
+  string league = 1;
+  ItemSnapshot start = 2;
+  // Target spec: AffixSpecifier.tier.bounds encodes exact/minimum constraints.
+  ItemSnapshot target = 3;
+  MatrixBuilderPreset matrix_builder = 4;
+  // Path analyzers to run on the matrix (each yields a PathAnalyzerResult).
+  repeated StatisticAnalyzerPathPreset path_analyzers = 5;
+  // Currency-group analyzers to run (each yields a GroupAnalyzerResult).
+  repeated StatisticAnalyzerCurrencyGroupPreset group_analyzers = 6;
+  Limits limits = 7;
+  ResultOptions result_options = 8;
+}
+
+// ---------------------------------------------------------------------------
+// Results
+// ---------------------------------------------------------------------------
+
+// Mirrors craftpath_core::api::calculator::ItemRouteNode.
+message ItemRouteNode {
+  // Opaque hash into the item matrix (canonical JSON encodes as string).
+  uint64 item_matrix_id = 1;
+  Fraction chance = 2;
+  CraftCurrencyList currency_list = 3;
+  // Resolved iff ResultOptions.include_route_snapshots.
+  optional ItemSnapshot resolved_item = 4;
+}
+
+// Mirrors craftpath_core::api::calculator::ItemRoute.
+message ItemRoute {
+  repeated ItemRouteNode route = 1;
+  double weight = 2;
+  double chance = 3;
+  // Server-rendered, iff requested via ResultOptions.
+  optional string pretty = 4;
+}
+
+// Wrapper for the nested repeated unique_route_weights.
+message RouteChances {
+  repeated double values = 1;
+}
+
+// Mirrors craftpath_core::api::calculator::GroupRoute.
+message GroupRoute {
+  repeated CraftCurrencyList group = 1;
+  double weight = 2;
+  repeated RouteChances unique_route_weights = 3;
+  double chance = 4;
+  uint32 amount_subpaths = 5;
+  optional string pretty = 6;
+}
+
+message PathAnalyzerResult {
+  StatisticAnalyzerPathPreset preset = 1;
+  repeated ItemRoute routes = 2;
+  // From analyzer metadata: whether lower result values are better.
+  bool lower_is_better = 3;
+  string unit_type = 4;
+}
+
+message GroupAnalyzerResult {
+  StatisticAnalyzerCurrencyGroupPreset preset = 1;
+  repeated GroupRoute groups = 2;
+  bool lower_is_better = 3;
+  string unit_type = 4;
+}
+
+message JobResult {
+  // Number of nodes in the generated item matrix.
+  uint64 matrix_size = 1;
+  repeated PathAnalyzerResult path_results = 2;
+  repeated GroupAnalyzerResult group_results = 3;
+  // Combined human-readable rendering of the top results (used by MCP and
+  // CLI-style consumers); populated iff pretty strings were requested.
+  string pretty_text = 4;
+}
+
+// ---------------------------------------------------------------------------
+// Lifecycle
+// ---------------------------------------------------------------------------
+
+enum JobState {
+  JOB_STATE_UNSPECIFIED = 0;
+  JOB_STATE_QUEUED = 1;
+  JOB_STATE_RUNNING = 2;
+  JOB_STATE_SUCCEEDED = 3;
+  JOB_STATE_FAILED = 4;
+  JOB_STATE_CANCELLED = 5;
+  // Result TTL elapsed; the job id is known but its data is gone.
+  JOB_STATE_EXPIRED = 6;
+}
+
+message JobProgress {
+  // "fetching_league_data" | "building_matrix" | "analyzing:<preset>" | ...
+  string phase = 1;
+  // Derived 0-100 estimate.
+  uint32 percent = 2;
+  optional uint64 routes_found = 3;
+  optional uint64 ram_used_bytes = 4;
+}
+
+message JobStatus {
+  string job_id = 1;
+  JobState state = 2;
+  // 1-based position; only meaningful while QUEUED.
+  optional uint32 queue_position = 3;
+  optional JobProgress progress = 4;
+  // Set when state == FAILED.
+  optional Error error = 5;
+  // RFC3339 timestamps.
+  string created_at = 6;
+  optional string started_at = 7;
+  optional string finished_at = 8;
+}
+
+message SubmitJobResponse {
+  string job_id = 1;
+  JobStatus status = 2;
+}
+
+// WebSocket frame envelope for live mode.
+message JobEvent {
+  string job_id = 1;
+  oneof event {
+    JobStatus status = 2;
+    JobProgress progress = 3;
+    JobResult result = 4;
+    Error error = 5;
+  }
+}

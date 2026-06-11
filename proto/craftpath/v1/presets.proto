@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package craftpath.v1;
+
+// Mirrors craftpath_core::calc::matrix::presets::MatrixBuilderPreset.
+enum MatrixBuilderPreset {
+  MATRIX_BUILDER_PRESET_UNSPECIFIED = 0;
+  MATRIX_BUILDER_PRESET_HAPPY_PATH = 1;
+}
+
+// Mirrors craftpath_core::calc::statistics::presets::StatisticAnalyzerPathPreset.
+enum StatisticAnalyzerPathPreset {
+  STATISTIC_ANALYZER_PATH_PRESET_UNSPECIFIED = 0;
+  STATISTIC_ANALYZER_PATH_PRESET_UNIQUE_PATH_CHANCE = 1;
+  STATISTIC_ANALYZER_PATH_PRESET_UNIQUE_PATH_EFFICIENCY = 2;
+  STATISTIC_ANALYZER_PATH_PRESET_UNIQUE_PATH_COST = 3;
+  STATISTIC_ANALYZER_PATH_PRESET_UNIQUE_PATH_CHANCE_MEMORY_HEAVY = 4;
+}
+
+// Mirrors craftpath_core::calc::statistics::presets::StatisticAnalyzerCurrencyGroupPreset.
+enum StatisticAnalyzerCurrencyGroupPreset {
+  STATISTIC_ANALYZER_CURRENCY_GROUP_PRESET_UNSPECIFIED = 0;
+  STATISTIC_ANALYZER_CURRENCY_GROUP_PRESET_CURRENCY_GROUP_CHANCE = 1;
+  STATISTIC_ANALYZER_CURRENCY_GROUP_PRESET_CURRENCY_GROUP_CHANCE_MEMORY_HEAVY = 2;
+}
+
+// Human-readable preset metadata returned by GET /api/v1/presets.
+message PresetInfo {
+  string name = 1;
+  string description = 2;
+}
+
+message PresetList {
+  repeated PresetInfo matrix_builders = 1;
+  repeated PresetInfo path_analyzers = 2;
+  repeated PresetInfo group_analyzers = 3;
+}

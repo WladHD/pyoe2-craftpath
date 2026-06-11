@@ -1,0 +1,40 @@
+[package]
+name = "craftpath-core"
+description = "Core crafting-path calculation engine for Path of Exile 2: item matrix propagation and route statistics. Used by the pyoe2-craftpath Python bindings and the craftpath backend services."
+readme = "../../../README.md"
+keywords = ["path-of-exile-2", "poe2", "crafting", "calculator", "simulator"]
+categories = ["games", "algorithms"]
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[features]
+default = []
+# Exposes the domain types as Python classes (consumed by the pyoe2-craftpath
+# bindings crate). The `extension-module` pyo3 feature is intentionally NOT
+# enabled here so this crate keeps building as a plain rlib and in tests; the
+# final cdylib crate turns it on.
+python = ["dep:pyo3", "dep:pyo3-stub-gen"]
+
+[dependencies]
+pyo3 = { workspace = true, features = ["macros"], optional = true }
+pyo3-stub-gen = { workspace = true, optional = true }
+
+rustc-hash = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+reqwest = { workspace = true }
+num-integer = { workspace = true }
+num-format = { workspace = true }
+indicatif = { workspace = true }
+humansize = { workspace = true }
+rayon = { workspace = true }
+semver = { workspace = true }
+openssl = { workspace = true }
+openssl-sys = { workspace = true }

@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package craftpath.v1;
+
+// Exact rational number used for per-step chances.
+// Mirrors craftpath_core::utils::fraction_utils::Fraction.
+message Fraction {
+  uint32 num = 1;
+  uint32 den = 2;
+}
+
+// Machine-readable error shape used in job statuses and HTTP error bodies.
+//
+// Stable codes:
+//   INVALID_REQUEST, JOB_NOT_FOUND, LEAGUE_DATA_UNAVAILABLE, TIMEOUT,
+//   CANCELLED, INTERNAL, TARGET_UNREACHABLE, AFFIX_UNREACHABLE,
+//   RAM_LIMIT_REACHED, PROVIDER_DATA_ERROR, ESSENCE_INTERMEDIARY_REQUIRED
+message Error {
+  string code = 1;
+  string message = 2;
+  map<string, string> details = 3;
+}

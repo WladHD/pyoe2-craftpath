@@ -36,6 +36,7 @@ jobs:
 
       - name: Get program name and version from Cargo.toml
         id: cargo
+        working-directory: backend/crates/pyoe2-craftpath
         run: |
           NAME=$(cargo read-manifest | jq -r .name)
           VERSION=$(cargo read-manifest | jq -r .version)
@@ -43,9 +44,10 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Build Windows executable
+        working-directory: backend
         run: |
           source $HOME/.cargo/env
-          cargo build --release --target x86_64-pc-windows-gnu --no-default-features
+          cargo build --release --target x86_64-pc-windows-gnu --no-default-features -p pyoe2-craftpath
           cd target/x86_64-pc-windows-gnu/release/
           cp pyoe2_craftpath_cli.exe ${{ steps.cargo.outputs.name }}-v${{ steps.cargo.outputs.version }}-windows-x86_64.exe
           pwd
@@ -88,6 +90,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.cargo.outputs.version }}
-          files: target/x86_64-pc-windows-gnu/release/${{ steps.cargo.outputs.name }}-v${{ steps.cargo.outputs.version }}-windows-x86_64.exe
+          files: backend/target/x86_64-pc-windows-gnu/release/${{ steps.cargo.outputs.name }}-v${{ steps.cargo.outputs.version }}-windows-x86_64.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,44 @@
+[package]
+name = "pyoe2-craftpath"
+description = "A tool for Path of Exile 2 to find the best craftpaths based on the categories: *most likely, most efficient and cheapest*, between a starting item and a target item."
+readme = "../../../README.md"
+keywords = ["path-of-exile-2", "poe2", "crafting", "calculator", "simulator"]
+categories = ["command-line-utilities", "games", "algorithms"]
+exclude = ["setup.sh"]
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[features]
+default = ["python"]
+python = [
+    "dep:pyo3",
+    "dep:pyo3-stub-gen",
+    "craftpath-core/python",
+]
+
+[dependencies]
+craftpath-core = { workspace = true }
+
+# PyO3 only for python feature
+pyo3 = { workspace = true, features = [
+    "extension-module",
+    "macros",
+], optional = true }
+pyo3-stub-gen = { workspace = true, optional = true }
+
+anyhow = { workspace = true }
+tracing = { workspace = true }
+clap = { workspace = true }
+ctrlc = { workspace = true }
+humansize = { workspace = true }
+
+[lib]
+name = "pyoe2_craftpath"
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "pyoe2_craftpath_cli"
+path = "src/main.rs"

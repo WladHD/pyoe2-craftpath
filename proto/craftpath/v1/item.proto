@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package craftpath.v1;
+
+// Mirrors craftpath_core::api::types::ItemRarityEnum.
+enum ItemRarity {
+  ITEM_RARITY_UNSPECIFIED = 0;
+  ITEM_RARITY_NORMAL = 1;
+  ITEM_RARITY_MAGIC = 2;
+  ITEM_RARITY_RARE = 3;
+  ITEM_RARITY_UNIQUE = 4;
+}
+
+// Mirrors craftpath_core::api::types::AffixTierLevelBoundsEnum.
+enum AffixTierLevelBounds {
+  AFFIX_TIER_LEVEL_BOUNDS_UNSPECIFIED = 0;
+  AFFIX_TIER_LEVEL_BOUNDS_EXACT = 1;
+  AFFIX_TIER_LEVEL_BOUNDS_MINIMUM = 2;
+}
+
+// Mirrors craftpath_core::api::types::AffixTierConstraints.
+// `tier` is an AffixTierLevel (u8 in core); values > 255 are rejected.
+message AffixTierConstraints {
+  uint32 tier = 1;
+  AffixTierLevelBounds bounds = 2;
+}
+
+// Mirrors craftpath_core::api::types::AffixSpecifier.
+// `affix_id` is an AffixId (u16 in core); values > 65535 are rejected.
+message AffixSpecifier {
+  uint32 affix_id = 1;
+  bool fractured = 2;
+  AffixTierConstraints tier = 3;
+}
+
+// Mirrors craftpath_core::api::item::ItemSnapshot.
+//
+// `affixes` and `sockets` have set semantics: order is irrelevant and the
+// server deduplicates entries.
+// `item_level` is u8 in core, `base_id` u16; out-of-range values are rejected.
+message ItemSnapshot {
+  uint32 item_level = 1;
+  ItemRarity rarity = 2;
+  uint32 base_id = 3;
+  repeated AffixSpecifier affixes = 4;
+  bool corrupted = 5;
+  uint32 allowed_sockets = 6;
+  repeated AffixSpecifier sockets = 7;
+}
