@@ -1,0 +1,51 @@
+[package]
+name = "craftpath-server"
+description = "Backend services for pyoe2-craftpath: REST API, Redis-queued calculation workers, MCP server and the CLI — one binary, selected by subcommand."
+publish = false
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[lib]
+name = "craftpath_server"
+path = "src/lib.rs"
+
+[[bin]]
+name = "pyoe2-backend"
+path = "src/main.rs"
+
+[dependencies]
+craftpath-core = { workspace = true }
+craftpath-proto = { workspace = true }
+
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+clap = { workspace = true }
+ctrlc = { workspace = true }
+humansize = { workspace = true }
+indicatif = { workspace = true }
+prost = { workspace = true }
+
+tokio = { workspace = true }
+axum = { workspace = true }
+tower-http = { workspace = true }
+redis = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+futures-util = { workspace = true }
+rmcp = { workspace = true, optional = true }
+schemars = { workspace = true, optional = true }
+tokio-util = { workspace = true, optional = true }
+
+[features]
+default = ["mcp"]
+mcp = ["dep:rmcp", "dep:schemars", "dep:tokio-util"]
+
+[dev-dependencies]
+tower = { version = "0.5", features = ["util"] }
+http-body-util = "0.1"
