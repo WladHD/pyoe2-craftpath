@@ -1,11 +1,11 @@
-//! Mapping of [`CraftPathError`](crate::api::errors::CraftPathError) onto a typed
+//! Mapping of [`CraftPathError`](crate::domain::errors::CraftPathError) onto a typed
 //! Python exception hierarchy. Only compiled with the `python` feature.
 
 use pyo3::PyErr;
 use pyo3::create_exception;
 use pyo3::exceptions::PyException;
 
-use crate::api::errors::CraftPathError;
+use crate::domain::errors::CraftPathError;
 
 create_exception!(
     pyoe2_craftpath,

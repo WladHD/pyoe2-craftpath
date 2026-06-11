@@ -1,10 +1,10 @@
 use std::hash::{Hash, Hasher};
 
-use crate::api::calculator_utils::calculate_target_proximity::calculate_target_proximity;
-use crate::api::errors::CraftPathError;
-use crate::api::item::ItemTechnicalMeta;
-use crate::api::provider::market_prices::PriceInDivines;
-use crate::calc::statistics::helpers::{RouteChance, RouteCustomWeight, SubpathAmount};
+use crate::domain::proximity::calculate_target_proximity;
+use crate::domain::errors::CraftPathError;
+use crate::domain::item::ItemTechnicalMeta;
+use crate::domain::provider::market_prices::PriceInDivines;
+use crate::features::analysis::helpers::{RouteChance, RouteCustomWeight, SubpathAmount};
 use crate::progress::{NoopProgress, ProgressSink};
 use crate::{
     api::{

@@ -16,7 +16,7 @@ pub trait ProgressSink: Send + Sync {
 
     /// Polled at the same cadence as `report`. Returning `true` makes the
     /// calculation abort with [`CraftPathError::Cancelled`]
-    /// (crate::api::errors::CraftPathError::Cancelled).
+    /// (crate::domain::errors::CraftPathError::Cancelled).
     fn is_cancelled(&self) -> bool {
         false
     }

@@ -17,7 +17,7 @@ use crate::{
         provider::{item_info::ItemInfoProvider, market_prices::MarketPriceProvider},
         types::THashSet,
     },
-    calc::matrix::happy_path_impl::happy_path_matrix_builder_impl::HappyPathMatrixBuilder,
+    calc::matrix::happy_path_impl::builder::HappyPathMatrixBuilder,
     progress::{NoopProgress, ProgressSink},
 };
 
