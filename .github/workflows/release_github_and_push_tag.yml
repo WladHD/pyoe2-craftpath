@@ -47,9 +47,9 @@ jobs:
         working-directory: backend
         run: |
           source $HOME/.cargo/env
-          cargo build --release --target x86_64-pc-windows-gnu --no-default-features -p pyoe2-craftpath
+          cargo build --release --target x86_64-pc-windows-gnu --no-default-features -p craftpath-server
           cd target/x86_64-pc-windows-gnu/release/
-          cp pyoe2_craftpath_cli.exe ${{ steps.cargo.outputs.name }}-v${{ steps.cargo.outputs.version }}-windows-x86_64.exe
+          cp pyoe2-backend.exe ${{ steps.cargo.outputs.name }}-v${{ steps.cargo.outputs.version }}-windows-x86_64.exe
           pwd
           ls
 

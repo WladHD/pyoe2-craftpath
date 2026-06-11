@@ -1,0 +1,11 @@
+apiVersion: v2
+name: craftpath
+description: pyoe2-craftpath backend — REST API, calculation workers and MCP server on a Redis job queue.
+type: application
+version: 0.1.0
+appVersion: "0.6.0"
+keywords:
+  - path-of-exile-2
+  - crafting
+sources:
+  - https://github.com/WladHD/pyoe2-craftpath

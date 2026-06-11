@@ -1,0 +1,52 @@
+name: Run Python Tests
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "backend/**"
+      - "proto/**"
+      - ".github/workflows/test_python.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - "proto/**"
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Rust
+        run: |
+          curl https://sh.rustup.rs -sSf | sh -s -- -y
+          source $HOME/.cargo/env
+
+      - name: Check generated proto code is up to date
+        run: |
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends protobuf-compiler
+          ./backend/scripts/gen_proto.sh
+          git diff --exit-code -- backend/crates/pyoe2-craftpath/python/pyoe2_craftpath/_proto || {
+            echo "::error::generated proto code is stale — run backend/scripts/gen_proto.sh"; exit 1; }
+
+      - name: Build and install package with dev extras
+        working-directory: backend/crates/pyoe2-craftpath
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install maturin
+          maturin develop
+          pip install -e .[dev] --no-build-isolation || pip install pytest pytest-asyncio httpx websockets protobuf
+
+      - name: Run pytest
+        working-directory: backend/crates/pyoe2-craftpath
+        run: |
+          source .venv/bin/activate
+          python -m pytest python/tests -q

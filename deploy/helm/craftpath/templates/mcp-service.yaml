@@ -1,0 +1,19 @@
+{{- if .Values.mcp.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "craftpath.fullname" . }}-mcp
+  labels:
+    {{- include "craftpath.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mcp
+spec:
+  type: {{ .Values.mcp.service.type }}
+  selector:
+    app.kubernetes.io/name: {{ include "craftpath.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: mcp
+  ports:
+    - name: http
+      port: {{ .Values.mcp.service.port }}
+      targetPort: http
+{{- end }}

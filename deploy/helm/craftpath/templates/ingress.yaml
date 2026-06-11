@@ -1,0 +1,35 @@
+{{- if .Values.rest.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "craftpath.fullname" . }}
+  labels:
+    {{- include "craftpath.labels" . | nindent 4 }}
+  {{- with .Values.rest.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.rest.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  {{- with .Values.rest.ingress.tls }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    {{- range .Values.rest.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ include "craftpath.fullname" $ }}-rest
+                port:
+                  name: http
+          {{- end }}
+    {{- end }}
+{{- end }}

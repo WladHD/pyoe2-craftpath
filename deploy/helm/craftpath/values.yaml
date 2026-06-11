@@ -1,0 +1,78 @@
+image:
+  repository: ghcr.io/wladhd/pyoe2-craftpath-backend
+  tag: ""            # defaults to .Chart.AppVersion
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  name: ""
+
+config:
+  # league whose data is used when a job does not specify one
+  defaultLeague: "Standard"
+  # TTL for finished job data in Redis (seconds)
+  jobTtlSeconds: 86400
+  # default wall-clock timeout per job (seconds)
+  jobTimeoutSeconds: 3600
+  # upper bound for client-requested max_ram_in_bytes
+  maxRamLimitBytes: "4000000000"
+  rustLog: "info"
+
+rest:
+  replicas: 2
+  resources:
+    requests: { cpu: 100m, memory: 128Mi }
+    limits: { cpu: "1", memory: 512Mi }
+  service:
+    type: ClusterIP
+    port: 80
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts:
+      - host: craftpath.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+
+worker:
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+  # container memory limit should exceed maxRamLimitBytes plus matrix overhead
+  resources:
+    requests: { cpu: "1", memory: 1Gi }
+    limits: { cpu: "4", memory: 6Gi }
+  # emptyDir size for the league-data file cache
+  cacheSizeLimit: 1Gi
+
+mcp:
+  enabled: true
+  replicas: 1
+  resources:
+    requests: { cpu: 50m, memory: 64Mi }
+    limits: { cpu: 500m, memory: 256Mi }
+  service:
+    type: ClusterIP
+    port: 80
+
+redis:
+  # deploy a minimal single-node Redis in-cluster. Disable and set
+  # externalUrl to bring your own (e.g. a Bitnami chart or managed Redis).
+  enabled: true
+  image: redis:7-alpine
+  resources:
+    requests: { cpu: 50m, memory: 64Mi }
+    limits: { cpu: 500m, memory: 512Mi }
+  # the queue tolerates restarts; persistence is optional
+  persistence:
+    enabled: false
+    size: 1Gi
+    storageClassName: ""
+  externalUrl: ""
