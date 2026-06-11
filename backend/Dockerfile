@@ -2,7 +2,8 @@
 # Build context must be the repository root (the proto/ dir is shared):
 #   docker build -f backend/Dockerfile .
 
-FROM rust:1.96-slim AS builder
+# bookworm pin keeps the builder's glibc compatible with distroless cc-debian12
+FROM rust:1.96-slim-bookworm AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     pkg-config make perl gcc g++ ca-certificates protobuf-compiler \
