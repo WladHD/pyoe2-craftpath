@@ -21,7 +21,7 @@ type(scope): :gitmoji: imperative subject
 - **type**: `feat` | `fix` | `docs` | `test` | `chore` | `refactor` | `perf`
   | `style` | `ci`. Append `!` for breaking changes
   (`feat(api)!: ...`).
-- **scope**: the feature/package touched — e.g. `api`, `calculator`,
+- **scope**: the feature/package touched - e.g. `api`, `calculator`,
   `example`, `proto`, `server`, `python`, `deploy`, `core`,
   `external_api`, `devcontainer`, `pages`. Combined scopes as
   `(api - cli)` when one change spans two. Optional for repo-wide changes.
@@ -44,7 +44,7 @@ type(scope): :gitmoji: imperative subject
   ..."), then describe the change. Use `- ` bullets when a commit has
   several distinct parts.
 - Wrap at ~80 columns.
-- State what was **verified** (tests run, suites green, measurements) —
+- State what was **verified** (tests run, suites green, measurements) -
   especially for perf or behavior-adjacent changes.
 - **Transparency parentheticals**: if a hook/check was bypassed or could
   not run, say so and say what *was* checked, e.g.
