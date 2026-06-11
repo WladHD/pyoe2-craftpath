@@ -34,6 +34,7 @@ tracing = { workspace = true }
 clap = { workspace = true }
 ctrlc = { workspace = true }
 humansize = { workspace = true }
+indicatif = { workspace = true }
 
 [lib]
 name = "pyoe2_craftpath"

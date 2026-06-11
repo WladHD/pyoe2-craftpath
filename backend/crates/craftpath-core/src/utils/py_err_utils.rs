@@ -69,6 +69,9 @@ pub fn to_py_err(err: anyhow::Error) -> PyErr {
         Some(CraftPathError::EssenceIntermediaryStepRequired(..)) => {
             EssenceIntermediaryError::new_err(msg)
         }
+        Some(CraftPathError::Cancelled()) => {
+            pyo3::exceptions::PyInterruptedError::new_err(msg)
+        }
         None => CraftPathException::new_err(msg),
     }
 }

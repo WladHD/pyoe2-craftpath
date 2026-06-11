@@ -37,4 +37,6 @@ pub enum CraftPathError {
     EssenceIntermediaryStepRequired(AffixLocationEnum),
     #[error("Defined RAM limit of '{0}' was reached and program was aborted.")]
     RamLimitReached(String),
+    #[error("The calculation was cancelled.")]
+    Cancelled(),
 }

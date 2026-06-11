@@ -25,6 +25,7 @@ use crate::{
             SubpathAmount,
         },
     },
+    progress::ProgressSink,
     utils::float_compare,
 };
 
@@ -35,6 +36,7 @@ pub fn get_grouped_statistic_memory_efficient<T: StatisticAnalyzerCurrencyGroupC
     item_provider: &ItemInfoProvider,
     market_provider: &MarketPriceProvider,
     max_ram_in_bytes: u64,
+    sink: &dyn ProgressSink,
 ) -> Result<Vec<GroupRoute>> {
     let res: THashMap<
         Vec<&CraftCurrencyList>,
@@ -49,6 +51,7 @@ pub fn get_grouped_statistic_memory_efficient<T: StatisticAnalyzerCurrencyGroupC
         item_provider,
         market_provider,
         max_ram_in_bytes,
+        sink,
     )?;
 
     let mut data: Vec<GroupRoute> = res
@@ -94,6 +97,7 @@ pub fn get_grouped_statistic<T: StatisticAnalyzerCurrencyGroupCollectorTrait>(
     item_provider: &ItemInfoProvider,
     market_provider: &MarketPriceProvider,
     max_ram_in_bytes: u64,
+    sink: &dyn ProgressSink,
 ) -> Result<Vec<GroupRoute>> {
     let res: THashMap<Vec<&CraftCurrencyList>, Vec<Vec<RouteChance>>> =
         calculate_currency_groups::<T>(
@@ -101,6 +105,7 @@ pub fn get_grouped_statistic<T: StatisticAnalyzerCurrencyGroupCollectorTrait>(
             item_provider,
             market_provider,
             max_ram_in_bytes,
+            sink,
         )?;
 
     let mut data: Vec<GroupRoute> = res

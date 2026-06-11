@@ -1,4 +1,6 @@
 use anyhow::Result;
+
+use crate::progress::{NoopProgress, ProgressSink};
 use tracing::instrument;
 
 use crate::{
@@ -44,6 +46,26 @@ impl StatisticAnalyzerPaths for UniquePathEfficientCostStatisticAnalyzer {
         max_routes: u32,
         max_ram_in_bytes: u64,
     ) -> Result<Vec<ItemRoute>> {
+        self.get_statistic_with_progress(
+            calculator,
+            item_provider,
+            market_provider,
+            max_routes,
+            max_ram_in_bytes,
+            &NoopProgress,
+        )
+    }
+
+    #[instrument(skip_all)]
+    fn get_statistic_with_progress(
+        &self,
+        calculator: &Calculator,
+        item_provider: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+        max_routes: u32,
+        max_ram_in_bytes: u64,
+        sink: &dyn ProgressSink,
+    ) -> Result<Vec<ItemRoute>> {
         let res: Vec<ItemRouteRef<'_>> =
             calculate_crafting_paths::<UniquePathEfficientCostCollector>(
                 calculator,
@@ -52,6 +74,7 @@ impl StatisticAnalyzerPaths for UniquePathEfficientCostStatisticAnalyzer {
                 max_routes,
                 max_ram_in_bytes,
                 self.lower_is_better(),
+                sink,
             )?;
 
         Ok(finalize_routes(res))

@@ -32,7 +32,6 @@ serde_json = { workspace = true }
 reqwest = { workspace = true }
 num-integer = { workspace = true }
 num-format = { workspace = true }
-indicatif = { workspace = true }
 humansize = { workspace = true }
 rayon = { workspace = true }
 semver = { workspace = true }

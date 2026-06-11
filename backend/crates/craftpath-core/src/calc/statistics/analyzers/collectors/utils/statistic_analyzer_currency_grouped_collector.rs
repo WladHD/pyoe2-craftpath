@@ -1,9 +1,10 @@
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 use anyhow::{Result, anyhow};
 use humansize::SizeFormatter;
-use indicatif::{ProgressBar, ProgressStyle};
 use num_format::{Locale, ToFormattedString};
+
+use crate::progress::ProgressSink;
 
 use crate::{
     api::{
@@ -24,6 +25,7 @@ pub fn calculate_currency_groups<'a, T: StatisticAnalyzerCurrencyGroupCollectorT
     item_provider: &'a ItemInfoProvider,
     market_provider: &'a MarketPriceProvider,
     max_ram_in_bytes: u64,
+    sink: &dyn ProgressSink,
 ) -> Result<THashMap<Vec<&'a CraftCurrencyList>, Vec<Vec<RouteChance>>>> {
     tracing::info!("Generating unique craft paths based on item matrix");
 
@@ -47,13 +49,6 @@ pub fn calculate_currency_groups<'a, T: StatisticAnalyzerCurrencyGroupCollectorT
     let start_time = Instant::now();
     let mut count = 0usize;
     let mut collected = 0usize;
-    let pb = ProgressBar::new_spinner();
-    pb.set_style(
-        ProgressStyle::with_template("{spinner:.green} {msg}")
-            .unwrap()
-            .tick_chars("⠋⠙⠚⠞⠖⠦⠴⠲⠳⠓ "),
-    );
-    pb.enable_steady_tick(Duration::from_millis(500));
 
     while let Some((path, node)) = stack.pop() {
         count += 1;
@@ -67,12 +62,16 @@ pub fn calculate_currency_groups<'a, T: StatisticAnalyzerCurrencyGroupCollectorT
                 .into());
             }
 
+            if sink.is_cancelled() {
+                return Err(CraftPathError::Cancelled().into());
+            }
+
             let elapsed = start_time.elapsed().as_secs_f64();
             let speed = (count as f64 / elapsed).round() as u64; // integer paths/sec
             let accepted_routes = results.len();
             let est_ram_usage = SizeFormatter::new(actual_ram, humansize::DECIMAL);
 
-            pb.set_message(format!(
+            sink.report(&format!(
                     "Applied {} currencies, resulting in {} groups (from total of {} paths) [Speed: {} currencies/sec, RAM usage: {}/{}]",
                     count.to_formatted_string(&Locale::en),
                     accepted_routes.to_formatted_string(&Locale::en),
@@ -80,7 +79,9 @@ pub fn calculate_currency_groups<'a, T: StatisticAnalyzerCurrencyGroupCollectorT
                     speed.to_formatted_string(&Locale::en),
                     est_ram_usage,
                     max_ram_show
-                )
+                ),
+                collected as u64,
+                None,
             );
         }
 

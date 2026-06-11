@@ -255,7 +255,6 @@ version = "0.6.0"
 dependencies = [
  "anyhow",
  "humansize",
- "indicatif",
  "num-format",
  "num-integer",
  "openssl",
@@ -1620,6 +1619,7 @@ dependencies = [
  "craftpath-core",
  "ctrlc",
  "humansize",
+ "indicatif",
  "pyo3",
  "pyo3-stub-gen",
  "tracing",

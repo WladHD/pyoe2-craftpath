@@ -1,14 +1,14 @@
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 use std::f64;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 use anyhow::{Result, anyhow};
 use humansize::SizeFormatter;
-use indicatif::{ProgressBar, ProgressStyle};
 use num_format::{Locale, ToFormattedString};
 
 use crate::calc::statistics::helpers::RouteCustomWeight;
+use crate::progress::ProgressSink;
 use crate::{
     api::{
         calculator::{Calculator, ItemMatrixNode},
@@ -62,6 +62,7 @@ pub fn calculate_crafting_paths<'a, T: StatisticAnalyzerCollectorTrait>(
     max_routes: u32,
     max_ram_in_bytes: u64,
     lower_is_better: bool,
+    sink: &dyn ProgressSink,
 ) -> Result<Vec<ItemRouteRef<'a>>> {
     tracing::info!("Generating unique craft paths based on item matrix");
 
@@ -93,14 +94,6 @@ pub fn calculate_crafting_paths<'a, T: StatisticAnalyzerCollectorTrait>(
     let mut count = 0usize;
     let mut count_finished = 0usize;
 
-    let pb = ProgressBar::new_spinner();
-    pb.set_style(
-        ProgressStyle::with_template("{spinner:.green} {msg}")
-            .unwrap()
-            .tick_chars("⠋⠙⠚⠞⠖⠦⠴⠲⠳⠓ "),
-    );
-    pb.enable_steady_tick(Duration::from_millis(500));
-
     while let Some((path, acc_weight, node)) = stack.pop() {
         count += 1;
 
@@ -113,21 +106,29 @@ pub fn calculate_crafting_paths<'a, T: StatisticAnalyzerCollectorTrait>(
                 .into());
             }
 
+            if sink.is_cancelled() {
+                return Err(CraftPathError::Cancelled().into());
+            }
+
             let elapsed = start_time.elapsed().as_secs_f64();
             let speed = (count as f64 / elapsed).round() as u64;
             let accepted_routes = heap.len();
             let est_ram_usage = SizeFormatter::new(actual_ram, humansize::DECIMAL);
 
-            pb.set_message(format!(
-                "Applied {} currencies, resulting in {}/{} best, sorted routes (from a total of {}) [Speed: {} currencies/sec, RAM usage: {}/{}]",
-                count.to_formatted_string(&Locale::en),
-                accepted_routes.to_formatted_string(&Locale::en),
-                max_routes.to_formatted_string(&Locale::en),
-                count_finished.to_formatted_string(&Locale::en),
-                speed.to_formatted_string(&Locale::en),
-                est_ram_usage,
-                max_ram_show
-            ));
+            sink.report(
+                &format!(
+                    "Applied {} currencies, resulting in {}/{} best, sorted routes (from a total of {}) [Speed: {} currencies/sec, RAM usage: {}/{}]",
+                    count.to_formatted_string(&Locale::en),
+                    accepted_routes.to_formatted_string(&Locale::en),
+                    max_routes.to_formatted_string(&Locale::en),
+                    count_finished.to_formatted_string(&Locale::en),
+                    speed.to_formatted_string(&Locale::en),
+                    est_ram_usage,
+                    max_ram_show
+                ),
+                count_finished as u64,
+                None,
+            );
         }
 
         if node.item.helper.target_proximity == 0 {

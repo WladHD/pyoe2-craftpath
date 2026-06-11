@@ -1,4 +1,6 @@
 use anyhow::Result;
+
+use crate::progress::{NoopProgress, ProgressSink};
 use tracing::instrument;
 
 use crate::{
@@ -40,12 +42,30 @@ impl StatisticAnalyzerCurrencyGroups for CurrencyGroupChanceStatisticAnalyzer {
         market_provider: &MarketPriceProvider,
         max_ram_in_bytes: u64,
     ) -> Result<Vec<GroupRoute>> {
+        self.get_statistic_with_progress(
+            calculator,
+            item_provider,
+            market_provider,
+            max_ram_in_bytes,
+            &NoopProgress,
+        )
+    }
+
+    fn get_statistic_with_progress(
+        &self,
+        calculator: &Calculator,
+        item_provider: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+        max_ram_in_bytes: u64,
+        sink: &dyn ProgressSink,
+    ) -> Result<Vec<GroupRoute>> {
         get_grouped_statistic::<CurrencyGroupChanceCollector>(
             self.lower_is_better(),
             calculator,
             item_provider,
             market_provider,
             max_ram_in_bytes,
+            sink,
         )
     }
 

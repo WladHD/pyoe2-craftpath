@@ -5,6 +5,7 @@ use crate::api::errors::CraftPathError;
 use crate::api::item::ItemTechnicalMeta;
 use crate::api::provider::market_prices::PriceInDivines;
 use crate::calc::statistics::helpers::{RouteChance, RouteCustomWeight, SubpathAmount};
+use crate::progress::{NoopProgress, ProgressSink};
 use crate::{
     api::{
         currency::CraftCurrencyList,
@@ -118,6 +119,19 @@ pub trait MatrixBuilder: Send + Sync {
         item_info: &ItemInfoProvider,
         market_info: &MarketPriceProvider,
     ) -> Result<ItemMatrix>;
+    /// Progress/cancellation-aware variant. The default ignores the sink so
+    /// existing implementations keep working unchanged.
+    fn generate_item_matrix_with_progress(
+        &self,
+        starting_item: ItemSnapshot,
+        target: ItemSnapshot,
+        item_info: &ItemInfoProvider,
+        market_info: &MarketPriceProvider,
+        sink: &dyn ProgressSink,
+    ) -> Result<ItemMatrix> {
+        let _ = sink;
+        self.generate_item_matrix(starting_item, target, item_info, market_info)
+    }
 }
 
 #[cfg_attr(feature = "python", pyo3_stub_gen::derive::gen_stub_pyclass)]
@@ -149,6 +163,26 @@ pub trait StatisticAnalyzerPaths {
         max_routes: u32,
         max_ram_in_bytes: u64,
     ) -> Result<Vec<ItemRoute>>;
+    /// Progress/cancellation-aware variant. The default ignores the sink so
+    /// existing implementations keep working unchanged.
+    fn get_statistic_with_progress(
+        &self,
+        calculator: &Calculator,
+        item_provider: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+        max_routes: u32,
+        max_ram_in_bytes: u64,
+        sink: &dyn ProgressSink,
+    ) -> Result<Vec<ItemRoute>> {
+        let _ = sink;
+        self.get_statistic(
+            calculator,
+            item_provider,
+            market_provider,
+            max_routes,
+            max_ram_in_bytes,
+        )
+    }
     fn calculate_cost_per_craft(
         &self,
         currency: &Vec<CraftCurrencyList>,
@@ -180,6 +214,20 @@ pub trait StatisticAnalyzerCurrencyGroups {
         market_provider: &MarketPriceProvider,
         max_ram_in_bytes: u64,
     ) -> Result<Vec<GroupRoute>>;
+
+    /// Progress/cancellation-aware variant. The default ignores the sink so
+    /// existing implementations keep working unchanged.
+    fn get_statistic_with_progress(
+        &self,
+        calculator: &Calculator,
+        item_provider: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+        max_ram_in_bytes: u64,
+        sink: &dyn ProgressSink,
+    ) -> Result<Vec<GroupRoute>> {
+        let _ = sink;
+        self.get_statistic(calculator, item_provider, market_provider, max_ram_in_bytes)
+    }
 
     fn calculate_chance_for_group_step_index(
         &self,
@@ -404,17 +452,37 @@ impl Calculator {
         market_info: &MarketPriceProvider,
         matrix_builder: &dyn MatrixBuilder,
     ) -> Result<Self> {
+        Self::generate_item_matrix_with_progress(
+            starting_item,
+            target,
+            item_provider,
+            market_info,
+            matrix_builder,
+            &NoopProgress,
+        )
+    }
+
+    #[instrument(skip_all)]
+    pub fn generate_item_matrix_with_progress(
+        starting_item: ItemSnapshot,
+        target: ItemSnapshot,
+        item_provider: &ItemInfoProvider,
+        market_info: &MarketPriceProvider,
+        matrix_builder: &dyn MatrixBuilder,
+        sink: &dyn ProgressSink,
+    ) -> Result<Self> {
         tracing::info!(
             "Using '{}' to generate item matrix ...",
             matrix_builder.get_name()
         );
         tracing::info!("Description: {}", matrix_builder.get_description());
 
-        let res = matrix_builder.generate_item_matrix(
+        let res = matrix_builder.generate_item_matrix_with_progress(
             starting_item.clone(),
             target.clone(),
             item_provider,
             market_info,
+            sink,
         )?;
 
         let reached = res
@@ -445,17 +513,38 @@ impl Calculator {
         max_ram_in_bytes: u64,
         statistic_analyzer: &dyn StatisticAnalyzerPaths,
     ) -> Result<Vec<ItemRoute>> {
+        self.calculate_statistics_with_progress(
+            item_provider,
+            market_provider,
+            max_routes,
+            max_ram_in_bytes,
+            statistic_analyzer,
+            &NoopProgress,
+        )
+    }
+
+    #[instrument(skip_all)]
+    pub fn calculate_statistics_with_progress(
+        &self,
+        item_provider: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+        max_routes: u32,
+        max_ram_in_bytes: u64,
+        statistic_analyzer: &dyn StatisticAnalyzerPaths,
+        sink: &dyn ProgressSink,
+    ) -> Result<Vec<ItemRoute>> {
         tracing::info!(
             "Using '{}' to calculate statistics ...",
             statistic_analyzer.get_name()
         );
         tracing::info!("Description: {}", statistic_analyzer.get_description());
-        let res = statistic_analyzer.get_statistic(
+        let res = statistic_analyzer.get_statistic_with_progress(
             &self,
             item_provider,
             market_provider,
             max_routes,
             max_ram_in_bytes,
+            sink,
         )?;
         tracing::info!("Successfully calculated statistics.");
 
@@ -470,17 +559,36 @@ impl Calculator {
         max_ram_in_bytes: u64,
         statistic_analyzer: &dyn StatisticAnalyzerCurrencyGroups,
     ) -> Result<Vec<GroupRoute>> {
+        self.calculate_statistics_currency_group_with_progress(
+            item_provider,
+            market_provider,
+            max_ram_in_bytes,
+            statistic_analyzer,
+            &NoopProgress,
+        )
+    }
+
+    #[instrument(skip_all)]
+    pub fn calculate_statistics_currency_group_with_progress(
+        &self,
+        item_provider: &ItemInfoProvider,
+        market_provider: &MarketPriceProvider,
+        max_ram_in_bytes: u64,
+        statistic_analyzer: &dyn StatisticAnalyzerCurrencyGroups,
+        sink: &dyn ProgressSink,
+    ) -> Result<Vec<GroupRoute>> {
         tracing::info!(
             "Using '{}' to calculate statistics ...",
             statistic_analyzer.get_name()
         );
         tracing::info!("Description: {}", statistic_analyzer.get_description());
 
-        let res = statistic_analyzer.get_statistic(
+        let res = statistic_analyzer.get_statistic_with_progress(
             &self,
             item_provider,
             market_provider,
             max_ram_in_bytes,
+            sink,
         )?;
 
         tracing::info!("Successfully calculated statistics.");

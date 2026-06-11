@@ -2,6 +2,8 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 
 use anyhow::Result;
 
+use crate::progress::{NoopProgress, ProgressSink};
+
 use crate::{
     api::{
         calculator::{ItemMatrix, ItemMatrixNode, MatrixBuilder, PropagationTarget},
@@ -44,7 +46,24 @@ impl MatrixBuilder for HappyPathMatrixBuilderImpl {
         item_info: &ItemInfoProvider,
         market_info: &MarketPriceProvider,
     ) -> Result<ItemMatrix> {
-        generate_item_matrix(starting_item, target_item, item_info, market_info)
+        generate_item_matrix(
+            starting_item,
+            target_item,
+            item_info,
+            market_info,
+            &NoopProgress,
+        )
+    }
+
+    fn generate_item_matrix_with_progress(
+        &self,
+        starting_item: ItemSnapshot,
+        target_item: ItemSnapshot,
+        item_info: &ItemInfoProvider,
+        market_info: &MarketPriceProvider,
+        sink: &dyn ProgressSink,
+    ) -> Result<ItemMatrix> {
+        generate_item_matrix(starting_item, target_item, item_info, market_info, sink)
     }
 }
 
@@ -53,6 +72,7 @@ fn generate_item_matrix(
     target_item: ItemSnapshot,
     item_info: &ItemInfoProvider,
     market_info: &MarketPriceProvider,
+    sink: &dyn ProgressSink,
 ) -> Result<ItemMatrix> {
     let mut matrix = ItemMatrix::default();
     let mut todo_items: THashSet<PropagationTarget> = THashSet::default();
@@ -87,6 +107,20 @@ fn generate_item_matrix(
     let count_removed: AtomicUsize = AtomicUsize::new(0usize);
 
     while !todo_items.is_empty() {
+        if sink.is_cancelled() {
+            return Err(crate::api::errors::CraftPathError::Cancelled().into());
+        }
+
+        sink.report(
+            &format!(
+                "Building item matrix: {} nodes so far, {} items in current wave",
+                matrix.len(),
+                todo_items.len()
+            ),
+            matrix.len() as u64,
+            None,
+        );
+
         let items = todo_items
             .iter()
             .filter_map(|propagation_target| {

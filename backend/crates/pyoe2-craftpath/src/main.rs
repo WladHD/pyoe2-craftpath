@@ -19,10 +19,36 @@ fn main() -> Result<()> {
 pub mod cli {
     use std::{io::Read, path::Path};
 
+    use craftpath_core::progress::ProgressSink;
     use craftpath_core::utils::{
         logger_utils::init_tracing, ram_input_utils::parse_human_size,
         version_checker_utils::check_new_version,
     };
+    use indicatif::{ProgressBar, ProgressStyle};
+    use std::time::Duration;
+
+    /// Forwards core progress messages to a terminal spinner (the same UX the
+    /// collectors used to render directly before the ProgressSink hook).
+    struct IndicatifSink(ProgressBar);
+
+    impl IndicatifSink {
+        fn new_spinner() -> Self {
+            let pb = ProgressBar::new_spinner();
+            pb.set_style(
+                ProgressStyle::with_template("{spinner:.green} {msg}")
+                    .unwrap()
+                    .tick_chars("⠋⠙⠚⠞⠖⠦⠴⠲⠳⠓ "),
+            );
+            pb.enable_steady_tick(Duration::from_millis(500));
+            Self(pb)
+        }
+    }
+
+    impl ProgressSink for IndicatifSink {
+        fn report(&self, message: &str, _current: u64, _total: Option<u64>) {
+            self.0.set_message(message.to_string());
+        }
+    }
     use anyhow::{Result, anyhow};
     use clap::{ArgAction, Parser, ValueHint};
     use humansize::SizeFormatter;
@@ -257,7 +283,9 @@ pub mod cli {
             CraftOfExileEmulatorItemImport::parse_itemsnapshot_from_string(&i2, &item_provider)?
         };
 
-        let calculator = Calculator::generate_item_matrix(
+        let sink = IndicatifSink::new_spinner();
+
+        let calculator = Calculator::generate_item_matrix_with_progress(
             start_item,
             target_item,
             &item_provider,
@@ -266,36 +294,40 @@ pub mod cli {
                 .get_instance()
                 .0
                 .as_ref(),
+            &sink,
         )?;
 
         let chance_inst = StatisticAnalyzerPathPreset::UniquePathChance.get_instance();
 
-        let best_routes_chance = calculator.calculate_statistics(
+        let best_routes_chance = calculator.calculate_statistics_with_progress(
             &item_provider,
             &market_info,
             args.amount_routes,
             args.max_ram,
             chance_inst.0.as_ref(),
+            &sink,
         )?;
 
         let cost_inst = StatisticAnalyzerPathPreset::UniquePathCost.get_instance();
 
-        let best_routes_cost = calculator.calculate_statistics(
+        let best_routes_cost = calculator.calculate_statistics_with_progress(
             &item_provider,
             &market_info,
             args.amount_routes,
             args.max_ram,
             cost_inst.0.as_ref(),
+            &sink,
         )?;
 
         let efficient_cost_inst = StatisticAnalyzerPathPreset::UniquePathEfficiency.get_instance();
 
-        let best_routes_efficient_cost = calculator.calculate_statistics(
+        let best_routes_efficient_cost = calculator.calculate_statistics_with_progress(
             &item_provider,
             &market_info,
             args.amount_routes,
             args.max_ram,
             efficient_cost_inst.0.as_ref(),
+            &sink,
         )?;
 
         let mut groups: Option<Vec<GroupRoute>> = None;
@@ -305,7 +337,7 @@ pub mod cli {
                 StatisticAnalyzerCurrencyGroupPreset::CurrencyGroupChance.get_instance();
 
             groups = Some(
-                calculator.calculate_statistics_currency_group(
+                calculator.calculate_statistics_currency_group_with_progress(
                     &item_provider,
                     &market_info,
                     args.max_ram,
@@ -313,6 +345,7 @@ pub mod cli {
                         .get_instance()
                         .0
                         .as_ref(),
+                    &sink,
                 )?,
             );
 
@@ -328,6 +361,8 @@ pub mod cli {
                 tracing::info!("{}", out);
             }
         }
+
+        sink.0.finish_and_clear();
 
         for (analyzer, routes) in vec![
             (&chance_inst, best_routes_chance),
