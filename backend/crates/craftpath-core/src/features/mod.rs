@@ -3,6 +3,8 @@
 //! into a sibling feature.
 
 pub mod analysis;
+pub mod craftspec;
 pub mod data;
+pub mod inspect;
 pub mod matrix;
 pub mod render;
