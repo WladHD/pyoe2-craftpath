@@ -1,0 +1,52 @@
+# Auto-detect text files and normalize line endings to LF on commit
+* text=auto eol=lf
+
+# Shell scripts must always use LF (critical for Docker/Linux containers)
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Docker and devcontainer files
+Dockerfile text eol=lf
+dockerfile text eol=lf
+*.dockerfile text eol=lf
+docker-compose*.yaml text eol=lf
+docker-compose*.yml text eol=lf
+devcontainer.json text eol=lf
+
+# Config files commonly mounted into containers
+*.yaml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+*.toml text eol=lf
+
+# Source code
+*.js text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.jsx text eol=lf
+*.py text eol=lf
+*.sql text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+
+# Markdown and documentation
+*.md text eol=lf
+*.txt text eol=lf
+
+# Git and CI/CD config
+.gitignore text eol=lf
+.gitattributes text eol=lf
+.editorconfig text eol=lf
+
+# Binary files - do not normalize
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.dcm binary

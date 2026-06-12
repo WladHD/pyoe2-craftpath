@@ -1,0 +1,15 @@
+services:
+  devcontainer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ..:/workspace:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: sleep infinity
+    networks:
+      - pyoe-ext-network
+
+networks:
+  pyoe-ext-network:
+    driver: bridge
