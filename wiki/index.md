@@ -10,11 +10,11 @@ When this file exceeds ~300 lines or the wiki passes ~150 pages, shard into `wik
 
 ## Sources
 
-(populated as sources are ingested)
+- [[mcp-chat-usecases-request]] - WladHD's 2026-06 requirement messages for the chat-driven crafting assistant over MCP
 
 ## Entities
 
-(populated as entity pages are created)
+- [[pathofbuilding-poe2]] - PoB2 build planner: capabilities, and five CraftPath integration discussion points (build import, stat weights, DPS oracle, item round-trip, mod-DB validation)
 
 ## Concepts
 
@@ -22,6 +22,8 @@ When this file exceeds ~300 lines or the wiki passes ~150 pages, shard into `wik
 - [[development-strategy]] - the happy-path constraint, algorithm caveats, contribution/extension points
 - [[how-to-run]] - running CraftPath as Python library, CLI, backend services or Rust crate
 - [[commit-conventions]] - conventional-commits + gitmoji format, body rules, trailers, granularity
+- [[mcp-chat-usecases]] - persona-tiered catalog (8 beginner / 14 regular / 6 pro) of chat questions, each mapped to pipeline, status and required capability
+- [[mcp-capability-roadmap]] - MCP tool surface, engine/server gaps, EPPSSA craft-spec DSL, meta/price data sources, client-AI strategy, 5-phase roadmap
 
 ## Synthesis
 
