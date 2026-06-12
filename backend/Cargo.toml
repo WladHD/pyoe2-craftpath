@@ -11,7 +11,9 @@ authors = ["Wladislaw Jerokin <wladhd@gmail.com>"]
 
 [workspace.dependencies]
 # internal crates
-craftpath-core = { path = "crates/craftpath-core" }
+# version must stay in lockstep with [workspace.package] version - crates.io
+# strips the path, so cargo publish -p pyoe2-craftpath needs a registry version
+craftpath-core = { path = "crates/craftpath-core", version = "0.6.0" }
 craftpath-proto = { path = "crates/craftpath-proto" }
 
 # core
