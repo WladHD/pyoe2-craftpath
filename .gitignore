@@ -1,6 +1,10 @@
 target/
 cache/
 
+# local benchmark scratch (baseline worktree + warmed API cache);
+# results are tracked in backend/benches/results/
+.bench/
+
 # local agent/tooling state
 .claude/
 .claude-config/
