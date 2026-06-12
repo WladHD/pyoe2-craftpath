@@ -10,6 +10,9 @@ cache/
 .claude-config/
 .memsearch/
 
+# repo-level node tooling (husky)
+node_modules/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 .pytest_cache/

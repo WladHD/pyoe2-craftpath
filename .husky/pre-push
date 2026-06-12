@@ -1,0 +1,125 @@
+# Pre-push gate (husky): when outgoing commits touch backend/**, regenerate
+# the python stubs, run the workspace tests, the python test suite, the
+# example notebooks and the baseline-vs-head engine benchmark. Regenerated
+# stub/notebook/bench-result files are committed on their own and the branch
+# is re-pushed automatically - the original (then stale) push is aborted on
+# purpose, because git resolves the pushed SHA before this hook runs.
+#
+# Husky runs this with `sh -e`; every failable command below carries an
+# explicit handler, so errexit never fires implicitly.
+#
+# Env knobs:
+#   BENCH_RUNS=N            timed runs per binary per case (default: 3)
+#   RUN_CRITERION=1         additionally run the criterion benches
+#   BENCH_HOOK_SKIP_TESTS=1 skip `cargo test` and the python checks (benches only)
+#   SKIP_NOTEBOOKS=1        run the python tests but leave the notebooks untouched
+#   BENCH_HOOK_DRY_RUN=1    do everything except commit + re-push
+#   SKIP_BENCH_PUSH=1       bypass this hook entirely (set by the re-push)
+set -u
+
+ZERO="0000000000000000000000000000000000000000"
+STUB_FILE="backend/crates/pyoe2-craftpath/python/pyoe2_craftpath/_native.pyi"
+NOTEBOOKS_GLOB="backend/python_examples/*.ipynb"
+[ -n "${SKIP_BENCH_PUSH:-}" ] && exit 0
+
+remote="$1"
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+# --- does any outgoing commit touch backend/** ? ----------------------------
+touches_backend=0
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+    [ -z "$local_sha" ] && continue
+    [ "$local_sha" = "$ZERO" ] && continue # ref deletion
+    if [ "$remote_sha" = "$ZERO" ]; then
+        # new branch: everything not already on the remote
+        if git remote | grep -qx "$remote"; then
+            range="$local_sha --not --remotes=$remote"
+        else
+            range="$local_sha"
+        fi
+    else
+        range="$remote_sha..$local_sha"
+    fi
+    # shellcheck disable=SC2086
+    if git rev-list $range -- backend/ 2>/dev/null | grep -q .; then
+        touches_backend=1
+    fi
+done
+[ "$touches_backend" -eq 0 ] && exit 0
+
+echo "pre-push: outgoing commits touch backend/ - running stubs + tests + notebooks + benches"
+
+# --- regenerate python stubs so the tracked .pyi matches the rust API -------
+cargo run --manifest-path backend/Cargo.toml -p pyoe2-craftpath --bin stub_gen \
+    || { echo "pre-push: stub generation failed - push aborted"; exit 1; }
+
+# --- gate: tests, then benches (failure aborts the push, commits nothing) ---
+if [ -z "${BENCH_HOOK_SKIP_TESTS:-}" ]; then
+    cargo test --workspace --manifest-path backend/Cargo.toml \
+        || { echo "pre-push: cargo test failed - push aborted"; exit 1; }
+
+    # python test suite + re-execute the example notebooks (refreshes outputs)
+    backend/scripts/run_python_checks.sh \
+        || { echo "pre-push: python tests / notebooks failed - push aborted"; exit 1; }
+fi
+
+RUNS="${BENCH_RUNS:-3}" backend/scripts/bench/compare_engines.sh \
+    || { echo "pre-push: benchmark failed - push aborted"; exit 1; }
+
+if [ -n "${RUN_CRITERION:-}" ]; then
+    cargo bench --manifest-path backend/Cargo.toml -p craftpath-core --bench engine_benches \
+        || { echo "pre-push: criterion bench failed - push aborted"; exit 1; }
+fi
+
+# --- commit regenerated stubs/notebooks + new results, then re-push ---------
+stubs_dirty="$(git status --porcelain -- "$STUB_FILE")"
+notebooks_dirty="$(git status --porcelain -- $NOTEBOOKS_GLOB)"
+results_dirty="$(git status --porcelain -- backend/benches/results)"
+
+if [ -z "$stubs_dirty" ] && [ -z "$notebooks_dirty" ] && [ -z "$results_dirty" ]; then
+    echo "pre-push: stubs, notebooks and bench results unchanged - push continues"
+    exit 0
+fi
+
+branch="$(git symbolic-ref -q --short HEAD)" || {
+    echo "pre-push: detached HEAD - generated files left uncommitted, push continues"
+    exit 0
+}
+
+if [ -n "${BENCH_HOOK_DRY_RUN:-}" ]; then
+    echo "pre-push: DRY RUN - would commit stub/bench changes and re-push '$branch' to '$remote'"
+    exit 1
+fi
+
+short_head="$(git rev-parse --short HEAD)"
+
+# pathspec-limited commits: never sweep up unrelated staged work
+if [ -n "$stubs_dirty" ]; then
+    git add "$STUB_FILE"
+    git commit -m "chore(python): :label: regenerate \`_native.pyi\` stubs for $short_head" \
+        -- "$STUB_FILE" \
+        || { echo "pre-push: stub commit failed - push aborted"; exit 1; }
+fi
+
+if [ -n "$notebooks_dirty" ]; then
+    version="$(sed -n 's/^version = "\(.*\)"/\1/p' backend/Cargo.toml | head -n 1)"
+    git add $NOTEBOOKS_GLOB
+    git commit -m "docs(example): :sparkles: rerun Jupyter Notebook for version ${version:-$short_head}" \
+        -- $NOTEBOOKS_GLOB \
+        || { echo "pre-push: notebook commit failed - push aborted"; exit 1; }
+fi
+
+if [ -n "$results_dirty" ]; then
+    git add backend/benches/results
+    git commit -m "test(core): :chart_with_upwards_trend: record bench results for $short_head vs ${BASELINE_REF:-0.5.1}" \
+        -- backend/benches/results \
+        || { echo "pre-push: result commit failed - push aborted"; exit 1; }
+fi
+
+SKIP_BENCH_PUSH=1 git push "$remote" "$branch" \
+    || { echo "pre-push: re-push failed - changes are committed, push manually"; exit 1; }
+
+echo "pre-push: regenerated stubs / notebooks / bench results committed and pushed."
+echo "pre-push: the original push is aborted on purpose (it pointed at the pre-result commit)."
+exit 1

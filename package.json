@@ -1,0 +1,11 @@
+{
+  "name": "pyoe2-craftpath-repo",
+  "private": true,
+  "description": "Repo-level tooling only (husky git hooks) - the actual packages live in backend/",
+  "scripts": {
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}
