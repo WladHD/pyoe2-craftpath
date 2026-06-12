@@ -26,27 +26,31 @@ def main():
         raw_fetched_responses)
 
     # everything else just checks validity
-    test_currency = economy.cache_market_prices.get(
-        pc.ItemName("Perfect Orb of Transmutation"))
-    test_ritual = economy.cache_market_prices.get(
-        pc.ItemName("Omen of the Blackblooded"))
-    test_essence = economy.cache_market_prices.get(
-        pc.ItemName("Perfect Essence of Ruin"))
-    test_abyss = economy.cache_market_prices.get(
-        pc.ItemName("Kulemak's Invitation"))
+    # poe.ninja prunes items that have not traded recently, so only the three
+    # reference currencies are guaranteed to stay listed - probe those plus
+    # the overall parse result instead of asserting on tradeable item names
+    print(f"Parsed {len(economy.cache_market_prices)} market prices")
+    assert len(economy.cache_market_prices) > 0
 
-    assert (test_currency != None)
-    assert (test_ritual != None)
-    assert (test_essence != None)
-    assert (test_abyss != None)
+    test_divine = economy.cache_market_prices.get(pc.ItemName("Divine Orb"))
+    test_exalted = economy.cache_market_prices.get(pc.ItemName("Exalted Orb"))
+    test_chaos = economy.cache_market_prices.get(pc.ItemName("Chaos Orb"))
 
-    print(economy.currency_convert(test_abyss, pc.PriceKind.Divine))  # no change
-    print(economy.currency_convert(test_abyss, pc.PriceKind.Exalted))
-    print(economy.currency_convert(test_abyss, pc.PriceKind.Chaos))
+    assert (test_divine != None)
+    assert (test_exalted != None)
+    assert (test_chaos != None)
+
+    # pick a tradeable item from the parsed data for the conversion checks
+    example_name, example_price = next(iter(economy.cache_market_prices.items()))
+    print(f"Converting prices of '{example_name.raw_value}'")
+
+    print(economy.currency_convert(example_price, pc.PriceKind.Divine))
+    print(economy.currency_convert(example_price, pc.PriceKind.Exalted))
+    print(economy.currency_convert(example_price, pc.PriceKind.Chaos))
 
     # wont write assert for that since its float comp
-    print(test_abyss == test_abyss)
-    print(test_abyss.get_divine_value() == test_abyss.get_divine_value())
+    print(example_price == example_price)
+    print(example_price.get_divine_value() == example_price.get_divine_value())
 
     assert (pc.PriceInDivines(5) > pc.PriceInDivines(4))
     assert (pc.PriceInDivines(3) < pc.PriceInDivines(4))

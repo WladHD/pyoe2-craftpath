@@ -34,9 +34,9 @@ def main():
         raw_fetched_responses_economy)
 
     # load raw item snapshot json created and exported from Emulator in https://www.craftofexile.com/
-    with open('example_items/start_item_magic_1_affix_bow.json', 'r', encoding='utf-8') as f:
+    with open('example_items/startitem_good_essence_bow.json', 'r', encoding='utf-8') as f:
         start_raw_string = f.read()
-    with open('example_items/target_item_desecrated_essence_rare_4_affix_bow.json', 'r', encoding='utf-8') as f:
+    with open('example_items/targetitem_good_essence_bow.json', 'r', encoding='utf-8') as f:
         end_raw_string = f.read()
 
     # parse item snapshot
