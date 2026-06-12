@@ -13,7 +13,7 @@ Four layers, one tool each. Each layer answers a distinct question - pick the ri
 
 ## Repo layout
 
-The Rust + PyO3 core (CLI, Python package `pyoe2-craftpath`) lives under `backend/` - build and test from there (`cargo test`, `maturin develop` / `uv`). `frontend/` is an empty placeholder for the upcoming rework.
+The Rust + PyO3 core (CLI, Python package `pyoe2-craftpath`) lives under `backend/` - build and test from there (`cargo test`, `maturin develop` / `uv`). `backend/scripts/setup_python_env.sh` creates the python dev venv (deps pinned in `backend/requirements-dev.txt`). `frontend/` is an empty placeholder for the upcoming rework.
 
 Benchmarks: criterion benches live in `backend/crates/craftpath-core/benches/`, the baseline-vs-head CLI harness in `backend/scripts/bench/`, committed results in `backend/benches/results/`. Run `npm install` once per clone to activate the husky pre-push hook (`.husky/pre-push`) that regenerates the python stubs, runs the rust and python tests, reruns the example notebooks and benches `backend/**` changes automatically.
 

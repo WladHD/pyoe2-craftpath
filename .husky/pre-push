@@ -59,7 +59,8 @@ if [ -z "${BENCH_HOOK_SKIP_TESTS:-}" ]; then
     cargo test --workspace --manifest-path backend/Cargo.toml \
         || { echo "pre-push: cargo test failed - push aborted"; exit 1; }
 
-    # python test suite + re-execute the example notebooks (refreshes outputs)
+    # python test suite + clean and rerun the example notebooks; any cell
+    # error aborts the push (tracebacks are kept in the notebook outputs)
     backend/scripts/run_python_checks.sh \
         || { echo "pre-push: python tests / notebooks failed - push aborted"; exit 1; }
 fi
