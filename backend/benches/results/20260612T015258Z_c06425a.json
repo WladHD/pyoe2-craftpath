@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "timestamp": "20260612T015258Z",
+    "baseline_ref": "0.5.1",
+    "baseline_sha": "2afee3d377ca8ff2a81810f94f275bd0a7240144",
+    "head_ref": "c06425a",
+    "head_sha": "c06425ad6d49768a3a10b8769a73686e9285e9d4",
+    "head_dirty": false,
+    "runs": 5,
+    "timer": "bash",
+    "host": "8a525f8fbf97",
+    "cpu": "Intel(R) Core(TM) i9-9900K CPU @ 3.60GHz",
+    "league": "Standard"
+  },
+  "cases": {
+    "good_essence_bow": {
+      "baseline_s": {
+        "mean": 0.456,
+        "min": 0.443,
+        "max": 0.470
+      },
+      "head_s": {
+        "mean": 0.604,
+        "min": 0.524,
+        "max": 0.690
+      },
+      "speedup": 0.7549668874172186
+    },
+    "expensive_rare_bow": {
+      "baseline_s": {
+        "mean": 11.573,
+        "min": 11.202,
+        "max": 12.283
+      },
+      "head_s": {
+        "mean": 1.169,
+        "min": 1.105,
+        "max": 1.231
+      },
+      "speedup": 9.899914456800685
+    },
+    "magic_to_desecrated_rare": {
+      "baseline_s": {
+        "mean": 0.219,
+        "min": 0.207,
+        "max": 0.236
+      },
+      "head_s": {
+        "mean": 0.263,
+        "min": 0.258,
+        "max": 0.273
+      },
+      "speedup": 0.8326996197718631
+    }
+  }
+}
