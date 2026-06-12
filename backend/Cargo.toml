@@ -39,6 +39,9 @@ openssl-sys = { version = "0.9", features = ["vendored"] }
 pyo3 = "0.27.1"
 pyo3-stub-gen = "0.16.1"
 
+# benches
+criterion = "0.7"
+
 # wire contract
 prost = "0.14"
 prost-build = "0.14"

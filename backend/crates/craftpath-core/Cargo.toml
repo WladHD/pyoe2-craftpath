@@ -37,3 +37,10 @@ rayon = { workspace = true }
 semver = { workspace = true }
 openssl = { workspace = true }
 openssl-sys = { workspace = true }
+
+[dev-dependencies]
+criterion = { workspace = true }
+
+[[bench]]
+name = "engine_benches"
+harness = false

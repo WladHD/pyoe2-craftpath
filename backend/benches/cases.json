@@ -1,0 +1,17 @@
+[
+  {
+    "name": "good_essence_bow",
+    "start": "python_examples/example_items/startitem_good_essence_bow.json",
+    "target": "python_examples/example_items/targetitem_good_essence_bow.json"
+  },
+  {
+    "name": "expensive_rare_bow",
+    "start": "python_examples/example_items/expensive_start_item_rare_0_affix_bow.json",
+    "target": "python_examples/example_items/expensive_target_item_rare_6_affix_bow.json"
+  },
+  {
+    "name": "magic_to_desecrated_rare",
+    "start": "python_examples/example_items/start_item_magic_1_affix_bow.json",
+    "target": "python_examples/example_items/target_item_desecrated_essence_rare_4_affix_bow.json"
+  }
+]
