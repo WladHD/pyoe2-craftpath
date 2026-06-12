@@ -59,6 +59,9 @@ redis = { version = "1.2", features = ["tokio-comp", "connection-manager"] }
 uuid = { version = "1", features = ["v7"] }
 chrono = { version = "0.4", features = ["serde"] }
 futures-util = "0.3"
+base64 = "0.22"
+flate2 = "1.1"
+quick-xml = "0.37"
 rmcp = { version = "1.7", features = ["server", "macros", "transport-io", "transport-streamable-http-server", "schemars"] }
 schemars = "1.0"
 tokio-util = "0.7"

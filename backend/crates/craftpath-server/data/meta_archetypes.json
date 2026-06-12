@@ -1,0 +1,133 @@
+{
+  "source": "curated-static",
+  "updated": "2026-06-12",
+  "game_patch": "0.5.x",
+  "disclaimer": "Hand-curated starter archetypes, not live ladder data. Affix names are search hints for search_affixes; tiers and exact mods depend on base and item level. Replace/extend via META_ARCHETYPES_PATH or a future live meta provider.",
+  "archetypes": [
+    {
+      "slot": "bow",
+      "item_class": "Bow",
+      "char_classes": ["Ranger", "Amazon", "Deadeye"],
+      "level_bracket": "endgame",
+      "archetype": "physical attack bow",
+      "affixes": [
+        "increased Physical Damage",
+        "Adds # to # Physical Damage",
+        "increased Attack Speed",
+        "Level of all Projectile Skills",
+        "increased Critical Hit Chance",
+        "Critical Damage Bonus"
+      ],
+      "craft_spec": "PPPSSS",
+      "notes": "Damage prefixes first; attack speed and crit suffixes. Desecrated suffix variants exist for the abyss slot."
+    },
+    {
+      "slot": "bow",
+      "item_class": "Bow",
+      "char_classes": ["Ranger", "Amazon"],
+      "level_bracket": "leveling",
+      "archetype": "leveling bow",
+      "affixes": [
+        "increased Physical Damage",
+        "Adds # to # Physical Damage",
+        "increased Attack Speed"
+      ],
+      "craft_spec": "PPS",
+      "notes": "A 3-mod magic/rare bow with flat phys and attack speed carries to maps; do not overinvest before item level 80 bases."
+    },
+    {
+      "slot": "crossbow",
+      "item_class": "Crossbow",
+      "char_classes": ["Mercenary", "Witchhunter"],
+      "level_bracket": "endgame",
+      "archetype": "physical crossbow",
+      "affixes": [
+        "increased Physical Damage",
+        "Adds # to # Physical Damage",
+        "increased Attack Speed",
+        "Level of all Projectile Skills"
+      ],
+      "craft_spec": "PPPSS",
+      "notes": "Same damage core as bows; reload-relevant suffixes are build dependent."
+    },
+    {
+      "slot": "wand",
+      "item_class": "Wand",
+      "char_classes": ["Sorceress", "Stormweaver", "Witch"],
+      "level_bracket": "endgame",
+      "archetype": "spell damage wand",
+      "affixes": [
+        "increased Spell Damage",
+        "Level of all Spell Skills",
+        "increased Cast Speed",
+        "increased Critical Hit Chance for Spells",
+        "increased Mana Regeneration Rate"
+      ],
+      "craft_spec": "PPSS",
+      "notes": "Spell damage + skill levels prefixes are the value; cast speed suffix third."
+    },
+    {
+      "slot": "quarterstaff",
+      "item_class": "Quarterstaff",
+      "char_classes": ["Monk", "Invoker"],
+      "level_bracket": "endgame",
+      "archetype": "attack quarterstaff",
+      "affixes": [
+        "increased Physical Damage",
+        "Adds # to # Lightning Damage",
+        "increased Attack Speed",
+        "increased Critical Hit Chance"
+      ],
+      "craft_spec": "PPSS",
+      "notes": "Flat lightning scales well with Monk crit builds."
+    },
+    {
+      "slot": "body_armour",
+      "item_class": "Body Armour",
+      "char_classes": ["any"],
+      "level_bracket": "endgame",
+      "archetype": "defensive body armour",
+      "affixes": [
+        "to maximum Life",
+        "increased Armour",
+        "increased Evasion Rating",
+        "to all Elemental Resistances",
+        "to Fire Resistance",
+        "to Cold Resistance"
+      ],
+      "craft_spec": "PPSS",
+      "notes": "Life prefix + two resistance suffixes is the universal baseline on every defensive slot."
+    },
+    {
+      "slot": "ring",
+      "item_class": "Ring",
+      "char_classes": ["any"],
+      "level_bracket": "endgame",
+      "archetype": "resistance/life ring",
+      "affixes": [
+        "to maximum Life",
+        "to Fire Resistance",
+        "to Cold Resistance",
+        "to Lightning Resistance",
+        "increased Rarity of Items found"
+      ],
+      "craft_spec": "PSS",
+      "notes": "Rings cap resistances; rarity is a luxury suffix once capped."
+    },
+    {
+      "slot": "boots",
+      "item_class": "Boots",
+      "char_classes": ["any"],
+      "level_bracket": "any",
+      "archetype": "movement boots",
+      "affixes": [
+        "increased Movement Speed",
+        "to maximum Life",
+        "to Fire Resistance",
+        "to Cold Resistance"
+      ],
+      "craft_spec": "PPSS",
+      "notes": "Movement speed prefix is non-negotiable on every build."
+    }
+  ]
+}

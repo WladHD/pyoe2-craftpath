@@ -5,6 +5,9 @@ pub mod cli;
 pub mod config;
 pub mod jobs;
 pub mod league;
+pub mod meta;
+pub mod pob;
+pub mod providers;
 #[cfg(feature = "mcp")]
 pub mod mcp;
 pub mod rest;

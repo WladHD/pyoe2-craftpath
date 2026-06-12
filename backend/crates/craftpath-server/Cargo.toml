@@ -38,6 +38,9 @@ redis = { workspace = true }
 uuid = { workspace = true }
 chrono = { workspace = true }
 futures-util = { workspace = true }
+base64 = { workspace = true }
+flate2 = { workspace = true }
+quick-xml = { workspace = true }
 rmcp = { workspace = true, optional = true }
 schemars = { workspace = true, optional = true }
 tokio-util = { workspace = true, optional = true }
