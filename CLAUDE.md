@@ -15,6 +15,8 @@ Four layers, one tool each. Each layer answers a distinct question - pick the ri
 
 The Rust + PyO3 core (CLI, Python package `pyoe2-craftpath`) lives under `backend/` - build and test from there (`cargo test`, `maturin develop` / `uv`). `frontend/` is an empty placeholder for the upcoming rework.
 
+Benchmarks: criterion benches live in `backend/crates/craftpath-core/benches/`, the baseline-vs-head CLI harness in `backend/scripts/bench/`, committed results in `backend/benches/results/`. Run `.githooks/install.sh` once per clone to activate the pre-push hook that benches `backend/**` changes automatically.
+
 ## Commit messages
 
 Format: `<type>(<scope>): <:gitmoji:> <subject>` - scope optional; omit for repo-wide changes (`<type>: <:gitmoji:> <subject>`). Version bumps use the exact form `chore: :bookmark: bump version to <X.Y.Z>` and change only the version files.
