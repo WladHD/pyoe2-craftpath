@@ -34,18 +34,18 @@ Today (`backend/crates/craftpath-server/src/mcp/mod.rs`): `submit_calculation`
 | `list_presets` | sync | keep | enumerate builders/analyzers |
 | `submit_calculation` | job | extend | `target: TargetSpec` = exact \| template \| craft_spec; optional `budget_divines`, `restrict_currencies` (R3, P1, P3) |
 | `get_job_result` | sync | extend | `format="mermaid"` route graph; `format="json"` gains per-step metadata: affix counts, risk class, branch chances (R9, R10, B8, P4) |
-| `await_job` | job | new | long-poll until state change or timeout; MCP progress notifications where supported (R13, R14) |
-| `search_affixes` | sync | new | fuzzy name/description search over cached affix tables; filters: base, location, class, min ilvl (B1, B2, B7, R3, P1) |
-| `get_base_items` | sync | new | resolve base/item-class names to ids, max affixes/sockets (R3) |
-| `parse_item` | sync | new | CoE JSON (exists internally) + in-game clipboard text -> `ItemSnapshot` + sanity check (B1, R2, R7) |
-| `parse_craft_spec` | sync | new | EPPSSA grammar -> target template + validation + fan-out estimate (P1) |
-| `get_meta_items` | sync | new | ranked "currently good" archetypes per item class / char class / level bracket, with `data_freshness` (B6, R1, P2) |
-| `get_currency_prices` | sync | new | currency -> divines map + div/exalt/chaos rates (R5) |
-| `get_legal_actions` | sync | new | which currencies apply to *this* item, what each does, risk class (B3, B8, R6) |
-| `simulate_action` | sync | new | one-step outcome distribution for (item, currency) (B7, R4) |
+| `await_job` | job | shipped 2026-06-12 | long-poll until state change or timeout; MCP progress notifications where supported (R13, R14) |
+| `search_affixes` | sync | shipped 2026-06-12 | fuzzy name/description search over cached affix tables; filters: base, location, class, min ilvl (B1, B2, B7, R3, P1) |
+| `get_base_items` | sync | shipped 2026-06-12 | resolve base/item-class names to ids, max affixes/sockets (R3) |
+| `parse_item` | sync | shipped 2026-06-12 (CoE JSON; in-game text open) | CoE JSON (exists internally) + in-game clipboard text -> `ItemSnapshot` + sanity check (B1, R2, R7) |
+| `parse_craft_spec` | sync | shipped 2026-06-12 | EPPSSA grammar -> target template + validation + fan-out estimate (P1) |
+| `get_meta_items` | sync | shipped 2026-06-12 (curated static v1) | ranked "currently good" archetypes per item class / char class / level bracket, with `data_freshness` (B6, R1, P2) |
+| `get_currency_prices` | sync | shipped 2026-06-12 | currency -> divines map + div/exalt/chaos rates (R5) |
+| `get_legal_actions` | sync | shipped 2026-06-12 | which currencies apply to *this* item, what each does, risk class (B3, B8, R6) |
+| `simulate_action` | sync | shipped 2026-06-12 | one-step outcome distribution for (item, currency) (B7, R4) |
 | `recommend_affixes` | sync | new | compatibility-filtered affix suggestions for an item (R7) |
 | `get_item_price_estimate` | sync | new, flagged | trade2 listing percentiles for a template; rate-limited (B5, P5) |
-| `import_pob_build` | sync | new | decode PoB2 share code -> class, level, items (P6, see [[pathofbuilding-poe2]]) |
+| `import_pob_build` | sync | shipped 2026-06-12 | decode PoB2 share code -> class, level, items (P6, see [[pathofbuilding-poe2]]) |
 | `submit_reachability` | job | new | budget (divines or currency inventory) + candidate templates -> expected cost, p(success within budget), best route each (B4, R2, R8, P2, P5) |
 
 ## Engine and server gaps
@@ -66,14 +66,18 @@ Mapped to crates; one-way layering per [[architecture]].
   as parallel jobs on the existing queue (pure composition of (a)+(b)).
   v2 (stretch) = target-free exploration builder + forward value pass;
   state-explosion risk, do not block chat UX on it.
-- **(d) Craft-spec parser**: new `features/craftspec` module, pure function
-  `(spec, base, bindings, provider) -> TargetTemplate`. Low effort.
-- **(e) `simulate_action`**: expose a single propagator step. Low effort.
+- **(d) Craft-spec parser**: `features/craftspec` shipped 2026-06-12 -
+  candidate pools, fan-out estimate, exact `ItemSnapshot` for fully pinned
+  specs.
+- **(e) `simulate_action`**: shipped 2026-06-12 as `features/inspect` -
+  target-free weighted-pool distribution (additive orbs, desecration,
+  essences, annulment) independent of the happy-path propagators.
 - **(f) In-game clipboard item parser** alongside the CoE importer.
 - **(g) Wire types**: TargetSpec, reachability job, progress payloads in
   `craftpath-proto` + root `proto/` (buf).
-- **(h) Risk classification**: static currency-property table (irreversible /
-  destructive-reroll / brick-risk / safe). Trivial.
+- **(h) Risk classification**: shipped 2026-06-12 in
+  `domain/currency_data.rs` (`CurrencyRiskClass`), surfaced by
+  `get_legal_actions`.
 - **(i) Mermaid route renderer** in `features/render`.
 - **(j) Inventory-constrained reachability**: v1 divine-value conversion +
   restricted action alphabet; v2 exact step counts in the search.
@@ -152,8 +156,8 @@ Recommendation: **do not train a model and do not add a dedicated second AI.**
 
 | Phase | Scope | Unblocks |
 |-------|-------|----------|
-| 1 | sync lookups (`search_affixes`, `get_base_items`, `get_currency_prices`), `get_legal_actions` + risk table, `parse_item`, static `get_meta_items` | B1-B3, B6-B8, R1, R5, R6, R12; R7 partial; no engine changes |
-| 2 | `parse_craft_spec`, budget annotations (b), `simulate_action`, step metadata + Mermaid in `get_job_result`, `await_job` + progress instrumentation (l) | R4, R9, R10, R13, R14; P1 for fully pinned specs |
+| 1 (done 2026-06-12) | sync lookups (`search_affixes`, `get_base_items`, `get_currency_prices`), `get_legal_actions` + risk table, `parse_item` (CoE), static `get_meta_items` | B1-B3, B6-B8, R1, R5, R6, R12; R7 partial; no engine changes |
+| 2 (partial: parser, `simulate_action`, `await_job` + PoB import done 2026-06-12) | `parse_craft_spec`, budget annotations (b), `simulate_action`, step metadata + Mermaid in `get_job_result`, `await_job` + progress instrumentation (l) | R4, R9, R10, R13, R14; P1 for fully pinned specs |
 | 3 | fuzzy targets (a) through builder, proto and `submit_calculation` | R3, P1 complete; P3, P4 |
 | 4 | `submit_reachability` (c v1, inventory v1), live meta ingestion, `get_item_price_estimate`, `import_pob_build` + stat weights | B4, B5, R2, R8; R7 complete; P2, P5; P6 v1 |
 | 5 | stretch: reachability v2, inventory exact step counts, quality modeling (k), PoB DPS oracle | R11, P6 full |

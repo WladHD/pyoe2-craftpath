@@ -43,21 +43,21 @@ flowchart LR
 
 Player pastes in-game item text. Pipeline: `parse_item` -> affix explanations
 via `search_affixes` -> comparison against `get_meta_items` archetypes.
-**Partial**: only CoE-emulator JSON import exists today; needs the in-game
-clipboard parser, the lookup tools and meta data.
+**Partial**: `parse_item` (CoE JSON), `search_affixes` and `get_meta_items`
+shipped 2026-06-12; the in-game clipboard parser is still missing.
 
 ### B2 "What does Essence of the Body do? When should I use essences?"
 
 Pure metadata lookup: `search_affixes(affix_class=essence)` over the essence
-tables already cached in `ItemInfoProvider`. **Partial**: data is in memory,
-no tool exposes it.
+tables already cached in `ItemInfoProvider`. **Works today**: `search_affixes`
+ships with class/location filters (2026-06-12).
 
 ### B3 "Why can't I add another mod to my bow?"
 
 `get_legal_actions` explains the rule that blocks the player (rarity ceiling,
 `max_affix`, prefix/suffix split) and lists which currencies are legal next
-and what each would do. **New** (cheap: wraps `sanity_check_item` +
-`BaseGroupDefinition` + propagator legality).
+and what each would do. **Works today**: `get_legal_actions` ships with per-currency risk classes
+(2026-06-12).
 
 ### B4 "I have 5 exalts - how can I improve my bow?"
 
@@ -72,30 +72,31 @@ trade listings. **New** (Phase 4; price tool is feature-flagged).
 
 ### B6 "I'm a level 30 Ranger - what weapon should I be using?"
 
-`get_meta_items(level_bracket="leveling", char_class="Ranger")`. **New**
-(meta provider; static archetype JSON in v1).
+`get_meta_items(level_bracket="leveling", char_class="Ranger")`. **Partial**: curated static
+catalog shipped 2026-06-12; live meta data still open.
 
 ### B7 "If I desecrate this item, what affixes can I get?"
 
 `simulate_action(item, desecrate)` returns the one-step outcome distribution;
 `search_affixes(affix_class=desecrated)` lists the pool for the base group.
-**Partial**: the desecration propagator computes exactly this; no tool
-exposes a single step.
+**Works today**: `simulate_action` ships the desecration preview
+(2026-06-12).
 
 ### B8 "Which crafting steps are dangerous or not reversible?"
 
 Per-step risk classification: vaal/corruption = irreversible, fracturing =
 permanent, chaos = full reroll loses progress, annulment = can brick the
 item. Deterministic currency-property table, surfaced in `get_legal_actions`
-and as annotations on every returned route. **New** (cheap).
+and as annotations on every returned route. **Works today** in
+`get_legal_actions` (2026-06-12); per-route step annotations still open.
 
 ## Regular gamer
 
 ### R1 "I want a good bow - what is currently good?"
 
 `get_meta_items(item_class="bow", char_class?, level?)`: ranked affix
-archetypes with popularity, typical tiers and price bands. **New** (meta
-provider; the original seed use case).
+archetypes with popularity, typical tiers and price bands. **Partial**: `get_meta_items` ships
+with a curated static catalog (2026-06-12); live meta ingestion still open.
 
 ### R2 "I have a bow with X - what good enchant can I get with 2 divines on average?"
 
@@ -113,17 +114,17 @@ exist; needs lookup tools and fuzzy targets.
 ### R4 "If I exalt-slam this right now, what are the odds of something good?"
 
 `simulate_action(item, exalted_orb)`: one-step outcome distribution grouped
-by affix. **Partial**: propagators compute it; tool is new.
+by affix. **Works today**: `simulate_action` (2026-06-12).
 
 ### R5 "What's the divine-to-exalt rate? What does a Perfect Jeweller's cost?"
 
 `get_currency_prices`: the cached `MarketPriceProvider` exposed as a tool.
-**Partial** (trivial).
+**Works today**: `get_currency_prices` (2026-06-12).
 
 ### R6 "Which omen protects my prefixes if I chaos this?"
 
 `get_legal_actions(item)` filtered to omen interactions on the concrete item.
-**New** (rides on B3).
+**Works today**: via `get_legal_actions` (2026-06-12).
 
 ### R7 "I have a bow with affixes X - what affixes would you recommend adding?"
 
@@ -170,15 +171,17 @@ stretch item (roadmap Phase 5).
 
 `await_job(job_id, timeout_seconds)`: long-poll that returns on state change
 or timeout so the client does not spam `get_job_status`; MCP progress
-notifications where the client supports them. **New** (cheap).
+notifications where the client supports them. **Works today**: `await_job`
+(2026-06-12).
 
 ### R14 "What is the calculation doing right now?"
 
 Live progress: workers publish structured progress to Redis (phase = matrix
 wave N / analyzing, frontier size, nodes expanded, RAM in use, routes found
 so far, rough ETA), surfaced through `get_job_status`/`await_job` and the
-existing WebSocket endpoint for the future frontend. **New** (worker
-instrumentation).
+existing WebSocket endpoint for the future frontend. **Partial**:
+phase/percent/routes-found progress is live via `get_job_status`/`await_job`
+(2026-06-12); finer wave/RAM detail still open.
 
 ## Pro
 
@@ -188,7 +191,9 @@ instrumentation).
 [[mcp-capability-roadmap]]) into a target template, reports validation errors
 and the concrete-target fan-out; the LLM pins wildcard slots via
 `search_affixes` if the fan-out is too large, then submits the calculation.
-**New** (parser + fuzzy targets; the original seed use case).
+**Partial**: `parse_craft_spec` shipped 2026-06-12 - fully pinned specs
+yield an exact target for `submit_calculation` today; unpinned specs await
+the fuzzy-target matcher.
 
 ### P2 "I play Amazon - what BIS item can I craft with a budget of 1 divine?"
 
@@ -219,16 +224,20 @@ template = expected margin; multiply out by batch size LLM-side. **New**
 
 `import_pob_build` decodes the share code (class, level, equipped items),
 then candidate outcomes are scored by build impact: stat weights first, a
-headless PoB DPS oracle as a stretch. **New**; discussion points in
-[[pathofbuilding-poe2]].
+headless PoB DPS oracle as a stretch. **Partial**: `import_pob_build` shipped 2026-06-12 (share-code decode:
+class, level, item texts); stat-weight/DPS scoring still open - discussion
+points in [[pathofbuilding-poe2]].
 
 ## Coverage summary
 
+Status after the 2026-06-12 capability drop (Phase 1 + the cheap Phase 2/4
+wins shipped in `backend/crates/`):
+
 | Tier | Works today | Partial | New |
 |------|-------------|---------|-----|
-| Beginner (B1-B8) | - | B1, B2, B7 | B3-B6, B8 |
-| Regular (R1-R14) | R12 | R3-R5, R10 | R1-R2, R6-R9, R11 (gap), R13-R14 |
-| Pro (P1-P6) | - | P3, P4 | P1, P2, P5, P6 |
+| Beginner (B1-B8) | B2, B3, B7, B8 | B1, B6 | B4, B5 |
+| Regular (R1-R14) | R4, R5, R6, R12, R13 | R1, R3, R10, R14 | R2, R7, R8, R9, R11 (gap) |
+| Pro (P1-P6) | - | P1, P3, P4, P6 | P2, P5 |
 
 Everything in the "new" column maps to a concrete tool or engine item in
 [[mcp-capability-roadmap]]; nothing requires training a model or a second AI.
